@@ -41,7 +41,8 @@ module.exports = (sequelize) => {
       values: [Status.PENDING, Status.APPROVED, Status.REJECTED, Status.CANCELLED],
       defaultValue: Status.PENDING
     },
-    geolocation: DataTypes.GEOMETRY('POINT') // eslint-disable-line new-cap
+    geolocation: DataTypes.GEOMETRY('POINT'), // eslint-disable-line new-cap
+    offerAuthors: DataTypes.ARRAY(DataTypes.TEXT) // eslint-disable-line new-cap
   }, {
     freezeTableName: true
   });
@@ -54,6 +55,16 @@ module.exports = (sequelize) => {
     this.status = Status.REJECTED;
   };
 
+  PropertyEnlistment.prototype.addOfferAuthor = function(author) {
+    this.offerAuthors = this.offerAuthors.concat(author);
+  };
+
+  PropertyEnlistment.prototype.toJSON = function() {
+    let values = Object.assign({}, this.get());
+    delete values.offerAuthors; // internal use only
+    return values;
+  };
+
   PropertyEnlistment.findInArea = function(latitude, longitude, distance) {
     const query = `
     SELECT
@@ -61,6 +72,7 @@ module.exports = (sequelize) => {
     FROM
         "property_enlistments"
     WHERE
+        status = '${Status.APPROVED}' AND
         ST_Distance_Sphere(ST_MakePoint(:latitude, :longitude), "geolocation") < :maxDistance
     `;
 

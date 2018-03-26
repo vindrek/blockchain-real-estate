@@ -28,14 +28,24 @@ module.exports = {
     res.status(200).send();
   },
 
-  async findInArea(req, res) {
-    if (!req.query.latitude || !req.query.longitude) {
-      throw new Error('Latitude and longitude are required');
+  async findEnlistments(req, res) {
+    if ((req.query.latitude || req.query.longitude || req.query.distance) &&
+      !(req.query.latitude && req.query.longitude && req.query.distance)) {
+      return res.status(400).send('Latitude, longitude and distance are all required for geosearch');
     }
 
-    const enlistments = await PropertyEnlistmentService.findInArea(
-      parseFloat(req.query.latitude), parseFloat(req.query.longitude), parseFloat(req.query.distance)) || [];
+    let enlistments;
 
+    if (req.query.admin) {
+      enlistments = await PropertyEnlistmentService.findAllUnpublished();
+    } else if (req.query.latitude && req.query.longitude && req.query.distance) {
+      enlistments = await PropertyEnlistmentService.findInArea(
+        parseFloat(req.query.latitude), parseFloat(req.query.longitude), parseFloat(req.query.distance)) || [];
+    } else if (req.query.bidder) {
+      enlistments = await PropertyEnlistmentService.findWithOffersByBidder(req.query.bidder);
+    } else {
+      enlistments = await PropertyEnlistmentService.findAllReviewed();
+    }
     res.json(enlistments);
   }
 };

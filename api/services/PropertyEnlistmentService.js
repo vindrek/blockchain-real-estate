@@ -1,6 +1,18 @@
 'use strict';
 
 const PropertyEnlistmentContractService = require('./PropertyEnlistmentContractService');
+const Status = require('../models/enums/PropertyEnlistmentStatus');
+const log = require('../../server/logger');
+
+async function mapAllContractEnlistments(dbEnlistmentInstances) {
+  return Promise.all(dbEnlistmentInstances.map(async (instanceObj) => {
+    let dbEnlistment = instanceObj.get({ plain: true });
+
+    const contractEnlistment =
+      await PropertyEnlistmentContractService.getEnlistment(dbEnlistment.contractAddress);
+    return Object.assign({}, dbEnlistment, contractEnlistment);
+  }));
+}
 
 module.exports = {
   createEnlistment(enlistment) {
@@ -8,6 +20,7 @@ module.exports = {
       type: 'Point',
       coordinates: [enlistment.latitude, enlistment.longitude]
     };
+    enlistment.offerAuthors = [];
 
     return Models.PropertyEnlistment.create(enlistment);
   },
@@ -16,8 +29,39 @@ module.exports = {
     return Models.PropertyEnlistment.findInArea(latitude, longitude, distance);
   },
 
+  findAllUnpublished() {
+    return Models.PropertyEnlistment.findAll(
+      {
+        where: { status: [Status.REJECTED, Status.PENDING, Status.CANCELLED] }
+      }
+    );
+  },
+
+  async findAllReviewed() {
+    const dbEnlistments = await Models.PropertyEnlistment.findAll(
+      {
+        where: { status: Status.APPROVED }
+      }
+    );
+
+    return mapAllContractEnlistments(dbEnlistments);
+  },
+
+  async findWithOffersByBidder(bidderEmail) {
+    const dbEnlistments = await Models.PropertyEnlistment.findAll(
+      {
+        where: {
+          offerAuthors: {
+            $contains: [bidderEmail]
+          }
+        }
+      }
+    );
+    return mapAllContractEnlistments(dbEnlistments);
+  },
+
   async approveEnlistment(enlistmentId) {
-    const enlistment = await Models.PropertyEnlistment.findOne({where: {id: enlistmentId}});
+    const enlistment = await Models.PropertyEnlistment.findOne({ where: { id: enlistmentId } });
 
     enlistment.approve();
 
@@ -34,21 +78,35 @@ module.exports = {
   },
 
   async rejectEnlistment(enlistmentId) {
-    const enlistment = await Models.PropertyEnlistment.findOne({where: {id: enlistmentId}});
+    const enlistment = await Models.PropertyEnlistment.findOne({ where: { id: enlistmentId } });
 
     enlistment.reject();
 
     return enlistment.save();
   },
 
-  async sendOffer(enlistmentId, {amount, tenantName, tenantEmail}) {
+  async sendOffer(enlistmentId, { amount, tenantName, tenantEmail }) {
     const enlistment = await Models.PropertyEnlistment.findOne({
       where: {
         id: enlistmentId
       }
     });
+    await PropertyEnlistmentContractService.sendOffer(enlistment.contractAddress, { amount, tenantName, tenantEmail });
+    await enlistment.addOfferAuthor(tenantEmail);
+    return enlistment.save();
+  },
 
-    return PropertyEnlistmentContractService.sendOffer(enlistment.contractAddress, {amount, tenantName, tenantEmail});
+  async getOffers(enlistmentId) {
+    const enlistment = await Models.PropertyEnlistment.findOne({
+      where: {
+        id: enlistmentId
+      }
+    });
+    return Promise.all(enlistment.get({plain: true}).offerAuthors.map(async (offerAuthor) => {
+      const contractOffer =
+        await PropertyEnlistmentContractService.getOffer(enlistment.contractAddress, offerAuthor);
+      return contractOffer;
+    }));
   },
 
   async getOffer(enlistmentId, tenantEmail) {
@@ -58,7 +116,11 @@ module.exports = {
       }
     });
 
-    return PropertyEnlistmentContractService.getOffer(enlistment.contractAddress, tenantEmail);
+    const contractOffer = await PropertyEnlistmentContractService.getOffer(enlistment.contractAddress, tenantEmail);
+    if (!contractOffer.initialized) {
+      throw new Error(404);
+    }
+    return contractOffer;
   },
 
   async cancelOffer(enlistmentId, tenantEmail) {

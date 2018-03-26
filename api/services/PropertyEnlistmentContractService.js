@@ -13,10 +13,16 @@ const PropertyEnlistmentContract = contract(artifact);
 PropertyEnlistmentContract.setProvider(provider);
 PropertyEnlistmentContract.defaults({
   from: '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
-  gas: 6000000,
+  gas: 8000000,
   gasPrice: 1000000000
-
 });
+
+const offerStatusMap = {
+  0: 'PENDING',
+  1: 'REJECTED',
+  2: 'CANCELLED',
+  3: 'ACCEPTED'
+};
 
 module.exports = {
   createEnlistment(landlordName, streetName, floor, apartment, house, zipCode) {
@@ -27,6 +33,12 @@ module.exports = {
     });
   },
 
+  getEnlistment(contractAddress) {
+    return PropertyEnlistmentContract.at(contractAddress)
+      .then(contract => contract.getEnlistment.call())
+      .then(([streetName, floor, apartment, house, zipCode]) => ({streetName, floor, apartment, house, zipCode}));
+  },
+
   sendOffer(contractAddress, {amount, tenantName, tenantEmail}) {
     // https://github.com/trufflesuite/truffle-contract#usage
     return PropertyEnlistmentContract.at(contractAddress).then(contract => contract.sendOffer(amount, tenantName, tenantEmail));
@@ -35,7 +47,8 @@ module.exports = {
   getOffer(contractAddress, tenantEmail) {
     return PropertyEnlistmentContract.at(contractAddress).then(contract => contract.getOffer.call(tenantEmail))
     // TODO: convert BigNumber
-      .then(([initialized, amount, tenantName, tenantEmail, status]) => ({initialized, amount, tenantName, tenantEmail, status}));
+      .then(([initialized, amount, tenantName, tenantEmail, status]) =>
+      ({initialized, amount, tenantName, tenantEmail, status: offerStatusMap[status]}));
   },
 
   cancelOffer(contractAddress, tenantEmail) {

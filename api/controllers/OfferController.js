@@ -11,10 +11,20 @@ module.exports = {
     res.status(201).send();
   },
 
-  async getOffer(req, res) {
-    const offer = await PropertyEnlistmentService.getOffer(req.params.id, req.query.tenantEmail);
+  async getOffers(req, res) {
+    let offers = await PropertyEnlistmentService.getOffers(req.params.id);
+    res.json(offers);
+  },
 
-    res.json(offer);
+  async getOffer(req, res) {
+    let offer;
+    try {
+      offer = await PropertyEnlistmentService.getOffer(req.params.id, req.params.tenantEmail);
+      res.json(offer);
+    } catch(error) {
+      log.info('Enlistment ' + req.params.id + ' has no offer from ' + req.params.tenantEmail);
+      res.status(404).send();
+    }
   },
 
   async cancelOffer(req, res) {

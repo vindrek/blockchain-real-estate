@@ -6,7 +6,7 @@ module.exports = {
 
   'GET /enlistments': {
     controller: 'PropertyEnlistmentController',
-    action: 'findInArea'
+    action: 'findEnlistments'
   },
 
   'POST /enlistments/:id/approve': {
@@ -25,6 +25,11 @@ module.exports = {
   },
 
   'GET /enlistments/:id/offers': {
+    controller: 'OfferController',
+    action: 'getOffers'
+  },
+
+  'GET /enlistments/:id/offers/:tenantEmail': {
     controller: 'OfferController',
     action: 'getOffer'
   },
