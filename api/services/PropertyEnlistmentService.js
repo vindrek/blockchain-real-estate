@@ -40,6 +40,9 @@ module.exports = {
   async findAllReviewed() {
     const dbEnlistments = await Models.PropertyEnlistment.findAll(
       {
+        attributes: {
+          exclude: ['offerAuthors']
+        },
         where: { status: Status.APPROVED }
       }
     );
