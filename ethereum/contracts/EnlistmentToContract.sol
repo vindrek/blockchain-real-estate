@@ -23,8 +23,8 @@ contract EnlistmentToContract {
         return landlord;
     }
 
-    function getEnlistment() view public ownerOnly() returns (string, int, int, int, int) {
-        return (enlistment.streetName, enlistment.floorNr, enlistment.apartmentNr, enlistment.houseNr, enlistment.postalCode);
+    function getEnlistment() view public ownerOnly() returns (string, string, string, int, int, int, int) {
+        return (enlistment.landlordEmail, enlistment.landlordName, enlistment.streetName, enlistment.floorNr, enlistment.apartmentNr, enlistment.houseNr, enlistment.postalCode);
     }
 
     enum OfferStatus {
@@ -46,6 +46,8 @@ contract EnlistmentToContract {
     }
 
     struct Enlistment {
+        string landlordEmail;
+        string landlordName;
         string streetName;
         int floorNr;
         int apartmentNr;
