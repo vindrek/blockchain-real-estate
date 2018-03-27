@@ -2,16 +2,14 @@ pragma solidity ^0.4.18;
 contract EnlistmentToContract {
 
     address owner;
-    string landlord;
     bool public locked = false;
     Enlistment enlistment;
     mapping(string => Offer) tenantOfferMap;
     mapping(string => AgreementDraft) tenantAgreementMap;
 
-    function EnlistmentToContract(string landlordEmail, string streetName, int floorNr, int apartmentNr, int houseNr, int postalCode) public
+    function EnlistmentToContract(string landlordEmail, string landlordName, string streetName, int floorNr, int apartmentNr, int houseNr, int postalCode) public
     {
-        enlistment = Enlistment(streetName, floorNr, apartmentNr, houseNr, postalCode);
-        landlord = landlordEmail;
+        enlistment = Enlistment(landlordEmail, landlordName, streetName, floorNr, apartmentNr, houseNr, postalCode);
         owner = msg.sender;
     }
 
@@ -19,12 +17,12 @@ contract EnlistmentToContract {
         return owner;
     }
 
-    function getLandlord() view public ownerOnly() returns (string) {
-        return landlord;
+    function getLandlord() view public ownerOnly() returns (string, string) {
+        return (enlistment.landlordEmail, enlistment.landlordName);
     }
 
-    function getEnlistment() view public ownerOnly() returns (string, int, int, int, int) {
-        return (enlistment.streetName, enlistment.floorNr, enlistment.apartmentNr, enlistment.houseNr, enlistment.postalCode);
+    function getEnlistment() view public ownerOnly() returns (string, string, string, int, int, int, int) {
+        return (enlistment.landlordEmail, enlistment.landlordName, enlistment.streetName, enlistment.floorNr, enlistment.apartmentNr, enlistment.houseNr, enlistment.postalCode);
     }
 
     enum OfferStatus {
@@ -46,6 +44,8 @@ contract EnlistmentToContract {
     }
 
     struct Enlistment {
+        string landlordEmail;
+        string landlordName;
         string streetName;
         int floorNr;
         int apartmentNr;
