@@ -73,7 +73,7 @@ contract('EnlistmentToContract', async ([owner]) => {
       let sendTx2;
 
       before('create an enlistment and send offers', async () => {
-        instance = await ETC.new('john@wick.xd', 'Baker', 1, 2, 3, 45000);
+        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000);
         sendTx1 = await instance.sendOffer(100, 'Winston', 'winston@noreply.xd');
         sendTx2 = await instance.sendOffer(20, 'Ares', 'ares@willreply.xd');
       });
@@ -109,7 +109,7 @@ contract('EnlistmentToContract', async ([owner]) => {
       let instance;
 
       beforeEach('create an enlistment and send offer', async () => {
-        instance = await ETC.new('john@wick.xd', 'Baker', 1, 2, 3, 45000);
+        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000);
         await instance.sendOffer(400, 'Cassian', 'cassian@reply.xd');
       });
 
@@ -131,7 +131,7 @@ contract('EnlistmentToContract', async ([owner]) => {
 
       let instance;
       beforeEach('create an enlistment and send offer', async () => {
-        instance = await ETC.new('john@wick.xd', 'Baker', 1, 2, 3, 45000);
+        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000);
         await instance.sendOffer(400, 'Cassian', 'cassian@reply.xd');
       });
 
@@ -167,7 +167,7 @@ contract('EnlistmentToContract', async ([owner]) => {
       let instance;
 
       beforeEach('create an enlistment, send an offer', async () => {
-        instance = await ETC.new('johna@wick.xd', 'Baker', 1, 2, 3, 45000);
+        instance = await ETC.new('johna@wick.xd', 'Johna Wick', 'Baker', 1, 2, 3, 45000);
         await instance.sendOffer(400, 'Cassian', 'cassian@reply.xd');
       });
 
@@ -224,7 +224,7 @@ contract('EnlistmentToContract', async ([owner]) => {
       let instance;
 
       beforeEach('create an enlistment, send an offer', async () => {
-        instance = await ETC.new('john@wick.xd', 'Baker', 1, 2, 3, 45000);
+        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000);
         await instance.sendOffer(400, 'Cassian', 'cassian@reply.xd');
         await instance.reviewOffer(true, 'cassian@reply.xd');
         await instance.submitDraft('cassian@reply.xd', 'John Wick', 'Cassian', 'cassian@reply.xd', 1519580655493, 1519580355498, 65493, 'No cats, no wives', 'draftPDFH4sh');
@@ -248,7 +248,7 @@ contract('EnlistmentToContract', async ([owner]) => {
       let instance;
 
       beforeEach('create an enlistment, send an offer, accept the offer, submit a draft', async () => {
-        instance = await ETC.new('john@wick.xd', 'Baker', 1, 2, 3, 45000);
+        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000);
         await instance.sendOffer(400, 'Cassian', 'cassian@reply.xd');
         await instance.reviewOffer(true, 'cassian@reply.xd');
         await instance.submitDraft('cassian@reply.xd', 'John Wick', 'Cassian', 'cassian@reply.xd', 1519580655493, 1519580355498, 65493, 'No cats, no wives', 'draftPDFH4sh');
@@ -315,7 +315,7 @@ contract('EnlistmentToContract', async ([owner]) => {
       let instance;
 
       beforeEach('create an enlistment, send an offer, accept the offer, submit a draft, accept the draft', async () => {
-        instance = await ETC.new('john@wick.xd', 'Baker', 1, 2, 3, 45000);
+        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000);
         await instance.sendOffer(400, 'Cassian', 'cassian@reply.xd');
         await instance.reviewOffer(true, 'cassian@reply.xd');
         await instance.submitDraft('cassian@reply.xd', 'John Wick', 'Cassian', 'cassian@reply.xd', 1519580655493, 1519580355498, 65493, 'No cats, no wives', 'draftPDFH4sh');
@@ -387,7 +387,7 @@ contract('EnlistmentToContract', async ([owner]) => {
       let instance;
 
       beforeEach('create an enlistment, send an offer, accept the offer, submit a draft, accept the draft, landlord sign, tenant sign', async () => {
-        instance = await ETC.new('john@wick.xd', 'Baker', 1, 2, 3, 45000);
+        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000);
         await instance.sendOffer(400, 'Cassian', 'cassian@reply.xd');
         await instance.reviewOffer(true, 'cassian@reply.xd');
       });
@@ -449,7 +449,7 @@ contract('EnlistmentToContract', async ([owner]) => {
       let instance;
 
       beforeEach('create an enlistment, send an offer, accept the offer, submit a draft, accept the draft, landlord sign, tenant sign', async () => {
-        instance = await ETC.new('john@wick.xd', 'Baker', 1, 2, 3, 45000);
+        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000);
         await instance.sendOffer(400, 'Cassian', 'cassian@reply.xd');
         await instance.reviewOffer(true, 'cassian@reply.xd');
         await instance.submitDraft('cassian@reply.xd', 'John Wick', 'Cassian', 'cassian@reply.xd', 1519580655493, 1519580355498, 65493, 'No cats, no wives', 'draftPDFH4sh');
@@ -473,7 +473,7 @@ contract('EnlistmentToContract', async ([owner]) => {
     let instance;
 
     beforeEach('create an enlistment, send an offer', async () => {
-      instance = await ETC.new('john@wick.xd', 'Baker', 1, 2, 3, 45000);
+      instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000);
       await instance.sendOffer(400, 'Cassian', 'cassian@reply.xd');
     });
 
