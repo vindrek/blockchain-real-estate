@@ -10,7 +10,7 @@ contract EnlistmentToContract {
 
     function EnlistmentToContract(string landlordEmail, string landlordName, string streetName, int floorNr, int apartmentNr, int houseNr, int postalCode) public
     {
-        enlistment = Enlistment(streetName, floorNr, apartmentNr, houseNr, postalCode);
+        enlistment = Enlistment(landlordEmail, landlordName, streetName, floorNr, apartmentNr, houseNr, postalCode);
         landlord = landlordEmail;
         owner = msg.sender;
     }
