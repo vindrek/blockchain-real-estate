@@ -2,7 +2,6 @@ pragma solidity ^0.4.18;
 contract EnlistmentToContract {
 
     address owner;
-    string landlord;
     bool public locked = false;
     Enlistment enlistment;
     mapping(string => Offer) tenantOfferMap;
@@ -11,7 +10,6 @@ contract EnlistmentToContract {
     function EnlistmentToContract(string landlordEmail, string landlordName, string streetName, int floorNr, int apartmentNr, int houseNr, int postalCode) public
     {
         enlistment = Enlistment(landlordEmail, landlordName, streetName, floorNr, apartmentNr, houseNr, postalCode);
-        landlord = landlordEmail;
         owner = msg.sender;
     }
 
@@ -19,8 +17,8 @@ contract EnlistmentToContract {
         return owner;
     }
 
-    function getLandlord() view public ownerOnly() returns (string) {
-        return landlord;
+    function getLandlord() view public ownerOnly() returns (string, string) {
+        return (enlistment.landlordEmail, enlistment.landlordName);
     }
 
     function getEnlistment() view public ownerOnly() returns (string, string, string, int, int, int, int) {
