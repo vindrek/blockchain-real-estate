@@ -8,7 +8,7 @@ contract EnlistmentToContract {
     mapping(string => Offer) tenantOfferMap;
     mapping(string => AgreementDraft) tenantAgreementMap;
 
-    function EnlistmentToContract(string landlordEmail, string streetName, int floorNr, int apartmentNr, int houseNr, int postalCode) public
+    function EnlistmentToContract(string landlordEmail, string landlordName, string streetName, int floorNr, int apartmentNr, int houseNr, int postalCode) public
     {
         enlistment = Enlistment(streetName, floorNr, apartmentNr, houseNr, postalCode);
         landlord = landlordEmail;
