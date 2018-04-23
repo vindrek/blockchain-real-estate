@@ -18,8 +18,8 @@ EnlistmentRegistryContract.defaults({
 });
 
 module.exports = {
-    addEnlistment(geohash, enlistmentAddress) {
+    addEnlistment(enlistmentAddress) {
         return EnlistmentRegistryContract.deployed()
-          .then(contract => contract.addEnlistment(geohash, enlistmentAddress));
+          .then(contract => contract.addEnlistment(enlistmentAddress));
       }
 };

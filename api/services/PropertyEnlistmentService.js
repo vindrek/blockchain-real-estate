@@ -1,5 +1,6 @@
 'use strict';
 
+const ngeohash = require('ngeohash');
 const PropertyEnlistmentContractService = require('./PropertyEnlistmentContractService');
 const PropertyEnlistmentRegistryService = require('./PropertyEnlistmentRegistryService');
 const Status = require('../models/enums/PropertyEnlistmentStatus');
@@ -68,6 +69,9 @@ module.exports = {
 
     enlistment.approve();
 
+    const coords = enlistment.geolocation.coordinates;
+    const enlistmentGeohash = ngeohash.encode(coords[0], coords[1]);
+
     enlistment.contractAddress = await PropertyEnlistmentContractService.createEnlistment(
       enlistment.landlordEmail,
       enlistment.landlordName,
@@ -75,7 +79,8 @@ module.exports = {
       enlistment.floor,
       enlistment.apartment,
       enlistment.house,
-      enlistment.zipCode
+      enlistment.zipCode,
+      enlistmentGeohash
     );
 
     await PropertyEnlistmentRegistryService.addEnlistment(enlistment);
