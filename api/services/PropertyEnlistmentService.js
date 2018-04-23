@@ -1,13 +1,13 @@
 'use strict';
 
 const PropertyEnlistmentContractService = require('./PropertyEnlistmentContractService');
+const PropertyEnlistmentRegistryService = require('./PropertyEnlistmentRegistryService');
 const Status = require('../models/enums/PropertyEnlistmentStatus');
 const log = require('../../server/logger');
 
 async function mapAllContractEnlistments(dbEnlistmentInstances) {
   return Promise.all(dbEnlistmentInstances.map(async (instanceObj) => {
     let dbEnlistment = instanceObj.get({ plain: true });
-
     const contractEnlistment =
       await PropertyEnlistmentContractService.getEnlistment(dbEnlistment.contractAddress);
     return Object.assign({}, dbEnlistment, contractEnlistment);
@@ -69,6 +69,7 @@ module.exports = {
     enlistment.approve();
 
     enlistment.contractAddress = await PropertyEnlistmentContractService.createEnlistment(
+      enlistment.landlordEmail,
       enlistment.landlordName,
       enlistment.streetName,
       enlistment.floor,
@@ -76,6 +77,8 @@ module.exports = {
       enlistment.house,
       enlistment.zipCode
     );
+
+    await PropertyEnlistmentRegistryService.addEnlistment(enlistment);
 
     return enlistment.save();
   },

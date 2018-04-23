@@ -1,0 +1,747 @@
+{
+  "contractName": "EnlistmentRegistry",
+  "abi": [
+    {
+      "inputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "geohash",
+          "type": "string"
+        },
+        {
+          "name": "enlistmentAddress",
+          "type": "address"
+        }
+      ],
+      "name": "addEnlistment",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x6060604052341561000f57600080fd5b33600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506103738061005f6000396000f300606060405260043610610041576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680637f9bfbe514610046575b600080fd5b6100b5600480803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509190803573ffffffffffffffffffffffffffffffffffffffff169060200190919050506100b7565b005b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561011357600080fd5b6000805480600101828161012791906101d2565b9160005260206000209060020201600060408051908101604052808681526020018573ffffffffffffffffffffffffffffffffffffffff1681525090919091506000820151816000019080519060200190610183929190610204565b5060208201518160010160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505050505050565b8154818355818115116101ff576002028160020283600052602060002091820191016101fe9190610284565b5b505050565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f1061024557805160ff1916838001178555610273565b82800160010185558215610273579182015b82811115610272578251825591602001919060010190610257565b5b50905061028091906102da565b5090565b6102d791905b808211156102d357600080820160006102a391906102ff565b6001820160006101000a81549073ffffffffffffffffffffffffffffffffffffffff02191690555060020161028a565b5090565b90565b6102fc91905b808211156102f85760008160009055506001016102e0565b5090565b90565b50805460018160011615610100020316600290046000825580601f106103255750610344565b601f01602090049060005260206000209081019061034391906102da565b5b505600a165627a7a72305820be91aae68596328c16caa53b036af184d5b38f4e3f02b3d8dc24cd56d1b194910029",
+  "deployedBytecode": "0x606060405260043610610041576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680637f9bfbe514610046575b600080fd5b6100b5600480803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509190803573ffffffffffffffffffffffffffffffffffffffff169060200190919050506100b7565b005b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561011357600080fd5b6000805480600101828161012791906101d2565b9160005260206000209060020201600060408051908101604052808681526020018573ffffffffffffffffffffffffffffffffffffffff1681525090919091506000820151816000019080519060200190610183929190610204565b5060208201518160010160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505050505050565b8154818355818115116101ff576002028160020283600052602060002091820191016101fe9190610284565b5b505050565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f1061024557805160ff1916838001178555610273565b82800160010185558215610273579182015b82811115610272578251825591602001919060010190610257565b5b50905061028091906102da565b5090565b6102d791905b808211156102d357600080820160006102a391906102ff565b6001820160006101000a81549073ffffffffffffffffffffffffffffffffffffffff02191690555060020161028a565b5090565b90565b6102fc91905b808211156102f85760008160009055506001016102e0565b5090565b90565b50805460018160011615610100020316600290046000825580601f106103255750610344565b601f01602090049060005260206000209081019061034391906102da565b5b505600a165627a7a72305820be91aae68596328c16caa53b036af184d5b38f4e3f02b3d8dc24cd56d1b194910029",
+  "sourceMap": "25:503:0:-;;;110:72;;;;;;;;165:10;157:5;;:18;;;;;;;;;;;;;;;;;;25:503;;;;;;",
+  "deployedSourceMap": "25:503:0:-;;;;;;;;;;;;;;;;;;;;;;;;188:166;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;501:5;;;;;;;;;;;487:19;;:10;:19;;;479:28;;;;;;;;291:11;:56;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;308:38;;;;;;;;;319:7;308:38;;;;328:17;308:38;;;;;291:56;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;188:166;;:::o;25:503::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;:::o",
+  "source": "pragma solidity ^0.4.18;\ncontract EnlistmentRegistry {\n\n    Enlistment[] enlistments;\n    address owner;\n\n    function EnlistmentRegistry() public {\n        owner = msg.sender;\n    }\n\n    function addEnlistment(string geohash, address enlistmentAddress) payable public ownerOnly() {\n        enlistments.push(Enlistment(geohash, enlistmentAddress));\n    }\n\n    struct Enlistment {\n        string geohash;\n        address locationAddress;\n    }\n\n    modifier ownerOnly() {\n        require(msg.sender == owner);\n        _;\n    }\n\n}\n",
+  "sourcePath": "/Users/Indrek/Ulikool/Thesis/blockchain-real-estate-baseline/ethereum/contracts/EnlistmentRegistry.sol",
+  "ast": {
+    "attributes": {
+      "absolutePath": "/Users/Indrek/Ulikool/Thesis/blockchain-real-estate-baseline/ethereum/contracts/EnlistmentRegistry.sol",
+      "exportedSymbols": {
+        "EnlistmentRegistry": [
+          51
+        ]
+      }
+    },
+    "children": [
+      {
+        "attributes": {
+          "literals": [
+            "solidity",
+            "^",
+            "0.4",
+            ".18"
+          ]
+        },
+        "id": 1,
+        "name": "PragmaDirective",
+        "src": "0:24:0"
+      },
+      {
+        "attributes": {
+          "baseContracts": [
+            null
+          ],
+          "contractDependencies": [
+            null
+          ],
+          "contractKind": "contract",
+          "documentation": null,
+          "fullyImplemented": true,
+          "linearizedBaseContracts": [
+            51
+          ],
+          "name": "EnlistmentRegistry",
+          "scope": 52
+        },
+        "children": [
+          {
+            "attributes": {
+              "constant": false,
+              "name": "enlistments",
+              "scope": 51,
+              "stateVariable": true,
+              "storageLocation": "default",
+              "type": "struct EnlistmentRegistry.Enlistment storage ref[] storage ref",
+              "value": null,
+              "visibility": "internal"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "length": null,
+                  "type": "struct EnlistmentRegistry.Enlistment storage ref[] storage pointer"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "contractScope": null,
+                      "name": "Enlistment",
+                      "referencedDeclaration": 39,
+                      "type": "struct EnlistmentRegistry.Enlistment storage pointer"
+                    },
+                    "id": 2,
+                    "name": "UserDefinedTypeName",
+                    "src": "60:10:0"
+                  }
+                ],
+                "id": 3,
+                "name": "ArrayTypeName",
+                "src": "60:12:0"
+              }
+            ],
+            "id": 4,
+            "name": "VariableDeclaration",
+            "src": "60:24:0"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "name": "owner",
+              "scope": 51,
+              "stateVariable": true,
+              "storageLocation": "default",
+              "type": "address",
+              "value": null,
+              "visibility": "internal"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "name": "address",
+                  "type": "address"
+                },
+                "id": 5,
+                "name": "ElementaryTypeName",
+                "src": "90:7:0"
+              }
+            ],
+            "id": 6,
+            "name": "VariableDeclaration",
+            "src": "90:13:0"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "implemented": true,
+              "isConstructor": true,
+              "modifiers": [
+                null
+              ],
+              "name": "EnlistmentRegistry",
+              "payable": false,
+              "scope": 51,
+              "stateMutability": "nonpayable",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 7,
+                "name": "ParameterList",
+                "src": "137:2:0"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 8,
+                "name": "ParameterList",
+                "src": "147:0:0"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "operator": "=",
+                          "type": "address"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 6,
+                              "type": "address",
+                              "value": "owner"
+                            },
+                            "id": 9,
+                            "name": "Identifier",
+                            "src": "157:5:0"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "member_name": "sender",
+                              "referencedDeclaration": null,
+                              "type": "address"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 996,
+                                  "type": "msg",
+                                  "value": "msg"
+                                },
+                                "id": 10,
+                                "name": "Identifier",
+                                "src": "165:3:0"
+                              }
+                            ],
+                            "id": 11,
+                            "name": "MemberAccess",
+                            "src": "165:10:0"
+                          }
+                        ],
+                        "id": 12,
+                        "name": "Assignment",
+                        "src": "157:18:0"
+                      }
+                    ],
+                    "id": 13,
+                    "name": "ExpressionStatement",
+                    "src": "157:18:0"
+                  }
+                ],
+                "id": 14,
+                "name": "Block",
+                "src": "147:35:0"
+              }
+            ],
+            "id": 15,
+            "name": "FunctionDefinition",
+            "src": "110:72:0"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "implemented": true,
+              "isConstructor": false,
+              "name": "addEnlistment",
+              "payable": true,
+              "scope": 51,
+              "stateMutability": "payable",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "geohash",
+                      "scope": 34,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "string memory",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "string",
+                          "type": "string storage pointer"
+                        },
+                        "id": 16,
+                        "name": "ElementaryTypeName",
+                        "src": "211:6:0"
+                      }
+                    ],
+                    "id": 17,
+                    "name": "VariableDeclaration",
+                    "src": "211:14:0"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "enlistmentAddress",
+                      "scope": 34,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "type": "address"
+                        },
+                        "id": 18,
+                        "name": "ElementaryTypeName",
+                        "src": "227:7:0"
+                      }
+                    ],
+                    "id": 19,
+                    "name": "VariableDeclaration",
+                    "src": "227:25:0"
+                  }
+                ],
+                "id": 20,
+                "name": "ParameterList",
+                "src": "210:43:0"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 23,
+                "name": "ParameterList",
+                "src": "281:0:0"
+              },
+              {
+                "attributes": {
+                  "arguments": [
+                    null
+                  ]
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "argumentTypes": null,
+                      "overloadedDeclarations": [
+                        null
+                      ],
+                      "referencedDeclaration": 50,
+                      "type": "modifier ()",
+                      "value": "ownerOnly"
+                    },
+                    "id": 21,
+                    "name": "Identifier",
+                    "src": "269:9:0"
+                  }
+                ],
+                "id": 22,
+                "name": "ModifierInvocation",
+                "src": "269:11:0"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "isStructConstructorCall": false,
+                          "lValueRequested": false,
+                          "names": [
+                            null
+                          ],
+                          "type": "uint256",
+                          "type_conversion": false
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_struct$_Enlistment_$39_memory",
+                                  "typeString": "struct EnlistmentRegistry.Enlistment memory"
+                                }
+                              ],
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "member_name": "push",
+                              "referencedDeclaration": null,
+                              "type": "function (struct EnlistmentRegistry.Enlistment storage ref) returns (uint256)"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 4,
+                                  "type": "struct EnlistmentRegistry.Enlistment storage ref[] storage ref",
+                                  "value": "enlistments"
+                                },
+                                "id": 24,
+                                "name": "Identifier",
+                                "src": "291:11:0"
+                              }
+                            ],
+                            "id": 26,
+                            "name": "MemberAccess",
+                            "src": "291:16:0"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "isStructConstructorCall": true,
+                              "lValueRequested": false,
+                              "names": [
+                                null
+                              ],
+                              "type": "struct EnlistmentRegistry.Enlistment memory",
+                              "type_conversion": false
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": [
+                                    {
+                                      "typeIdentifier": "t_string_memory_ptr",
+                                      "typeString": "string memory"
+                                    },
+                                    {
+                                      "typeIdentifier": "t_address",
+                                      "typeString": "address"
+                                    }
+                                  ],
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 39,
+                                  "type": "type(struct EnlistmentRegistry.Enlistment storage pointer)",
+                                  "value": "Enlistment"
+                                },
+                                "id": 27,
+                                "name": "Identifier",
+                                "src": "308:10:0"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 17,
+                                  "type": "string memory",
+                                  "value": "geohash"
+                                },
+                                "id": 28,
+                                "name": "Identifier",
+                                "src": "319:7:0"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 19,
+                                  "type": "address",
+                                  "value": "enlistmentAddress"
+                                },
+                                "id": 29,
+                                "name": "Identifier",
+                                "src": "328:17:0"
+                              }
+                            ],
+                            "id": 30,
+                            "name": "FunctionCall",
+                            "src": "308:38:0"
+                          }
+                        ],
+                        "id": 31,
+                        "name": "FunctionCall",
+                        "src": "291:56:0"
+                      }
+                    ],
+                    "id": 32,
+                    "name": "ExpressionStatement",
+                    "src": "291:56:0"
+                  }
+                ],
+                "id": 33,
+                "name": "Block",
+                "src": "281:73:0"
+              }
+            ],
+            "id": 34,
+            "name": "FunctionDefinition",
+            "src": "188:166:0"
+          },
+          {
+            "attributes": {
+              "canonicalName": "EnlistmentRegistry.Enlistment",
+              "name": "Enlistment",
+              "scope": 51,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "constant": false,
+                  "name": "geohash",
+                  "scope": 39,
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "type": "string storage pointer",
+                  "value": null,
+                  "visibility": "internal"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "string",
+                      "type": "string storage pointer"
+                    },
+                    "id": 35,
+                    "name": "ElementaryTypeName",
+                    "src": "388:6:0"
+                  }
+                ],
+                "id": 36,
+                "name": "VariableDeclaration",
+                "src": "388:14:0"
+              },
+              {
+                "attributes": {
+                  "constant": false,
+                  "name": "locationAddress",
+                  "scope": 39,
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "type": "address",
+                  "value": null,
+                  "visibility": "internal"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "address",
+                      "type": "address"
+                    },
+                    "id": 37,
+                    "name": "ElementaryTypeName",
+                    "src": "412:7:0"
+                  }
+                ],
+                "id": 38,
+                "name": "VariableDeclaration",
+                "src": "412:23:0"
+              }
+            ],
+            "id": 39,
+            "name": "StructDefinition",
+            "src": "360:82:0"
+          },
+          {
+            "attributes": {
+              "name": "ownerOnly",
+              "visibility": "internal"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 40,
+                "name": "ParameterList",
+                "src": "466:2:0"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "isStructConstructorCall": false,
+                          "lValueRequested": false,
+                          "names": [
+                            null
+                          ],
+                          "type": "tuple()",
+                          "type_conversion": false
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_bool",
+                                  "typeString": "bool"
+                                }
+                              ],
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 999,
+                              "type": "function (bool) pure",
+                              "value": "require"
+                            },
+                            "id": 41,
+                            "name": "Identifier",
+                            "src": "479:7:0"
+                          },
+                          {
+                            "attributes": {
+                              "argumentTypes": null,
+                              "commonType": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              },
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "operator": "==",
+                              "type": "bool"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "member_name": "sender",
+                                  "referencedDeclaration": null,
+                                  "type": "address"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "argumentTypes": null,
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 996,
+                                      "type": "msg",
+                                      "value": "msg"
+                                    },
+                                    "id": 42,
+                                    "name": "Identifier",
+                                    "src": "487:3:0"
+                                  }
+                                ],
+                                "id": 43,
+                                "name": "MemberAccess",
+                                "src": "487:10:0"
+                              },
+                              {
+                                "attributes": {
+                                  "argumentTypes": null,
+                                  "overloadedDeclarations": [
+                                    null
+                                  ],
+                                  "referencedDeclaration": 6,
+                                  "type": "address",
+                                  "value": "owner"
+                                },
+                                "id": 44,
+                                "name": "Identifier",
+                                "src": "501:5:0"
+                              }
+                            ],
+                            "id": 45,
+                            "name": "BinaryOperation",
+                            "src": "487:19:0"
+                          }
+                        ],
+                        "id": 46,
+                        "name": "FunctionCall",
+                        "src": "479:28:0"
+                      }
+                    ],
+                    "id": 47,
+                    "name": "ExpressionStatement",
+                    "src": "479:28:0"
+                  },
+                  {
+                    "id": 48,
+                    "name": "PlaceholderStatement",
+                    "src": "517:1:0"
+                  }
+                ],
+                "id": 49,
+                "name": "Block",
+                "src": "469:56:0"
+              }
+            ],
+            "id": 50,
+            "name": "ModifierDefinition",
+            "src": "448:77:0"
+          }
+        ],
+        "id": 51,
+        "name": "ContractDefinition",
+        "src": "25:503:0"
+      }
+    ],
+    "id": 52,
+    "name": "SourceUnit",
+    "src": "0:529:0"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.19+commit.c4cbbb05.Emscripten.clang"
+  },
+  "networks": {
+    "1524490041664": {
+      "events": {},
+      "links": {},
+      "address": "0x345ca3e014aaf5dca488057592ee47305d9b3e10"
+    }
+  },
+  "schemaVersion": "1.0.1",
+  "updatedAt": "2018-04-23T13:27:37.372Z"
+}

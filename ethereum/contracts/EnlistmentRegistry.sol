@@ -4,7 +4,7 @@ contract EnlistmentRegistry {
     Enlistment[] enlistments;
     address owner;
 
-    constructor() public {
+    function EnlistmentRegistry() public {
         owner = msg.sender;
     }
 

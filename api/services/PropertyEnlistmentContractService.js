@@ -25,8 +25,8 @@ const offerStatusMap = {
 };
 
 module.exports = {
-  createEnlistment(landlordName, streetName, floor, apartment, house, zipCode) {
-    return PropertyEnlistmentContract.new(landlordName, streetName, floor, apartment, house, zipCode).then(contract => {
+  createEnlistment(landlordEmail, landlordName, streetName, floor, apartment, house, zipCode) {
+    return PropertyEnlistmentContract.new(landlordEmail, landlordName, streetName, floor, apartment, house, zipCode).then(contract => {
       log.info(`PropertyEnlistment smart contract created on address: ${contract.address}`);
 
       return contract.address;

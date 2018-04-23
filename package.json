@@ -15,6 +15,7 @@
     "express": "^4.16.2",
     "lodash": "^4.17.5",
     "moment": "^2.21.0",
+    "ngeohash": "^0.6.0",
     "pg": "^7.4.1",
     "pg-hstore": "^2.3.2",
     "request": "^2.83.0",
@@ -37,7 +38,7 @@
     "real-estate",
     "smart contracts"
   ],
-  "author": "Vladyslav Kopylash",
+  "author": "Vladyslav Kopylash & Indrek Värva",
   "license": "MIT",
   "engines": {
     "node": ">=8.0.0"
