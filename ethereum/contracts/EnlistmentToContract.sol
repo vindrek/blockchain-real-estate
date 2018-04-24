@@ -166,7 +166,7 @@ contract EnlistmentToContract {
         if (tenantAgreementMap[tenantEmail].status != AgreementStatus.UNINITIALIZED) {
             tenantAgreementMap[tenantEmail].status = AgreementStatus.CANCELLED;
         }
-        locked = false;
+        locked = false; 
     }
 
     function getOffer(string tenantEmail) view public ownerOnly() returns (bool, uint, string, string, OfferStatus) {
