@@ -5,6 +5,7 @@ contract EnlistmentToContract {
     bool public locked = false;
     Enlistment enlistment;
     mapping(string => Offer) tenantOfferMap;
+    string[] offerAuthors;
     mapping(string => AgreementDraft) tenantAgreementMap;
 
     function EnlistmentToContract(string landlordEmail, string landlordName, string streetName, uint floorNr, uint apartmentNr, uint houseNr, uint postalCode, bytes9 geohash) public
@@ -31,6 +32,10 @@ contract EnlistmentToContract {
 
     function hasBid(string tenantEmail) view public returns(bool) {
         return tenantOfferMap[tenantEmail].initialized == true;
+    }
+
+    function getOfferAuthorsLength() view public returns(uint) {
+        return offerAuthors.length;
     }
 
     enum OfferStatus {

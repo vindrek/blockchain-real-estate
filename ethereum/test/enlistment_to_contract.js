@@ -61,8 +61,8 @@ contract('EnlistmentToContract', async ([owner]) => {
     });
 
     it('should instantiate empty offerAuthors lookup table', async () => {
-      let offerAuthors = await contract.offerAuthors.call();
-      assert.isEmpty(offerAuthors);
+      let offerAuthorsLength = await contract.getOfferAuthorsLength.call();
+      assert.equal(offerAuthorsLength, 0);
     });
 
     it('should set the owner property to the address that was used for deployment', async () => {
@@ -91,11 +91,20 @@ contract('EnlistmentToContract', async ([owner]) => {
       });
 
       it('should add offers to lookup table', async() => {
-        const offerAuthors = await instance.offerAuthors.call();
-        assert(offerAuthors.length, 2);
-        assert(offerAuthors[0], 'winston@noreply.xd');
-        assert(offerAuthors[1], 'ares@willreply.xd');
+        const offerAuthorsLength = await instance.getOfferAuthorsLength.call();
+        bigNumberEqual(offerAuthorsLength, 2);
       });
+
+      it('should retrieve offers, one-by-one', async() => {
+        const offerAuthorsLength = await instance.getOfferAuthorsLength.call();
+        let offers = [];
+        for (var i = 0; i < offerAuthorsLength; i++) {
+          const offer = await instance.getOfferByIndex.call(i);
+          offers.push(offer);
+        }
+        structEqual(offers[0], [true, 100, 'Winston', 'winston@noreply.xd', offerStatusMap['PENDING']]);
+        structEqual(offers[1], [true, 20, 'Ares', 'ares@willreply.xd', offerStatusMap['PENDING']]);
+      })
 
       it('should get offers by sender email address', async () => {
         let offer1 = await instance.getOffer.call('winston@noreply.xd'); // should return struct in the form of [initialized, amount, tenantName, tenantEmail, status]
