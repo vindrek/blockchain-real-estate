@@ -174,6 +174,11 @@ contract EnlistmentToContract {
         return (o.initialized, o.amount, o.tenantName, o.tenantEmail, o.status);
     }
 
+    function getOfferByIndex(uint idx) view public ownerOnly() returns (bool, uint, string, string, OfferStatus) {
+        var o = tenantOfferMap[offerAuthors[idx]];
+        return (o.initialized, o.amount, o.tenantName, o.tenantEmail, o.status);
+    }
+
     function reviewOffer(bool result, string tenantEmail) payable public
         ownerOnly()
         offerExists(tenantEmail)
