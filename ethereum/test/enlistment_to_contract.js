@@ -58,6 +58,11 @@ contract('EnlistmentToContract', async ([owner]) => {
       assert.isFalse(isLocked);
     });
 
+    it('should instantiate empty offerAuthors lookup table', async () => {
+      let offerAuthors = await contract.offerAuthors.call();
+      assert.isEmpty(offerAuthors);
+    });
+
     it('should set the owner property to the address that was used for deployment', async () => {
       let contractOwner = await contract.getOwner.call();
       assert.equal(deployerAddress, contractOwner);
@@ -81,6 +86,13 @@ contract('EnlistmentToContract', async ([owner]) => {
       it('should successfully retrieve multiple offers', async () => {
         assert.isOk(sendTx1);
         assert.isOk(sendTx2);
+      });
+
+      it('should add offers to lookup table', async() => {
+        const offerAuthors = await instance.offerAuthors.call();
+        assert(offerAuthors.length, 2);
+        assert(offerAuthors[0], 'winston@noreply.xd');
+        assert(offerAuthors[1], 'ares@willreply.xd');
       });
 
       it('should get offers by sender email address', async () => {

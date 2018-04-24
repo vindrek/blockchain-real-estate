@@ -74,7 +74,7 @@ contract('EnlistmentRegistry', async ([owner]) => {
             enlistmentInstance2 = await ETC.new('cassian@reply.xd', 'Cassian', 'Waker', 3, 1, 2, 50000, 'du8h1k2f8');
             registry.addEnlistment(enlistmentInstance2.address);
             let sendTx3 = await enlistmentInstance2.sendOffer(200, 'Winston', 'winston@noreply.xd');
-            let sendTx4 = await enlistmentInstance2.sendOffer(300, 'Ares', 'ares@willreply.xd');
+            let sendTx4 = await enlistmentInstance2.sendOffer(300, 'Ares', 'nores@willreply.xd');
         });
 
         it('should retrieve enlistments and their respective geohashes', async() => {
@@ -84,6 +84,20 @@ contract('EnlistmentRegistry', async ([owner]) => {
             assert.equal(enlistmentsAndGeohashes[ADDRESSES][1], enlistmentInstance2.address);
             assert.equal(toAscii(enlistmentsAndGeohashes[GEOHASHES][1]), 'du8h1k2f8');
         });
+
+        it('should retrieve enlistments and their respective bid existence value by bidder email address', async() => {
+            const enlistmentsAndBids = await registry.getEnlistmentsForBidderFiltering('winston@noreply.xd');
+            assert.equal(enlistmentsAndBids[ADDRESSES][0], enlistmentInstance.address);
+            assert.equal(enlistmentsAndBids[BIDS][0], true);
+            assert.equal(enlistmentsAndBids[ADDRESSES][1], enlistmentInstance2.address);
+            assert.equal(enlistmentsAndBids[BIDS][1], true);
+            
+            const enlistmentsAndBidsAres = await registry.getEnlistmentsForBidderFiltering('ares@willreply.xd');
+            assert.equal(enlistmentsAndBidsAres[ADDRESSES][0], enlistmentInstance.address);
+            assert.equal(enlistmentsAndBidsAres[BIDS][0], true);
+            assert.equal(enlistmentsAndBidsAres[ADDRESSES][1], enlistmentInstance2.address);
+            assert.equal(enlistmentsAndBidsAres[BIDS][1], false);
+        })
     });
 
 });
