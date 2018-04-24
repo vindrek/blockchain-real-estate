@@ -200,7 +200,7 @@ contract EnlistmentToContract {
         return (a.landlordName, a.tenantName, a.tenantEmail);
     }
 
-    function getAgreementDetails(string tenantEmail) view public ownerOnly() returns (int, uint, uint, uint, string) {
+    function getAgreementDetails(string tenantEmail) view public ownerOnly() returns (uint, uint, uint, uint, string) {
         var a = tenantAgreementMap[tenantEmail];
         return (a.amount, a.leaseStart, a.handoverDate, a.leasePeriod, a.otherTerms);
     }

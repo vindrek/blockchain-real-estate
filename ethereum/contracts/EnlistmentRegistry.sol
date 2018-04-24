@@ -36,6 +36,14 @@ contract EnlistmentRegistry {
         return (enlistments, bids);
     }
 
+    function getEnlistments() view public ownerOnly() returns(address[]) {
+        return enlistments;
+    }
+
+    function getOwner() view public returns (address) {
+        return owner;
+    }
+
     modifier ownerOnly() {
         require(msg.sender == owner);
         _;
