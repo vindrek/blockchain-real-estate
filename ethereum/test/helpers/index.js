@@ -30,8 +30,13 @@ const toNumber = (nr) => {
     return (web3utils.isBigNumber(nr) ? nr.toNumber() : nr);
 };
 
+const toAscii = (bytes32) => {
+    return (web3utils.toAscii(bytes32));
+}
+
 module.exports = {
     structEqual,
     bigNumberEqual,
-    expectThrowMessage
+    expectThrowMessage,
+    toAscii
 };

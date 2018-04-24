@@ -1,6 +1,7 @@
 const structEqual = require('./helpers').structEqual;
 const bigNumberEqual = require('./helpers').bigNumberEqual;
 const expectThrowMessage = require('./helpers').expectThrowMessage;
+const toAscii = require('./helpers').toAscii;
 const ER = artifacts.require("EnlistmentRegistry");
 const ETC = artifacts.require("EnlistmentToContract");
 const web3 = require('web3');
@@ -11,6 +12,9 @@ const web3utils = require('web3-utils');
 
 
 const revertErrorMsg = 'VM Exception while processing transaction: revert';
+const ADDRESSES = 0;
+const GEOHASHES = 1;
+const BIDS = 1;
 
 contract('EnlistmentRegistry', async ([owner]) => {
 
@@ -57,15 +61,28 @@ contract('EnlistmentRegistry', async ([owner]) => {
     });
 
     contract('Registry retrieval methods', async () => {
-        let contract;
+        let registry;
         let enlistmentInstance;
+        let enlistmentInstance2;
 
         before(async() => {
-            contract = await ER.new();
-            enlistmentInstance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000);
+            registry = await ER.new();
+            enlistmentInstance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8');
+            registry.addEnlistment(enlistmentInstance.address);
+            let sendTx1 = await enlistmentInstance.sendOffer(100, 'Winston', 'winston@noreply.xd');
+            let sendTx2 = await enlistmentInstance.sendOffer(20, 'Ares', 'ares@willreply.xd');
+            enlistmentInstance2 = await ETC.new('cassian@reply.xd', 'Cassian', 'Waker', 3, 1, 2, 50000, 'du8h1k2f8');
+            registry.addEnlistment(enlistmentInstance2.address);
+            let sendTx3 = await enlistmentInstance2.sendOffer(200, 'Winston', 'winston@noreply.xd');
+            let sendTx4 = await enlistmentInstance2.sendOffer(300, 'Ares', 'ares@willreply.xd');
+        });
 
-            let sendTx1 = await instance.sendOffer(100, 'Winston', 'winston@noreply.xd');
-            let sendTx2 = await instance.sendOffer(20, 'Ares', 'ares@willreply.xd');    
+        it('should retrieve enlistments and their respective geohashes', async() => {
+            const enlistmentsAndGeohashes = await registry.getEnlistmentsForGeosearch.call();
+            assert.equal(enlistmentsAndGeohashes[ADDRESSES][0], enlistmentInstance.address);
+            assert.equal(toAscii(enlistmentsAndGeohashes[GEOHASHES][0]), 'ud7h0k1f8');
+            assert.equal(enlistmentsAndGeohashes[ADDRESSES][1], enlistmentInstance2.address);
+            assert.equal(toAscii(enlistmentsAndGeohashes[GEOHASHES][1]), 'du8h1k2f8');
         });
     });
 

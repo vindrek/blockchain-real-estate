@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
 interface Enlistment {
-    function getGeohash() view external returns (bytes32);
+    function getGeohash() view external returns (bytes9);
     function hasBid(string tenantEmail) view external returns (bool);
 }
 
@@ -18,8 +18,8 @@ contract EnlistmentRegistry {
         enlistments.push(enlistmentAddress);
     }
 
-    function getEnlistmentsForGeosearch() view public returns (address[], bytes32[]) {
-        bytes32[] memory geohashes = new bytes32[](enlistments.length);
+    function getEnlistmentsForGeosearch() view public returns (address[], bytes9[]) {
+        bytes9[] memory geohashes = new bytes9[](enlistments.length);
         for (uint i = 0; i < enlistments.length; i++) {
             Enlistment enlistmentContractInstance = Enlistment(enlistments[i]);
             geohashes[i] = enlistmentContractInstance.getGeohash();

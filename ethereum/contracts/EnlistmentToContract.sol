@@ -7,7 +7,7 @@ contract EnlistmentToContract {
     mapping(string => Offer) tenantOfferMap;
     mapping(string => AgreementDraft) tenantAgreementMap;
 
-    function EnlistmentToContract(string landlordEmail, string landlordName, string streetName, uint floorNr, uint apartmentNr, uint houseNr, uint postalCode, bytes32 geohash) public
+    function EnlistmentToContract(string landlordEmail, string landlordName, string streetName, uint floorNr, uint apartmentNr, uint houseNr, uint postalCode, bytes9 geohash) public
     {
         enlistment = Enlistment(landlordEmail, landlordName, streetName, floorNr, apartmentNr, houseNr, postalCode, geohash);
         owner = msg.sender;
@@ -21,11 +21,11 @@ contract EnlistmentToContract {
         return (enlistment.landlordEmail, enlistment.landlordName);
     }
 
-    function getEnlistment() view public ownerOnly() returns (string, string, string, uint, uint, uint, uint, bytes32) {
+    function getEnlistment() view public ownerOnly() returns (string, string, string, uint, uint, uint, uint, bytes9) {
         return (enlistment.landlordEmail, enlistment.landlordName, enlistment.streetName, enlistment.floorNr, enlistment.apartmentNr, enlistment.houseNr, enlistment.postalCode, enlistment.geohash);
     }
 
-    function getGeohash() view public returns(bytes32) {
+    function getGeohash() view public returns(bytes9) {
         return enlistment.geohash;
     }
 
@@ -59,7 +59,7 @@ contract EnlistmentToContract {
         uint apartmentNr;
         uint houseNr;
         uint postalCode;
-        bytes32 geohash;
+        bytes9 geohash;
     }
 
     struct Offer {
