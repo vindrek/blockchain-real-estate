@@ -154,7 +154,7 @@ contract EnlistmentToContract {
             status: OfferStatus.PENDING
         });
         tenantOfferMap[tenantEmail] = offer;
-        offerAuthors.push(tenantEmail);
+        offerAuthors.push(tenantEmail); 
     }
 
     function cancelOffer(string tenantEmail) payable public
