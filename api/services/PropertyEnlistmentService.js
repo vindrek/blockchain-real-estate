@@ -56,7 +56,6 @@ module.exports = {
 
   async findWithOffersByBidder(bidderEmail) {
     const filteredEnlistments = await PropertyEnlistmentRegistryService.findTenantBiddedEnlistments(bidderEmail);
-    log.verbose('Tenant with an email of', bidderEmail, ' has bidded on following enlistments: ', filteredEnlistments);
     return filteredEnlistments;
   },
 

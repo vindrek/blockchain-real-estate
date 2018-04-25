@@ -55,6 +55,12 @@ module.exports = {
         ({ initialized, amount, tenantName, tenantEmail, status: offerStatusMap[status] }));
   },
 
+  getOfferByIndex(contractAddress, index) {
+    return PropertyEnlistmentContract.at(contractAddress).then(contract => contract.getOfferByIndex.call(index))
+      .then(([initialized, amount, tenantName, tenantEmail, status]) =>
+        ({initialized, amount, tenantName, tenantEmail, status: offerStatusMap[status]}));
+  },
+
   cancelOffer(contractAddress, tenantEmail) {
     return PropertyEnlistmentContract.at(contractAddress).then(contract => contract.cancelOffer(tenantEmail));
   },

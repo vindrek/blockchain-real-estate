@@ -23,21 +23,26 @@ const getEnlistmentsForBidderFiltering = async () => {
         return [];
     }
 
-    return contractEnlistmentsAndOfferCounts[0].map((address, idx) =>
-        ({ address, offerCount: contractEnlistmentsAndOfferCounts[1][idx]}));
+    return Promise.all(contractEnlistmentsAndOfferCounts[0].map(async (address, idx) => {
+        let offers = [];
+        for (let i = 0; i < contractEnlistmentsAndOfferCounts[1][idx]; i++) {
+            const offer = await PropertyEnlistmentContractService.getOfferByIndex(address, i);
+            offers.push(offer);
+        }
+        return { address, offers };
+    }));
 };
 
-// using the length of the offerAuthors array, loop over and retrieve them
-const filterByEnlistmentOfferAuthors = async (registryEnlistments, bidderEmail) => {
-    return Promise.all(registryEnlistments.filter(async (registryEnlistment) => {
-        for (let i = 0; i < registryEnlistment.offerCount; i++) {
-            const offer = await PropertyEnlistmentContractService.getOfferByIndex(i);
-            if (offer.tenantEmail === bidderEmail) {
+const filterByEnlistmentOfferAuthor = (registryEnlistments, bidderEmail) => {
+    const filteringResult = registryEnlistments.filter((enlistmentWithOffers) => {
+        for (let i = 0; i< enlistmentWithOffers.offers.length; i++) {
+            if (enlistmentWithOffers.offers[i].tenantEmail === bidderEmail) {
                 return true;
             }
         }
         return false;
-    }));
+    });
+    return filteringResult;
 };
 
 const mapAllRegistryEnlistments = async (inAreaRegistryEnlistments) => {
@@ -61,9 +66,9 @@ module.exports = {
         return mapAllRegistryEnlistments(inAreaRegistryEnlistments);
     },
     async findTenantBiddedEnlistments(bidderEmail) {
-        const registryEnlistments = await getEnlistmentsForBidderFiltering();
-        const bidderRegistryEnlistments = await filterByEnlistmentOfferAuthors(registryEnlistments, bidderEmail);
-        log.verbose('Tenant with an email has bidded on the following registry enlistments:', bidderRegistryEnlistments);
+        const registryEnlistmentsWithOffers = await getEnlistmentsForBidderFiltering();
+        const bidderRegistryEnlistments = filterByEnlistmentOfferAuthor(registryEnlistmentsWithOffers, bidderEmail);
+        log.verbose('Tenant with an email', bidderEmail, 'has bidded on', bidderRegistryEnlistments.length, ' enlistments.');
         return mapAllRegistryEnlistments(bidderRegistryEnlistments);
     }
 };
