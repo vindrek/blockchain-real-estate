@@ -3,9 +3,10 @@
 const Web3 = require('web3');
 const contract = require('truffle-contract');
 const log = require('../../server/logger');
-
+const web3utils = require('web3-utils');
 const config = require('../../config/ethereum');
 const artifact = require('../../ethereum/build/contracts/EnlistmentToContract.json');
+const ngeohash = require('ngeohash');
 
 const provider = new Web3.providers.HttpProvider(config.provider);
 
@@ -25,30 +26,33 @@ const offerStatusMap = {
 };
 
 module.exports = {
-  createEnlistment(landlordEmail, landlordName, streetName, floor, apartment, house, zipCode) {
-    return PropertyEnlistmentContract.new(landlordEmail, landlordName, streetName, floor, apartment, house, zipCode).then(contract => {
-      log.info(`PropertyEnlistment smart contract created on address: ${contract.address}`);
+  createEnlistment(landlordEmail, landlordName, streetName, floor, apartment, house, zipCode, geohash) {
+    return PropertyEnlistmentContract.new(landlordEmail, landlordName, streetName, floor, apartment, house, zipCode, geohash)
+      .then(contract => {
+        log.info(`PropertyEnlistment smart contract created on address: ${contract.address}`);
 
-      return contract.address;
-    });
+        return contract.address;
+      });
   },
 
   getEnlistment(contractAddress) {
     return PropertyEnlistmentContract.at(contractAddress)
       .then(contract => contract.getEnlistment.call())
-      .then(([streetName, floor, apartment, house, zipCode]) => ({streetName, floor, apartment, house, zipCode}));
+      .then(([landlordEmail, landlordName, streetName, floor, apartment, house, zipCode, geohash]) => {
+        return { landlordEmail, landlordName, streetName, floor, apartment, house, zipCode, geohash: web3utils.toAscii(geohash) };
+      });
   },
 
-  sendOffer(contractAddress, {amount, tenantName, tenantEmail}) {
+  sendOffer(contractAddress, { amount, tenantName, tenantEmail }) {
     // https://github.com/trufflesuite/truffle-contract#usage
     return PropertyEnlistmentContract.at(contractAddress).then(contract => contract.sendOffer(amount, tenantName, tenantEmail));
   },
 
   getOffer(contractAddress, tenantEmail) {
     return PropertyEnlistmentContract.at(contractAddress).then(contract => contract.getOffer.call(tenantEmail))
-    // TODO: convert BigNumber
+      // TODO: convert BigNumber
       .then(([initialized, amount, tenantName, tenantEmail, status]) =>
-      ({initialized, amount, tenantName, tenantEmail, status: offerStatusMap[status]}));
+        ({ initialized, amount, tenantName, tenantEmail, status: offerStatusMap[status] }));
   },
 
   cancelOffer(contractAddress, tenantEmail) {
@@ -86,11 +90,11 @@ module.exports = {
         contract.getAgreementStatus.call(tenantEmail)
       ]);
     }).then(([
-               [landlordName, tenantName, tenantEmail],
-               [amount, leaseStart, handoverDate, leasePeriod, otherTerms], // TODO: convert BigNumber
-               [hash, landlordSignatureHash, tenantSignatureHash],
-               status
-             ]) => {
+      [landlordName, tenantName, tenantEmail],
+      [amount, leaseStart, handoverDate, leasePeriod, otherTerms], // TODO: convert BigNumber
+      [hash, landlordSignatureHash, tenantSignatureHash],
+      status
+    ]) => {
       return {
         landlordName,
         tenantName,

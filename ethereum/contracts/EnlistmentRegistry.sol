@@ -14,7 +14,7 @@ contract EnlistmentRegistry {
         owner = msg.sender;
     }
 
-    function addEnlistment(address enlistmentAddress) payable public ownerOnly() {
+    function addEnlistment(address enlistmentAddress) payable public {
         enlistments.push(enlistmentAddress);
     }
 
