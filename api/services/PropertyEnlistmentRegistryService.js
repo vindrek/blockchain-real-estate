@@ -62,7 +62,8 @@ module.exports = {
     },
     async findTenantBiddedEnlistments(bidderEmail) {
         const registryEnlistments = await getEnlistmentsForBidderFiltering();
-        const bidderEnlistments = await filterByEnlistmentOfferAuthors(registryEnlistments, bidderEmail);
-        return mapAllRegistryEnlistments(bidderEnlistments);
+        const bidderRegistryEnlistments = await filterByEnlistmentOfferAuthors(registryEnlistments, bidderEmail);
+        log.verbose('Tenant with an email has bidded on the following registry enlistments:', bidderRegistryEnlistments);
+        return mapAllRegistryEnlistments(bidderRegistryEnlistments);
     }
 };
