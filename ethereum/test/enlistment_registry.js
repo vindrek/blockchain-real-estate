@@ -91,8 +91,7 @@ contract('EnlistmentRegistry', async ([owner]) => {
             assert.equal(enlistmentsAndBids[OFFERCOUNTS][0], 2);
             assert.equal(enlistmentsAndBids[ADDRESSES][1], enlistmentInstance2.address);
             assert.equal(enlistmentsAndBids[OFFERCOUNTS][1], 2);
-            
-        })
+        });
     });
 
 });

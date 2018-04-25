@@ -31,5 +31,12 @@ module.exports = {
     getEnlistmentsForGeosearch() {
         return EnlistmentRegistryContract.deployed()
             .then(contract => contract.getEnlistmentsForGeosearch.call());
+    },
+    /*
+    @returns in form [[enlistment1Adr, enlistment2Adr, ...], [enlistment1OfferCount, enlistment2OfferCount, ...]]
+    */
+    getEnlistmentsForBidderFiltering() {
+        return EnlistmentRegistryContract.deployed()
+            .then(contract => contract.getEnlistmentsForBidderFiltering.call());
     }
 };

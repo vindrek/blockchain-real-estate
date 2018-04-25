@@ -55,16 +55,9 @@ module.exports = {
   },
 
   async findWithOffersByBidder(bidderEmail) {
-    const dbEnlistments = await Models.PropertyEnlistment.findAll(
-      {
-        where: {
-          offerAuthors: {
-            $contains: [bidderEmail]
-          }
-        }
-      }
-    );
-    return mapAllContractEnlistments(dbEnlistments);
+    const filteredEnlistments = await PropertyEnlistmentRegistryService.findTenantBiddedEnlistments(bidderEmail);
+    log.verbose('Tenant with an email of', bidderEmail, ' has bidded on following enlistments: ', filteredEnlistments);
+    return filteredEnlistments;
   },
 
   async approveEnlistment(enlistmentId) {
