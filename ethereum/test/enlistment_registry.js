@@ -14,7 +14,7 @@ const web3utils = require('web3-utils');
 const revertErrorMsg = 'VM Exception while processing transaction: revert';
 const ADDRESSES = 0;
 const GEOHASHES = 1;
-const BIDS = 1;
+const OFFERCOUNTS = 1;
 
 contract('EnlistmentRegistry', async ([owner]) => {
 
@@ -85,18 +85,13 @@ contract('EnlistmentRegistry', async ([owner]) => {
             assert.equal(toAscii(enlistmentsAndGeohashes[GEOHASHES][1]), 'du8h1k2f8');
         });
 
-        it('should retrieve enlistments and their respective bid existence value by bidder email address', async() => {
-            const enlistmentsAndBids = await registry.getEnlistmentsForBidderFiltering('winston@noreply.xd');
+        it('should retrieve enlistments and their respective offer count', async() => {
+            const enlistmentsAndBids = await registry.getEnlistmentsForBidderFiltering();
             assert.equal(enlistmentsAndBids[ADDRESSES][0], enlistmentInstance.address);
-            assert.equal(enlistmentsAndBids[BIDS][0], true);
+            assert.equal(enlistmentsAndBids[OFFERCOUNTS][0], 2);
             assert.equal(enlistmentsAndBids[ADDRESSES][1], enlistmentInstance2.address);
-            assert.equal(enlistmentsAndBids[BIDS][1], true);
+            assert.equal(enlistmentsAndBids[OFFERCOUNTS][1], 2);
             
-            const enlistmentsAndBidsAres = await registry.getEnlistmentsForBidderFiltering('ares@willreply.xd');
-            assert.equal(enlistmentsAndBidsAres[ADDRESSES][0], enlistmentInstance.address);
-            assert.equal(enlistmentsAndBidsAres[BIDS][0], true);
-            assert.equal(enlistmentsAndBidsAres[ADDRESSES][1], enlistmentInstance2.address);
-            assert.equal(enlistmentsAndBidsAres[BIDS][1], false);
         })
     });
 

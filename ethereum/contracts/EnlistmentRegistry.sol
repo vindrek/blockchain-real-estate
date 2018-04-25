@@ -2,7 +2,7 @@ pragma solidity ^0.4.18;
 
 interface Enlistment {
     function getGeohash() view external returns (bytes9);
-    function hasBid(string tenantEmail) view external returns (bool);
+    function getOfferAuthorsLength() view external returns (uint);
 }
 
 contract EnlistmentRegistry {
@@ -27,13 +27,13 @@ contract EnlistmentRegistry {
         return (enlistments, geohashes);
     }
 
-    function getEnlistmentsForBidderFiltering(string bidderEmail) view public returns(address[], bool[]) {
-        bool[] memory bids = new bool[](enlistments.length);
+    function getEnlistmentsForBidderFiltering() view public returns(address[], uint[]) {
+        uint[] memory offerCounts = new uint[](enlistments.length);
         for (uint i = 0; i < enlistments.length; i++) {
             Enlistment enlistmentContractInstance = Enlistment(enlistments[i]);
-            bids[i] = enlistmentContractInstance.hasBid(bidderEmail);
+            offerCounts[i] = enlistmentContractInstance.getOfferAuthorsLength();
         }
-        return (enlistments, bids);
+        return (enlistments, offerCounts);
     }
 
     function getEnlistments() view public ownerOnly() returns(address[]) {
