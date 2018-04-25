@@ -102,17 +102,14 @@ module.exports = {
     return enlistment.save();
   },
 
-  async getOffers(enlistmentId) {
-    const enlistment = await Models.PropertyEnlistment.findOne({
-      where: {
-        id: enlistmentId
-      }
-    });
-    return Promise.all(enlistment.get({plain: true}).offerAuthors.map(async (offerAuthor) => {
-      const contractOffer =
-        await PropertyEnlistmentContractService.getOffer(enlistment.contractAddress, offerAuthor);
-      return contractOffer;
-    }));
+  async getOffers(enlistmentAddress) {
+    const offerCount = await PropertyEnlistmentContractService.getOfferAuthorsLength(enlistmentAddress);
+    let offers = [];
+    for (let i = 0; i < offerCount; i++) {
+      const offer = await PropertyEnlistmentContractService.getOfferByIndex(enlistmentAddress, i);
+      offers.push(offer);
+    }
+    return offers;
   },
 
   async getOffer(enlistmentId, tenantEmail) {

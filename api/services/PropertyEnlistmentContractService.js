@@ -39,7 +39,7 @@ module.exports = {
     return PropertyEnlistmentContract.at(contractAddress)
       .then(contract => contract.getEnlistment.call())
       .then(([landlordEmail, landlordName, streetName, floor, apartment, house, zipCode, geohash]) => {
-        return { landlordEmail, landlordName, streetName, floor, apartment, house, zipCode, geohash: web3utils.toAscii(geohash) };
+        return { contractAddress, landlordEmail, landlordName, streetName, floor, apartment, house, zipCode, geohash: web3utils.toAscii(geohash) };
       });
   },
 
@@ -53,6 +53,10 @@ module.exports = {
       // TODO: convert BigNumber
       .then(([initialized, amount, tenantName, tenantEmail, status]) =>
         ({ initialized, amount, tenantName, tenantEmail, status: offerStatusMap[status] }));
+  },
+
+  getOfferAuthorsLength(contractAddress) {
+    return PropertyEnlistmentContract.at(contractAddress).then(contract => contract.getOfferAuthorsLength.call());
   },
 
   getOfferByIndex(contractAddress, index) {
