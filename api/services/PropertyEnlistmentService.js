@@ -98,15 +98,15 @@ module.exports = {
     return enlistment.save();
   },
 
-  async sendOffer(enlistmentId, { amount, tenantName, tenantEmail }) {
-    const enlistment = await Models.PropertyEnlistment.findOne({
+  async sendOffer(enlistmentAddress, { amount, tenantName, tenantEmail }) {
+    /* const enlistment = await Models.PropertyEnlistment.findOne({
       where: {
         id: enlistmentId
       }
-    });
-    await PropertyEnlistmentContractService.sendOffer(enlistment.contractAddress, { amount, tenantName, tenantEmail });
-    await enlistment.addOfferAuthor(tenantEmail);
-    return enlistment.save();
+    }); */
+    await PropertyEnlistmentContractService.sendOffer(enlistmentAddress, { amount, tenantName, tenantEmail });
+    // await enlistment.addOfferAuthor(tenantEmail);
+    // return enlistment.save();
   },
 
   async getOffers(enlistmentAddress) {
