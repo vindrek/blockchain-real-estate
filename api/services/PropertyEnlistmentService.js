@@ -153,67 +153,67 @@ module.exports = {
     return PropertyEnlistmentContractService.reviewOffer(enlistmentAddress, tenantEmail, approved);
   },
 
-  async submitAgreementDraft(enlistmentId, agreementDraft) {
-    const enlistment = await Models.PropertyEnlistment.findOne({
+  async submitAgreementDraft(enlistmentAddress, agreementDraft) {
+    /* const enlistment = await Models.PropertyEnlistment.findOne({
       where: {
         id: enlistmentId
       }
-    });
+    }); */
 
-    return PropertyEnlistmentContractService.submitAgreementDraft(enlistment.contractAddress, agreementDraft);
+    return PropertyEnlistmentContractService.submitAgreementDraft(enlistmentAddress, agreementDraft);
   },
 
-  async getAgreement(enlistmentId, tenantEmail) {
-    const enlistment = await Models.PropertyEnlistment.findOne({
+  async getAgreement(enlistmentAddress, tenantEmail) {
+    /* const enlistment = await Models.PropertyEnlistment.findOne({
       where: {
         id: enlistmentId
       }
-    });
+    }); */
 
-    return PropertyEnlistmentContractService.getAgreement(enlistment.contractAddress, tenantEmail);
+    return PropertyEnlistmentContractService.getAgreement(enlistmentAddress, tenantEmail);
   },
 
-  async reviewAgreement(enlistmentId, tenantEmail, confirmed = true) {
-    const enlistment = await Models.PropertyEnlistment.findOne({
+  async reviewAgreement(enlistmentAddress, tenantEmail, confirmed = true) {
+    /* const enlistment = await Models.PropertyEnlistment.findOne({
       where: {
         id: enlistmentId
       }
-    });
+    }); */
 
-    return PropertyEnlistmentContractService.reviewAgreement(enlistment.contractAddress, tenantEmail, confirmed);
+    return PropertyEnlistmentContractService.reviewAgreement(enlistmentAddress, tenantEmail, confirmed);
   },
 
-  async signAgreement(enlistmentId, tenantEmail, party, signatureHash) {
-    const enlistment = await Models.PropertyEnlistment.findOne({
+  async signAgreement(enlistmentAddress, tenantEmail, party, signatureHash) {
+    /* const enlistment = await Models.PropertyEnlistment.findOne({
       where: {
         id: enlistmentId
       }
-    });
+    }); */
 
     if (party === 'landlord') {
-      return PropertyEnlistmentContractService.landlordSignAgreement(enlistment.contractAddress, tenantEmail, signatureHash);
+      return PropertyEnlistmentContractService.landlordSignAgreement(enlistmentAddress, tenantEmail, signatureHash);
     } else {
-      return PropertyEnlistmentContractService.tenantSignAgreement(enlistment.contractAddress, tenantEmail, signatureHash);
+      return PropertyEnlistmentContractService.tenantSignAgreement(enlistmentAddress, tenantEmail, signatureHash);
     }
   },
 
-  async cancelAgreement(enlistmentId, tenantEmail) {
-    const enlistment = await Models.PropertyEnlistment.findOne({
+  async cancelAgreement(enlistmentAddress, tenantEmail) {
+    /* const enlistment = await Models.PropertyEnlistment.findOne({
       where: {
         id: enlistmentId
       }
-    });
+    }); */
 
-    return PropertyEnlistmentContractService.cancelAgreement(enlistment.contractAddress, tenantEmail);
+    return PropertyEnlistmentContractService.cancelAgreement(enlistmentAddress, tenantEmail);
   },
 
-  async receiveFirstMonthRent(enlistmentId, tenantEmail) {
-    const enlistment = await Models.PropertyEnlistment.findOne({
+  async receiveFirstMonthRent(enlistmentAddress, tenantEmail) {
+    /* const enlistment = await Models.PropertyEnlistment.findOne({
       where: {
         id: enlistmentId
       }
-    });
+    }); */
 
-    return PropertyEnlistmentContractService.receiveFirstMonthRent(enlistment.contractAddress, tenantEmail);
+    return PropertyEnlistmentContractService.receiveFirstMonthRent(enlistmentAddress, tenantEmail);
   }
 };
