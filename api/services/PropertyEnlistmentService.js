@@ -143,14 +143,14 @@ module.exports = {
     return PropertyEnlistmentContractService.cancelOffer(enlistmentAddress, tenantEmail);
   },
 
-  async reviewOffer(enlistmentId, tenantEmail, approved = true) {
-    const enlistment = await Models.PropertyEnlistment.findOne({
+  async reviewOffer(enlistmentAddress, tenantEmail, approved = true) {
+    /* const enlistment = await Models.PropertyEnlistment.findOne({
       where: {
         id: enlistmentId
       }
-    });
+    });*/
 
-    return PropertyEnlistmentContractService.reviewOffer(enlistment.contractAddress, tenantEmail, approved);
+    return PropertyEnlistmentContractService.reviewOffer(enlistmentAddress, tenantEmail, approved);
   },
 
   async submitAgreementDraft(enlistmentId, agreementDraft) {
