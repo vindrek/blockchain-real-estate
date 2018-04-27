@@ -29,24 +29,25 @@ const agreementStatusMap = {
 
 const revertErrorMsg = 'VM Exception while processing transaction: revert';
 
+const details = {
+  propertyType: "PRIVATE_APARTMENT",
+  rentalType: "ROOM",
+  availableFrom: "2018-08-08",
+  availableUntil: "2018-10-08",
+  nrOfBedrooms: 2,
+  nrOfBathrooms: 1,
+  minPrice: 100,
+  floorSize: 55.6,
+  description: "nice house. no cats.",
+  furniture: ["DRYER", "OVEN"],
+  photos: ["https://URL1.com", "https://URL2.com"]
+};
+
 contract('EnlistmentToContract', async ([owner]) => {
 
   contract('Enlistment/contract creation', async ([deployerAddress]) => {
 
     let contract;
-    const details = {
-      propertyType: "PRIVATE_APARTMENT",
-      rentalType: "ROOM",
-      availableFrom: "2018-08-08",
-      availableUntil: "2018-10-08",
-      nrOfBedrooms: 2,
-      nrOfBathrooms: 1,
-      minPrice: 100,
-      floorSize: 55.6,
-      description: "nice house. no cats.",
-      furniture: ["DRYER", "OVEN"],
-      photos: ["https://URL1.com", "https://URL2.com"]
-    };
 
     before(async () => {
       contract = await ETC.new('landlord@email.xd', 'landlord name', 'Waker', 3, 2, 1, 15000, 'ud7h0k1f8', JSON.stringify(details));
@@ -66,6 +67,7 @@ contract('EnlistmentToContract', async ([owner]) => {
       assert.equal(enlistment[5], 1);
       assert.equal(enlistment[6], 15000);
       assert.equal(toAscii(enlistment[7]), 'ud7h0k1f8');
+      assert.equal(JSON.parse(enlistment[8]), details);
     });
 
     it('should set locked property to false', async () => {
@@ -93,7 +95,7 @@ contract('EnlistmentToContract', async ([owner]) => {
       let sendTx2;
 
       before('create an enlistment and send offers', async () => {
-        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8');
+        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8', JSON.stringify(details));
         sendTx1 = await instance.sendOffer(100, 'Winston', 'winston@noreply.xd');
         sendTx2 = await instance.sendOffer(20, 'Ares', 'ares@willreply.xd');
       });
@@ -145,7 +147,7 @@ contract('EnlistmentToContract', async ([owner]) => {
       let instance;
 
       beforeEach('create an enlistment and send offer', async () => {
-        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8');
+        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8', JSON.stringify(details));
         await instance.sendOffer(400, 'Cassian', 'cassian@reply.xd');
       });
 
@@ -167,7 +169,7 @@ contract('EnlistmentToContract', async ([owner]) => {
 
       let instance;
       beforeEach('create an enlistment and send offer', async () => {
-        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8');
+        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8', JSON.stringify(details));
         await instance.sendOffer(400, 'Cassian', 'cassian@reply.xd');
       });
 
@@ -203,7 +205,7 @@ contract('EnlistmentToContract', async ([owner]) => {
       let instance;
 
       beforeEach('create an enlistment, send an offer', async () => {
-        instance = await ETC.new('johna@wick.xd', 'Johna Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8');
+        instance = await ETC.new('johna@wick.xd', 'Johna Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8', JSON.stringify(details));
         await instance.sendOffer(400, 'Cassian', 'cassian@reply.xd');
       });
 
@@ -260,7 +262,7 @@ contract('EnlistmentToContract', async ([owner]) => {
       let instance;
 
       beforeEach('create an enlistment, send an offer', async () => {
-        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8');
+        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8', JSON.stringify(details));
         await instance.sendOffer(400, 'Cassian', 'cassian@reply.xd');
         await instance.reviewOffer(true, 'cassian@reply.xd');
         await instance.submitDraft('cassian@reply.xd', 'John Wick', 'Cassian', 'cassian@reply.xd', 1519580655493, 1519580355498, 65493, 'No cats, no wives', 'draftPDFH4sh');
@@ -284,7 +286,7 @@ contract('EnlistmentToContract', async ([owner]) => {
       let instance;
 
       beforeEach('create an enlistment, send an offer, accept the offer, submit a draft', async () => {
-        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8');
+        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8', JSON.stringify(details));
         await instance.sendOffer(400, 'Cassian', 'cassian@reply.xd');
         await instance.reviewOffer(true, 'cassian@reply.xd');
         await instance.submitDraft('cassian@reply.xd', 'John Wick', 'Cassian', 'cassian@reply.xd', 1519580655493, 1519580355498, 65493, 'No cats, no wives', 'draftPDFH4sh');
@@ -351,7 +353,7 @@ contract('EnlistmentToContract', async ([owner]) => {
       let instance;
 
       beforeEach('create an enlistment, send an offer, accept the offer, submit a draft, accept the draft', async () => {
-        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8');
+        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8', JSON.stringify(details));
         await instance.sendOffer(400, 'Cassian', 'cassian@reply.xd');
         await instance.reviewOffer(true, 'cassian@reply.xd');
         await instance.submitDraft('cassian@reply.xd', 'John Wick', 'Cassian', 'cassian@reply.xd', 1519580655493, 1519580355498, 65493, 'No cats, no wives', 'draftPDFH4sh');
@@ -423,7 +425,7 @@ contract('EnlistmentToContract', async ([owner]) => {
       let instance;
 
       beforeEach('create an enlistment, send an offer, accept the offer, submit a draft, accept the draft, landlord sign, tenant sign', async () => {
-        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8');
+        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8', JSON.stringify(details));
         await instance.sendOffer(400, 'Cassian', 'cassian@reply.xd');
         await instance.reviewOffer(true, 'cassian@reply.xd');
       });
@@ -485,7 +487,7 @@ contract('EnlistmentToContract', async ([owner]) => {
       let instance;
 
       beforeEach('create an enlistment, send an offer, accept the offer, submit a draft, accept the draft, landlord sign, tenant sign', async () => {
-        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8');
+        instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8', JSON.stringify(details));
         await instance.sendOffer(400, 'Cassian', 'cassian@reply.xd');
         await instance.reviewOffer(true, 'cassian@reply.xd');
         await instance.submitDraft('cassian@reply.xd', 'John Wick', 'Cassian', 'cassian@reply.xd', 1519580655493, 1519580355498, 65493, 'No cats, no wives', 'draftPDFH4sh');
@@ -509,7 +511,7 @@ contract('EnlistmentToContract', async ([owner]) => {
     let instance;
 
     beforeEach('create an enlistment, send an offer', async () => {
-      instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8');
+      instance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8', JSON.stringify(details));
       await instance.sendOffer(400, 'Cassian', 'cassian@reply.xd');
     });
 

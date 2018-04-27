@@ -8,9 +8,9 @@ contract EnlistmentToContract {
     string[] offerAuthors;
     mapping(string => AgreementDraft) tenantAgreementMap;
 
-    function EnlistmentToContract(string landlordEmail, string landlordName, string streetName, uint floorNr, uint apartmentNr, uint houseNr, uint postalCode, bytes9 geohash) public
+    function EnlistmentToContract(string landlordEmail, string landlordName, string streetName, uint floorNr, uint apartmentNr, uint houseNr, uint postalCode, bytes9 geohash, string detailsJson) public
     {
-        enlistment = Enlistment(landlordEmail, landlordName, streetName, floorNr, apartmentNr, houseNr, postalCode, geohash);
+        enlistment = Enlistment(landlordEmail, landlordName, streetName, floorNr, apartmentNr, houseNr, postalCode, geohash, detailsJson);
         owner = msg.sender;
     }
 
@@ -65,6 +65,7 @@ contract EnlistmentToContract {
         uint houseNr;
         uint postalCode;
         bytes9 geohash;
+        string detailsJson;
     }
 
     struct Offer {
