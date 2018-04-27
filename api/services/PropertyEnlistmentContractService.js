@@ -37,8 +37,8 @@ const agreementStatusMap = {
 };
 
 module.exports = {
-  createEnlistment(landlordEmail, landlordName, streetName, floor, apartment, house, zipCode, geohash) {
-    return PropertyEnlistmentContract.new(landlordEmail, landlordName, streetName, floor, apartment, house, zipCode, geohash)
+  createEnlistment(landlordEmail, landlordName, streetName, floor, apartment, house, zipCode, geohash, detailsJson) {
+    return PropertyEnlistmentContract.new(landlordEmail, landlordName, streetName, floor, apartment, house, zipCode, geohash, detailsJson)
       .then(contract => {
         log.info(`PropertyEnlistment smart contract created on address: ${contract.address}`);
 
@@ -49,9 +49,9 @@ module.exports = {
   getEnlistment(contractAddress) {
     return PropertyEnlistmentContract.at(contractAddress)
       .then(contract => contract.getEnlistment.call())
-      .then(([landlordEmail, landlordName, streetName, floor, apartment, house, zipCode, geohash]) => {
-        return { contractAddress, landlordEmail, landlordName,
-          streetName, floor, apartment, house, zipCode, geohash: web3utils.toAscii(geohash) };
+      .then(([landlordEmail, landlordName, streetName, floor, apartment, house, zipCode, geohash, detailsJson]) => {
+        return Object.assign({}, { contractAddress, landlordEmail, landlordName,
+          streetName, floor, apartment, house, zipCode, geohash: web3utils.toAscii(geohash) }, JSON.parse(detailsJson));
       });
   },
 

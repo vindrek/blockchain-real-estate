@@ -12,6 +12,23 @@ module.exports = {
     res.status(201).json(enlistment);
   },
 
+  async getEnlistment(req, res) {
+    if (!(req.query.from)) {
+      return res.status(400).send('Specify origin of the data through "from" query param: "off-chain" || "on-chain"');
+    } else if (['off-chain', 'on-chain'].indexOf(req.query.from) === -1) {
+      return res.status(400).send('Invalid "from" value: ' + req.query.from + '. Must be either "off-chain" or "on-chain".');
+    }
+
+    let enlistment;
+    if (req.query.from === 'off-chain') {
+      enlistment = await PropertyEnlistmentService.getOffChainEnlistment(req.params.id);
+    } else {
+      enlistment = await PropertyEnlistmentService.getOnChainEnlistment(req.params.id);
+    }
+
+    res.json(enlistment);
+  },
+
   async approveEnlistment(req, res) {
     const contractAddress = await PropertyEnlistmentService.approveEnlistment(req.params.id);
 

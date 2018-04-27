@@ -25,6 +25,14 @@ module.exports = {
     return Models.PropertyEnlistment.create(enlistment);
   },
 
+  async getOffChainEnlistment(id) {
+    return Models.PropertyEnlistment.findById(id);
+  },
+
+  async getOnChainEnlistment(enlistmentAddress) {
+    return PropertyEnlistmentContractService.getEnlistment(enlistmentAddress);
+  },
+
   async findInArea(latitude, longitude, distance = 5000) {
     const filteredEnlistments = await PropertyEnlistmentRegistryService.findInArea(latitude, longitude, distance);
     log.verbose('Returning mapped geosearch filtered enlistments:', filteredEnlistments);
@@ -74,6 +82,18 @@ module.exports = {
     const coords = enlistment.geolocation.coordinates;
     const enlistmentGeohash = ngeohash.encode(coords[0], coords[1]);
 
+    const plainEnlistment = enlistment.get({plain: true});
+    const detailsProps = ['propertyType', 'rentalType', 'availableFrom', 'availableUntil', 'nrOfBedrooms',
+    'nrOfBathrooms', 'minPrice', 'floorSize', 'description', 'furniture', 'photos'];
+
+    const detailsJson = JSON.stringify(
+      Object.keys(plainEnlistment).reduce((obj, key) => {
+      if (detailsProps.indexOf(key) !== -1) {
+        obj[key] = plainEnlistment[key];
+      }
+      return obj;
+    }, {}));
+
     enlistment.contractAddress = await PropertyEnlistmentContractService.createEnlistment(
       enlistment.landlordEmail,
       enlistment.landlordName,
@@ -82,7 +102,8 @@ module.exports = {
       enlistment.apartment,
       enlistment.house,
       enlistment.zipCode,
-      enlistmentGeohash
+      enlistmentGeohash,
+      detailsJson
     );
 
     await PropertyEnlistmentRegistryService.addEnlistment(enlistment);
