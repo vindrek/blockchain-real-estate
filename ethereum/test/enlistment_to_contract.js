@@ -34,9 +34,22 @@ contract('EnlistmentToContract', async ([owner]) => {
   contract('Enlistment/contract creation', async ([deployerAddress]) => {
 
     let contract;
+    const details = {
+      propertyType: "PRIVATE_APARTMENT",
+      rentalType: "ROOM",
+      availableFrom: "2018-08-08",
+      availableUntil: "2018-10-08",
+      nrOfBedrooms: 2,
+      nrOfBathrooms: 1,
+      minPrice: 100,
+      floorSize: 55.6,
+      description: "nice house. no cats.",
+      furniture: ["DRYER", "OVEN"],
+      photos: ["https://URL1.com", "https://URL2.com"]
+    };
 
     before(async () => {
-      contract = await ETC.new('landlord@email.xd', 'landlord name', 'Waker', 3, 2, 1, 15000, 'ud7h0k1f8');
+      contract = await ETC.new('landlord@email.xd', 'landlord name', 'Waker', 3, 2, 1, 15000, 'ud7h0k1f8', JSON.stringify(details));
     });
 
     it('should deploy a contract instance', async () => {
@@ -46,7 +59,7 @@ contract('EnlistmentToContract', async ([owner]) => {
     it('should instantiate the enlistment', async () => {
       let enlistment = await contract.getEnlistment.call(); // returns an array which represents an enlistment struct
       assert.equal(enlistment[0], 'landlord@email.xd'),
-      assert.equal(enlistment[1], 'landlord name');
+        assert.equal(enlistment[1], 'landlord name');
       assert.equal(enlistment[2], 'Waker');
       assert.equal(enlistment[3], 3);
       assert.equal(enlistment[4], 2);
@@ -90,12 +103,12 @@ contract('EnlistmentToContract', async ([owner]) => {
         assert.isOk(sendTx2);
       });
 
-      it('should add offers to lookup table', async() => {
+      it('should add offers to lookup table', async () => {
         const offerAuthorsLength = await instance.getOfferAuthorsLength.call();
         bigNumberEqual(offerAuthorsLength, 2);
       });
 
-      it('should retrieve offers, one-by-one', async() => {
+      it('should retrieve offers, one-by-one', async () => {
         const offerAuthorsLength = await instance.getOfferAuthorsLength.call();
         let offers = [];
         for (var i = 0; i < offerAuthorsLength; i++) {
@@ -501,8 +514,8 @@ contract('EnlistmentToContract', async ([owner]) => {
     });
 
     it('should not access any other address other than the instantiator to access', async () => {
-      await expectThrowMessage(instance.getOffer.call('cassian@reply.xd', {from: sndAccount}), revertErrorMsg);
-      await expectThrowMessage(instance.sendOffer(666, 'Spambot', 'fake@email.com', {from: sndAccount}), revertErrorMsg);
+      await expectThrowMessage(instance.getOffer.call('cassian@reply.xd', { from: sndAccount }), revertErrorMsg);
+      await expectThrowMessage(instance.sendOffer(666, 'Spambot', 'fake@email.com', { from: sndAccount }), revertErrorMsg);
     });
   });
 
