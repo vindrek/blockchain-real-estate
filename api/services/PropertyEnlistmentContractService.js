@@ -39,7 +39,8 @@ module.exports = {
     return PropertyEnlistmentContract.at(contractAddress)
       .then(contract => contract.getEnlistment.call())
       .then(([landlordEmail, landlordName, streetName, floor, apartment, house, zipCode, geohash]) => {
-        return { contractAddress, landlordEmail, landlordName, streetName, floor, apartment, house, zipCode, geohash: web3utils.toAscii(geohash) };
+        return { contractAddress, landlordEmail, landlordName,
+          streetName, floor, apartment, house, zipCode, geohash: web3utils.toAscii(geohash) };
       });
   },
 

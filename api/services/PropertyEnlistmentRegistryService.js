@@ -45,6 +45,11 @@ const filterByEnlistmentOfferAuthor = (registryEnlistments, bidderEmail) => {
     return filteringResult;
 };
 
+const filterByEnlistmentLandlord = (mappedEnlistments, landlordEmail) => {
+    const filteringResult = mappedEnlistments.filter((enlistment) => enlistment.landlordEmail === landlordEmail);
+    return filteringResult;
+};
+
 const mapAllRegistryEnlistments = async (inAreaRegistryEnlistments) => {
     return Promise.all(inAreaRegistryEnlistments.map(async (registryEnlistment) => {
         const contractEnlistment =
@@ -69,6 +74,12 @@ module.exports = {
         const inAreaRegistryEnlistments = GeohashService.filterInArea3(registryEnlistments, latitude, longitude, distance);
         log.verbose('The following enlistments match the geosearch:', inAreaRegistryEnlistments);
         return mapAllRegistryEnlistments(inAreaRegistryEnlistments);
+    },
+    async findLandlordEnlistments(landlordEmail) {
+        const mappedEnlistments = await this.getAll();
+        const landlordEnlistments = filterByEnlistmentLandlord(mappedEnlistments, landlordEmail);
+        log.verbose('Landlord with an email', landlordEmail, 'has', landlordEnlistments.length, 'enlistments.');
+        return landlordEnlistments;
     },
     async findTenantBiddedEnlistments(bidderEmail) {
         const registryEnlistmentsWithOffers = await getEnlistmentsForBidderFiltering();

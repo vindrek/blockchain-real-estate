@@ -55,6 +55,11 @@ module.exports = {
     // return mapAllContractEnlistments(enlistments);
   },
 
+  async findByLandlord(landlordEmail) {
+    const filteredEnlistments = await PropertyEnlistmentRegistryService.findLandlordEnlistments(landlordEmail);
+    return filteredEnlistments;
+  },
+
   async findWithOffersByBidder(bidderEmail) {
     const filteredEnlistments = await PropertyEnlistmentRegistryService.findTenantBiddedEnlistments(bidderEmail);
     return filteredEnlistments;
