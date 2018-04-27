@@ -1,16 +1,16 @@
 pragma solidity ^0.4.18;
-contract EnlistmentToContract {
+contract Enlistment {
 
     address owner;
     bool public locked = false;
-    Enlistment enlistment;
+    EnlistmentStruct enlistment;
     mapping(string => Offer) tenantOfferMap;
     string[] offerAuthors;
     mapping(string => AgreementDraft) tenantAgreementMap;
 
-    function EnlistmentToContract(string landlordEmail, string landlordName, string streetName, uint floorNr, uint apartmentNr, uint houseNr, uint postalCode, bytes9 geohash, string detailsJson) public
+    function Enlistment(string landlordEmail, string landlordName, string streetName, uint floorNr, uint apartmentNr, uint houseNr, uint postalCode, bytes9 geohash, string detailsJson) public
     {
-        enlistment = Enlistment(landlordEmail, landlordName, streetName, floorNr, apartmentNr, houseNr, postalCode, geohash, detailsJson);
+        enlistment = EnlistmentStruct(landlordEmail, landlordName, streetName, floorNr, apartmentNr, houseNr, postalCode, geohash, detailsJson);
         owner = msg.sender;
     }
 
@@ -56,7 +56,7 @@ contract EnlistmentToContract {
         COMPLETED
     }
 
-    struct Enlistment {
+    struct EnlistmentStruct {
         string landlordEmail;
         string landlordName;
         string streetName;
