@@ -48,7 +48,8 @@ const filterByEnlistmentOfferAuthor = (registryEnlistments, bidderEmail) => {
 const mapAllRegistryEnlistments = async (inAreaRegistryEnlistments) => {
     return Promise.all(inAreaRegistryEnlistments.map(async (registryEnlistment) => {
         const contractEnlistment =
-            await PropertyEnlistmentContractService.getEnlistment(registryEnlistment.address);
+            await PropertyEnlistmentContractService
+                .getEnlistment(registryEnlistment.address || registryEnlistment); // address may be mapped or unmapped
         return contractEnlistment;
     }));
 };
@@ -57,6 +58,10 @@ module.exports = {
     async addEnlistment(enlistment) {
         log.verbose('Adding enlistment with contract address ' + enlistment.contractAddress + ' to the registry.');
         return PropertyEnlistmentRegistryContractService.addEnlistment(enlistment.contractAddress);
+    },
+    async getAll() {
+        const registryEnlistments = await PropertyEnlistmentRegistryContractService.getEnlistments();
+        return mapAllRegistryEnlistments(registryEnlistments);
     },
     async findInArea(latitude, longitude, distance = 5000) {
         const registryEnlistments = await getEnlistmentsForGeosearch();

@@ -6,12 +6,11 @@ const PropertyEnlistmentRegistryService = require('./PropertyEnlistmentRegistryS
 const Status = require('../models/enums/PropertyEnlistmentStatus');
 const log = require('../../server/logger');
 
-async function mapAllContractEnlistments(dbEnlistmentInstances) {
-  return Promise.all(dbEnlistmentInstances.map(async (instanceObj) => {
-    let dbEnlistment = instanceObj.get({ plain: true });
+async function mapAllContractEnlistments(registryEnlistments) {
+  return Promise.all(registryEnlistments.map(async (enlistmentContractAddress) => {
     const contractEnlistment =
-      await PropertyEnlistmentContractService.getEnlistment(dbEnlistment.contractAddress);
-    return Object.assign({}, dbEnlistment, contractEnlistment);
+      await PropertyEnlistmentContractService.getEnlistment(enlistmentContractAddress);
+    return contractEnlistment;
   }));
 }
 
@@ -42,16 +41,18 @@ module.exports = {
   },
 
   async findAllReviewed() {
-    const dbEnlistments = await Models.PropertyEnlistment.findAll(
+    return PropertyEnlistmentRegistryService.getAll();
+
+    /* const dbEnlistments = await Models.PropertyEnlistment.findAll(
       {
         attributes: {
           exclude: ['offerAuthors']
         },
         where: { status: Status.APPROVED }
       }
-    );
+    );*/
 
-    return mapAllContractEnlistments(dbEnlistments);
+    // return mapAllContractEnlistments(enlistments);
   },
 
   async findWithOffersByBidder(bidderEmail) {

@@ -25,6 +25,10 @@ module.exports = {
                 return contract.addEnlistment(enlistmentAddress);
             });
     },
+    getEnlistments() {
+        return EnlistmentRegistryContract.deployed()
+            .then(contract => contract.getEnlistments.call());
+    },
     /*
     @returns in form [[enlistment1Adr, enlistment2Adr, ...], [enlistment1Geohash, Enlistment2Geohash, ...]]
     */
