@@ -63,6 +63,7 @@ module.exports = {
     const enlistment = await Models.PropertyEnlistment.findOne({ where: { id: enlistmentId } });
 
     enlistment.approve();
+    await enlistment.save();
 
     const coords = enlistment.geolocation.coordinates;
     const enlistmentGeohash = ngeohash.encode(coords[0], coords[1]);
@@ -80,7 +81,7 @@ module.exports = {
 
     await PropertyEnlistmentRegistryService.addEnlistment(enlistment);
 
-    return enlistment.save();
+    return enlistment.contractAddress;
   },
 
   async rejectEnlistment(enlistmentId) {

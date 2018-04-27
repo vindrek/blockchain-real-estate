@@ -13,11 +13,11 @@ module.exports = {
   },
 
   async approveEnlistment(req, res) {
-    await PropertyEnlistmentService.approveEnlistment(req.params.id);
+    const contractAddress = await PropertyEnlistmentService.approveEnlistment(req.params.id);
 
     log.info(`Enlistment with id: ${req.params.id} approved and added to registry`);
 
-    res.status(200).send();
+    res.status(200).send(contractAddress);
   },
 
   async rejectEnlistment(req, res) {
