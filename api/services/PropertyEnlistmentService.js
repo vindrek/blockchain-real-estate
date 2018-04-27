@@ -119,14 +119,14 @@ module.exports = {
     return offers;
   },
 
-  async getOffer(enlistmentId, tenantEmail) {
-    const enlistment = await Models.PropertyEnlistment.findOne({
+  async getOffer(enlistmentAddress, tenantEmail) {
+    /* const enlistment = await Models.PropertyEnlistment.findOne({
       where: {
         id: enlistmentId
       }
-    });
+    });*/
 
-    const contractOffer = await PropertyEnlistmentContractService.getOffer(enlistment.contractAddress, tenantEmail);
+    const contractOffer = await PropertyEnlistmentContractService.getOffer(enlistmentAddress, tenantEmail);
     if (!contractOffer.initialized) {
       throw new Error(404);
     }
