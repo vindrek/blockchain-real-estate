@@ -133,14 +133,14 @@ module.exports = {
     return contractOffer;
   },
 
-  async cancelOffer(enlistmentId, tenantEmail) {
-    const enlistment = await Models.PropertyEnlistment.findOne({
+  async cancelOffer(enlistmentAddress, tenantEmail) {
+    /* const enlistment = await Models.PropertyEnlistment.findOne({
       where: {
         id: enlistmentId
       }
-    });
+    });*/
 
-    return PropertyEnlistmentContractService.cancelOffer(enlistment.contractAddress, tenantEmail);
+    return PropertyEnlistmentContractService.cancelOffer(enlistmentAddress, tenantEmail);
   },
 
   async reviewOffer(enlistmentId, tenantEmail, approved = true) {
