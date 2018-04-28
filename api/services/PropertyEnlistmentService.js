@@ -26,7 +26,7 @@ module.exports = {
   },
 
   async getEnlistment(id) {
-    const dbEnlistment = Models.PropertyEnlistment.findById(id);
+    const dbEnlistment = (await Models.PropertyEnlistment.findById(id)).get({plain: true});
     let contractEnlistment;
     if (dbEnlistment.status === Status.APPROVED) {
       contractEnlistment = await PropertyEnlistmentContractService.getEnlistment(dbEnlistment.contractAddress);
@@ -89,6 +89,7 @@ module.exports = {
     enlistment.approve();
 
     enlistment.contractAddress = await PropertyEnlistmentContractService.createEnlistment(
+      enlistment.landlordEmail,
       enlistment.landlordName,
       enlistment.streetName,
       enlistment.floor,
