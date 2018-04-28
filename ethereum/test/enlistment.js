@@ -68,6 +68,7 @@ contract('Enlistment', async ([owner]) => {
       assert.equal(enlistment[6], 15000);
       assert.equal(toAscii(enlistment[7]), 'ud7h0k1f8');
       assert.equal(enlistment[8], JSON.stringify(details));
+      assert.equal(enlistment[9], false); //locked
     });
 
     it('should set locked property to false', async () => {

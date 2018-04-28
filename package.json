@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "start:eth": "ganache-cli -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\" --gasLimit 8000000",
+    "start:eth": "ganache-cli -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\" --gasLimit 9000000",
     "lint": "eslint api/ server/",
     "test": "cd ethereum && truffle test",
     "test-registry": "cd ethereum && truffle test ./test/enlistment_registry.js"
