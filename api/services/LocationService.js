@@ -145,7 +145,7 @@ const filterInArea2 = (registryEnlistments, lat, lng, distance) => {
 const filterInArea3 = (registryEnlistments, lat, lng, distance) => {
     return registryEnlistments.filter(({ addr, geohash }) => {
         const enlistmentCoords = ngeohash.decode(geohash);
-        const haversineDistance = trig.haversine({lat, lng}, {lat: enlistmentCoords.latitude, lng: enlistmentCoords.longitude}) * 1000; // convert to meters
+        const haversineDistance = trig.haversine({lat, lng}, {lat: enlistmentCoords.latitude, lng: enlistmentCoords.longitude}); // convert to meters
         log.verbose('Haversine distance from input is:', haversineDistance, ' meters');
         return haversineDistance <= distance;
     });

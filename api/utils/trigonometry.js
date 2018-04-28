@@ -1,7 +1,7 @@
 'use strict';
 
 const haversine = (p1, p2) => {
-    const R = 6372.8;
+    const R = 6372800; // Earth radius
     const phi1 = degreesToRadians(p1.lat);
     const phi2 = degreesToRadians(p2.lat);
     const deltaPhi = degreesToRadians(p2.lat - p1.lat);
