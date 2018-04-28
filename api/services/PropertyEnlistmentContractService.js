@@ -5,7 +5,7 @@ const contract = require('truffle-contract');
 const log = require('../../server/logger');
 
 const config = require('../../config/ethereum');
-const artifact = require('../../ethereum/build/contracts/EnlistmentToContract.json');
+const artifact = require('../../ethereum/build/contracts/Enlistment.json');
 
 const provider = new Web3.providers.HttpProvider(config.provider);
 

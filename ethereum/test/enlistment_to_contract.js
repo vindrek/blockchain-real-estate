@@ -1,7 +1,7 @@
 const structEqual = require('./helpers').structEqual;
 const bigNumberEqual = require('./helpers').bigNumberEqual;
 const expectThrowMessage = require('./helpers').expectThrowMessage;
-const ETC = artifacts.require("EnlistmentToContract");
+const ETC = artifacts.require("Enlistment");
 const web3 = require('web3');
 const util = require('util');
 const web3utils = require('web3-utils');
@@ -28,7 +28,7 @@ const agreementStatusMap = {
 
 const revertErrorMsg = 'VM Exception while processing transaction: revert';
 
-contract('EnlistmentToContract', async ([owner]) => {
+contract('Enlistment', async ([owner]) => {
 
   contract('Enlistment/contract creation', async ([deployerAddress]) => {
 
