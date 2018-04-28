@@ -7,7 +7,7 @@ contract EnlistmentToContract {
     mapping(string => Offer) tenantOfferMap;
     mapping(string => AgreementDraft) tenantAgreementMap;
 
-    function EnlistmentToContract(string landlordEmail, string landlordName, string streetName, int floorNr, int apartmentNr, int houseNr, int postalCode) public
+    function EnlistmentToContract(string landlordEmail, string landlordName, string streetName, uint floorNr, uint apartmentNr, uint houseNr, uint postalCode) public
     {
         enlistment = Enlistment(landlordEmail, landlordName, streetName, floorNr, apartmentNr, houseNr, postalCode);
         owner = msg.sender;
@@ -21,7 +21,7 @@ contract EnlistmentToContract {
         return (enlistment.landlordEmail, enlistment.landlordName);
     }
 
-    function getEnlistment() view public ownerOnly() returns (string, string, string, int, int, int, int) {
+    function getEnlistment() view public ownerOnly() returns (string, string, string, uint, uint, uint, uint) {
         return (enlistment.landlordEmail, enlistment.landlordName, enlistment.streetName, enlistment.floorNr, enlistment.apartmentNr, enlistment.houseNr, enlistment.postalCode);
     }
 
@@ -47,15 +47,15 @@ contract EnlistmentToContract {
         string landlordEmail;
         string landlordName;
         string streetName;
-        int floorNr;
-        int apartmentNr;
-        int houseNr;
-        int postalCode;
+        uint floorNr;
+        uint apartmentNr;
+        uint houseNr;
+        uint postalCode;
     }
 
     struct Offer {
         bool initialized;
-        int amount;
+        uint amount;
         string tenantName;
         string tenantEmail;
         OfferStatus status;
@@ -65,7 +65,7 @@ contract EnlistmentToContract {
         string landlordName; // for simplicity, there is only one landlord
         string tenantName; // for simplicity, there is only one tenant and occupants are omitted
         string tenantEmail;
-        int amount;
+        uint amount;
         uint leaseStart;
         uint handoverDate;
         uint leasePeriod;
@@ -127,7 +127,7 @@ contract EnlistmentToContract {
     }
 
     // what if the offer is in status PENDING and the tenant wants to send a new one?
-    function sendOffer(int amount, string tenantName, string tenantEmail) payable public
+    function sendOffer(uint amount, string tenantName, string tenantEmail) payable public
         ownerOnly()
         noActiveOffer(tenantEmail)
         notLocked()
@@ -154,7 +154,7 @@ contract EnlistmentToContract {
         locked = false;
     }
 
-    function getOffer(string tenantEmail) view public ownerOnly() returns (bool, int, string, string, OfferStatus) {
+    function getOffer(string tenantEmail) view public ownerOnly() returns (bool, uint, string, string, OfferStatus) {
         var o = tenantOfferMap[tenantEmail];
         return (o.initialized, o.amount, o.tenantName, o.tenantEmail, o.status);
     }
@@ -191,7 +191,7 @@ contract EnlistmentToContract {
         return (a.landlordName, a.tenantName, a.tenantEmail);
     }
 
-    function getAgreementDetails(string tenantEmail) view public ownerOnly() returns (int, uint, uint, uint, string) {
+    function getAgreementDetails(string tenantEmail) view public ownerOnly() returns (uint, uint, uint, uint, string) {
         var a = tenantAgreementMap[tenantEmail];
         return (a.amount, a.leaseStart, a.handoverDate, a.leasePeriod, a.otherTerms);
     }
