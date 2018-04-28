@@ -22,8 +22,8 @@ contract Enlistment {
         return (enlistment.landlordEmail, enlistment.landlordName);
     }
 
-    function getEnlistment() view public ownerOnly() returns (string, string, string, uint, uint, uint, uint, bytes9, string) {
-        return (enlistment.landlordEmail, enlistment.landlordName, enlistment.streetName, enlistment.floorNr, enlistment.apartmentNr, enlistment.houseNr, enlistment.postalCode, enlistment.geohash, enlistment.detailsJson);
+    function getEnlistment() view public ownerOnly() returns (string, string, string, uint, uint, uint, uint, bytes9, string, bool) {
+        return (enlistment.landlordEmail, enlistment.landlordName, enlistment.streetName, enlistment.floorNr, enlistment.apartmentNr, enlistment.houseNr, enlistment.postalCode, enlistment.geohash, enlistment.detailsJson, locked);
     }
 
     function getGeohash() view public returns(bytes9) {
