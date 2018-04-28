@@ -28,7 +28,7 @@ module.exports = {
   async getEnlistment(id) {
     const dbEnlistment = (await Models.PropertyEnlistment.findById(id)).get({plain: true});
     let contractEnlistment;
-    if (dbEnlistment.status === Status.APPROVED) {
+    if (dbEnlistment.contractAddress && dbEnlistment.contractAddress.length > 0) {
       contractEnlistment = await PropertyEnlistmentContractService.getEnlistment(dbEnlistment.contractAddress);
     }
     return Object.assign({}, dbEnlistment, contractEnlistment);

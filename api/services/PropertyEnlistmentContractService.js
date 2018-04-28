@@ -36,7 +36,8 @@ module.exports = {
   getEnlistment(contractAddress) {
     return PropertyEnlistmentContract.at(contractAddress)
       .then(contract => contract.getEnlistment.call())
-      .then(([streetName, floor, apartment, house, zipCode]) => ({streetName, floor, apartment, house, zipCode}));
+      .then(([landlordEmail, landlordName, streetName, floor, apartment, house, zipCode, locked]) =>
+        ({landlordEmail, landlordName, streetName, floor, apartment, house, zipCode, locked}));
   },
 
   sendOffer(contractAddress, {amount, tenantName, tenantEmail}) {
