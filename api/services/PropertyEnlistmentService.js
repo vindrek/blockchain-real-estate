@@ -25,6 +25,15 @@ module.exports = {
     return Models.PropertyEnlistment.create(enlistment);
   },
 
+  async getEnlistment(id) {
+    const dbEnlistment = Models.PropertyEnlistment.findById(id);
+    let contractEnlistment;
+    if (dbEnlistment.status === Status.APPROVED) {
+      contractEnlistment = await PropertyEnlistmentContractService.getEnlistment(dbEnlistment.contractAddress);
+    }
+    return Object.assign({}, dbEnlistment, contractEnlistment);
+  },
+
   findInArea(latitude, longitude, distance = 5000) {
     return Models.PropertyEnlistment.findInArea(latitude, longitude, distance);
   },

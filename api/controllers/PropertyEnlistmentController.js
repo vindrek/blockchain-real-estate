@@ -12,6 +12,11 @@ module.exports = {
     res.status(201).json(enlistment);
   },
 
+  async getEnlistment(req, res) {
+    const enlistment = await PropertyEnlistmentService.getEnlistment(req.params.id);
+    res.json(enlistment);
+  },
+
   async approveEnlistment(req, res) {
     await PropertyEnlistmentService.approveEnlistment(req.params.id);
 
