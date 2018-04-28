@@ -59,6 +59,17 @@ module.exports = {
     return mapAllContractEnlistments(dbEnlistments);
   },
 
+  async findByLandlord(landlordEmail) {
+    const dbEnlistments = await Models.PropertyEnlistment.findAll(
+      {
+        where: {
+          landlordEmail: landlordEmail
+        }
+      }
+    );
+    return mapAllContractEnlistments(dbEnlistments);
+  },
+
   async findWithOffersByBidder(bidderEmail) {
     const dbEnlistments = await Models.PropertyEnlistment.findAll(
       {
