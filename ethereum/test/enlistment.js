@@ -51,6 +51,7 @@ contract('Enlistment', async ([owner]) => {
       assert.equal(enlistment[4], 2);
       assert.equal(enlistment[5], 1);
       assert.equal(enlistment[6], 15000);
+      assert.equal(enlistment[7], false);
     });
 
     it('should set locked property to false', async () => {
