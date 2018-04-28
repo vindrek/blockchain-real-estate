@@ -1,5 +1,6 @@
 'use strict';
 
+const trig = require('../utils/trigonometry');
 const ngeohash = require('ngeohash');
 const log = require('../../server/logger');
 
@@ -103,20 +104,6 @@ const getBoundingBoxCommonPrefix = (lat, lng, distanceInKm) => {
     return findCommonPrefix(nwHash, swHash, seHash, neHash);
 };
 
-const toRadians = (x) => {
-    return x / 180.0 * Math.PI;
-};
-
-const haversine = (p1, p2) => {
-    const R = 6372.8;
-    const phi1 = toRadians(p1.lat);
-    const phi2 = toRadians(p2.lat);
-    const deltaPhi = toRadians(p2.lat - p1.lat);
-    const deltaLambda = toRadians(p2.lng - p1.lng);
-
-    const d = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(deltaPhi / 2), 2) + Math.cos(phi1) * Math.cos(phi2) * Math.pow(Math.sin(deltaLambda / 2), 2)));
-    return R * d;
-};
 
 /* Geohash prefix implementation:
   * 1. finds bounding box coordinates of the search radius
@@ -158,7 +145,7 @@ const filterInArea2 = (registryEnlistments, lat, lng, distance) => {
 const filterInArea3 = (registryEnlistments, lat, lng, distance) => {
     return registryEnlistments.filter(({ addr, geohash }) => {
         const enlistmentCoords = ngeohash.decode(geohash);
-        const haversineDistance = haversine({lat, lng}, {lat: enlistmentCoords.latitude, lng: enlistmentCoords.longitude}) * 1000; // convert to meters
+        const haversineDistance = trig.haversine({lat, lng}, {lat: enlistmentCoords.latitude, lng: enlistmentCoords.longitude}) * 1000; // convert to meters
         log.verbose('Haversine distance from input is:', haversineDistance, ' meters');
         return haversineDistance <= distance;
     });

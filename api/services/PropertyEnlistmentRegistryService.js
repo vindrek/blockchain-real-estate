@@ -1,7 +1,7 @@
 'use strict';
 const PropertyEnlistmentRegistryContractService = require('./PropertyEnlistmentRegistryContractService');
 const PropertyEnlistmentContractService = require('./PropertyEnlistmentContractService');
-const GeohashService = require('./GeohashService');
+const LocationService = require('./LocationService');
 const log = require('../../server/logger');
 const web3utils = require('web3-utils');
 
@@ -71,7 +71,7 @@ module.exports = {
     async findInArea(latitude, longitude, distance = 5000) {
         const registryEnlistments = await getEnlistmentsForGeosearch();
         log.verbose('Retrieved registry enlistments for filtering: ', registryEnlistments);
-        const inAreaRegistryEnlistments = GeohashService.filterInArea3(registryEnlistments, latitude, longitude, distance);
+        const inAreaRegistryEnlistments = LocationService.filterInArea3(registryEnlistments, latitude, longitude, distance);
         log.verbose('The following enlistments match the geosearch:', inAreaRegistryEnlistments);
         return mapAllRegistryEnlistments(inAreaRegistryEnlistments);
     },
