@@ -21,8 +21,9 @@ contract Enlistment {
         return (enlistment.landlordEmail, enlistment.landlordName);
     }
 
-    function getEnlistment() view public ownerOnly() returns (string, string, string, uint, uint, uint, uint) {
-        return (enlistment.landlordEmail, enlistment.landlordName, enlistment.streetName, enlistment.floorNr, enlistment.apartmentNr, enlistment.houseNr, enlistment.postalCode);
+    function getEnlistment() view public ownerOnly() returns (string, string, string, uint, uint, uint, uint, bool) {
+        return (enlistment.landlordEmail, enlistment.landlordName, enlistment.streetName,
+            enlistment.floorNr, enlistment.apartmentNr, enlistment.houseNr, enlistment.postalCode, locked);
     }
 
     enum OfferStatus {
