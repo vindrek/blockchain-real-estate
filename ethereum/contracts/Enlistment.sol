@@ -30,6 +30,10 @@ contract Enlistment {
         return enlistment.geohash;
     }
 
+    function getCoords() view public returns(int, int) {
+        return (1,2);
+    }
+
     function hasBid(string tenantEmail) view public returns(bool) {
         return tenantOfferMap[tenantEmail].initialized == true;
     }

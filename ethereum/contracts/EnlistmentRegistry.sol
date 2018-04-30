@@ -15,7 +15,7 @@ contract EnlistmentRegistry {
     uint16 constant ANGLES_IN_CYCLE = 16384;
     int32 constant FULL_CYCLE_DEGREES = 360000000; // compensates 6 decimal points for coordinates
     int constant AMPLITUDE = 32767;
-    uint24 constant EQUATOR_LNG_DEG_LEN = 110250; // distance of 1 degree of longitude on the equator in metres
+    uint24 constant EQUATOR_LNG_DEG_LEN = 111319; // distance of 1 degree of longitude on the equator in metres
 
     function EnlistmentRegistry() public {
         owner = msg.sender;
@@ -29,6 +29,7 @@ contract EnlistmentRegistry {
         return uint16(degrees * ANGLES_IN_CYCLE / FULL_CYCLE_DEGREES);
     }
 
+    // public for tests only
     function distance(int lat1, int lng1, int lat2, int lng2) pure public returns(uint) {
         int dLat = lat1 - lat2;
         int adjustedDLng = (lng1 - lng2) * Trigonometry.cos(degreesToIntAngle(lat2)) / AMPLITUDE;
@@ -44,13 +45,16 @@ contract EnlistmentRegistry {
         }
     }
 
-    
-    function calculateCos(int degrees) pure public returns(int) {
-        return Trigonometry.cos(degreesToIntAngle(degrees));
-    }
+    function geosearch(int lat, int lng, uint searchRadius) view public returns (uint result) {
 
-    function cosDirect(uint16 degrees) pure public returns(int) {
-        return Trigonometry.cos(degrees);
+        for (uint i = 0; i < enlistments.length; i++) {
+            var (enlistmentLat, enlistmentLng) = Enlistment(enlistments[i]).getCoords();
+            if (distance(lat, lng, enlistmentLat, enlistmentLng) < searchRadius) {
+                result = result | uint(2**i);
+            }
+        }
+
+        return result;
     }
 
     function getEnlistmentsForGeosearch() view public returns (address[], bytes9[]) {

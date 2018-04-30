@@ -61,7 +61,7 @@ contract('EnlistmentRegistry', async ([owner]) => {
 
         before(async () => {
             registry = await ER.new();
-            enlistmentInstance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8', JSON.stringify(details));
+            enlistmentInstance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 58382794, 26734081, JSON.stringify(details));
 
             //let sendTx1 = await instance.sendOffer(100, 'Winston', 'winston@noreply.xd');
             //let sendTx2 = await instance.sendOffer(20, 'Ares', 'ares@willreply.xd');    
@@ -82,11 +82,11 @@ contract('EnlistmentRegistry', async ([owner]) => {
 
         before(async () => {
             registry = await ER.new();
-            enlistmentInstance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 'ud7h0k1f8', JSON.stringify(details));
+            enlistmentInstance = await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 58382794, 26734081, JSON.stringify(details));
             registry.addEnlistment(enlistmentInstance.address);
             let sendTx1 = await enlistmentInstance.sendOffer(100, 'Winston', 'winston@noreply.xd');
             let sendTx2 = await enlistmentInstance.sendOffer(20, 'Ares', 'ares@willreply.xd');
-            enlistmentInstance2 = await ETC.new('cassian@reply.xd', 'Cassian', 'Waker', 3, 1, 2, 50000, 'du8h1k2f8', JSON.stringify(details));
+            enlistmentInstance2 = await ETC.new('cassian@reply.xd', 'Cassian', 'Waker', 3, 1, 2, 50000, 58382794, 26735081, JSON.stringify(details));
             registry.addEnlistment(enlistmentInstance2.address);
             let sendTx3 = await enlistmentInstance2.sendOffer(200, 'Winston', 'winston@noreply.xd');
             let sendTx4 = await enlistmentInstance2.sendOffer(300, 'Ares', 'nores@willreply.xd');
@@ -136,9 +136,8 @@ contract('EnlistmentRegistry', async ([owner]) => {
                 if (diff > 10) {
                     //console.log('Distance diff bigger than 10metres. Error', error, 'Diff', diff, 'contractEuclideanDistance', contractEuclideanDistance, 'haversineDistance', haversineDistance, 'points', rawTestData[idx]);
                 }
-
-                assert.isAtMost(error, 0.05);
             }
+            assert.isAtMost(maxError, 0.05);
             console.log('Max distance difference error', maxError);
         });
 
