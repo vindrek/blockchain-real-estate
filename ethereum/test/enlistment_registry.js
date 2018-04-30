@@ -1,6 +1,7 @@
 const structEqual = require('./helpers').structEqual;
 const bigNumberEqual = require('./helpers').bigNumberEqual;
 const expectThrowMessage = require('./helpers').expectThrowMessage;
+const bigNumberToNumber = require('./helpers').toNumber;
 const toAscii = require('./helpers').toAscii;
 const ER = artifacts.require("EnlistmentRegistry");
 const ETC = artifacts.require("Enlistment");
@@ -92,6 +93,21 @@ contract('EnlistmentRegistry', async ([owner]) => {
             let sendTx4 = await enlistmentInstance2.sendOffer(300, 'Ares', 'nores@willreply.xd');
         });
 
+        it('should retrieve enlistments and their respective offer count', async () => {
+            const enlistmentsAndBids = await registry.getEnlistmentsForBidderFiltering();
+            assert.equal(enlistmentsAndBids[ADDRESSES][0], enlistmentInstance.address);
+            assert.equal(enlistmentsAndBids[OFFERCOUNTS][0], 2);
+            assert.equal(enlistmentsAndBids[ADDRESSES][1], enlistmentInstance2.address);
+            assert.equal(enlistmentsAndBids[OFFERCOUNTS][1], 2);
+        });
+    });
+
+    contract('Trigonometry', async () => {
+        let registry;
+        before(async () => {
+            registry = await ER.new();
+        });
+
         // Uses up to 6 decimal points for geographic coordinates representation
         // calculation of cosine uses look-up tables
         // on-chain fn implements cosine-adjusted euclidean distance
@@ -140,22 +156,88 @@ contract('EnlistmentRegistry', async ([owner]) => {
             assert.isAtMost(maxError, 0.05);
             console.log('Max distance difference error', maxError);
         });
+    });
 
-        it('should retrieve enlistments and their respective geohashes', async () => {
-            const enlistmentsAndGeohashes = await registry.getEnlistmentsForGeosearch.call();
-            assert.equal(enlistmentsAndGeohashes[ADDRESSES][0], enlistmentInstance.address);
-            assert.equal(toAscii(enlistmentsAndGeohashes[GEOHASHES][0]), 'ud7h0k1f8');
-            assert.equal(enlistmentsAndGeohashes[ADDRESSES][1], enlistmentInstance2.address);
-            assert.equal(toAscii(enlistmentsAndGeohashes[GEOHASHES][1]), 'du8h1k2f8');
+    contract('Filtering', async () => {
+
+        let registry;
+        let loc1, loc2, loc3, loc4, loc5, loc6, loc7;
+        let testData = {
+            loc1, // Raatuse dormitory
+            loc2, // Tasku centre
+            loc3, // Tamme stadium
+            loc4, // Trainstation
+            loc5, // Kaubamaja
+            loc6, // Vanemuine theatre
+            loc7 // Viru centre
+        };
+
+        const addEnlistmentsToRegistry = async () => {
+            const locs = Object.keys(testData);
+            for (let i = 0; i < locs.length; i++) {
+                await registry.addEnlistment(testData[locs[i]]);
+            }
+        }
+
+        before(async () => {
+            registry = await ER.new();
+            testData.loc1 = (await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 58382508, 26731971, JSON.stringify(details))).address;
+            testData.loc2 = (await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 58377964, 26730725, JSON.stringify(details))).address;
+            testData.loc3 = (await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 58366366, 26713680, JSON.stringify(details))).address;
+            testData.loc4 = (await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 58373669, 26706901, JSON.stringify(details))).address;
+            testData.loc5 = (await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 58377960, 26727514, JSON.stringify(details))).address;
+            testData.loc6 = (await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 58376270, 26724055, JSON.stringify(details))).address;
+            testData.loc7 = (await ETC.new('john@wick.xd', 'John Wick', 'Baker', 1, 2, 3, 45000, 59436104, 24756290, JSON.stringify(details))).address;
+            await addEnlistmentsToRegistry();
         });
 
-        it('should retrieve enlistments and their respective offer count', async () => {
-            const enlistmentsAndBids = await registry.getEnlistmentsForBidderFiltering();
-            assert.equal(enlistmentsAndBids[ADDRESSES][0], enlistmentInstance.address);
-            assert.equal(enlistmentsAndBids[OFFERCOUNTS][0], 2);
-            assert.equal(enlistmentsAndBids[ADDRESSES][1], enlistmentInstance2.address);
-            assert.equal(enlistmentsAndBids[OFFERCOUNTS][1], 2);
-        });
+        // todo: add more tests for more diverse latitudes
+        context('should filter enlistments based on geographical proximity', async () => {
+            it('350m radius', async () => {
+                const result = await registry.geosearch.call(58377270, 26726120, 350 * 1e6); // 350m radius search with the marker in between Kaubamaja and Vanemuine
+                assert.notInclude(result, testData.loc1);
+                assert.include(result, testData.loc2);
+                assert.notInclude(result, testData.loc3);
+                assert.notInclude(result, testData.loc4);
+                assert.include(result, testData.loc5);
+                assert.include(result, testData.loc6);
+                assert.notInclude(result, testData.loc7);
+            });
+
+            it('30m radius', async () => {
+                const result = await registry.geosearch.call(58366195, 26713644, 100 * 1e6); // 30m radius search with the marker right next to Tamme stadium
+                assert.notInclude(result, testData.loc1);
+                assert.notInclude(result, testData.loc2);
+                assert.include(result, testData.loc3);
+                assert.notInclude(result, testData.loc4);
+                assert.notInclude(result, testData.loc5);
+                assert.notInclude(result, testData.loc6);
+                assert.notInclude(result, testData.loc7);
+            });
+
+            it('10km radius', async () => {
+                const result = await registry.geosearch.call(58377270, 26726120, 10000 * 1e6); // 10km radius search with the marker in between Kaubamaja and Vanemuine. Should include all Tartu enlistments
+                assert.include(result, testData.loc1);
+                assert.include(result, testData.loc2);
+                assert.include(result, testData.loc3);
+                assert.include(result, testData.loc4);
+                assert.include(result, testData.loc5);
+                assert.include(result, testData.loc6);
+                assert.notInclude(result, testData.loc7);
+            });
+
+            it('5m accuracy test: 93m radius', async () => {
+                const result = await registry.geosearch.call(58377953, 26729051, 93 * 1e6); // 89m to kaubamaja, 98m to tasku
+                assert.notInclude(result, testData.loc1);
+                assert.notInclude(result, testData.loc2);
+                assert.notInclude(result, testData.loc3);
+                assert.notInclude(result, testData.loc4);
+                assert.include(result, testData.loc5);
+                assert.notInclude(result, testData.loc6);
+                assert.notInclude(result, testData.loc7);
+            });
+        })
+
     });
 
 });

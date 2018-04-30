@@ -45,25 +45,34 @@ contract EnlistmentRegistry {
         }
     }
 
-    function geosearch(int lat, int lng, uint searchRadius) view public returns (uint result) {
-
+    /* discontinued: bitmasking technique for filter result array indices does not work for registries bigger than 256+1 */
+    /* function bitmask_geosearch(int lat, int lng, uint searchRadius) view public returns (uint result, uint startsWithNthBit) {
+        result = 0;
+        startsWithNthBit = 0;
         for (uint i = 0; i < enlistments.length; i++) {
             var (enlistmentLat, enlistmentLng) = Enlistment(enlistments[i]).getCoords();
             if (distance(lat, lng, enlistmentLat, enlistmentLng) < searchRadius) {
-                result = result | uint(2**i);
+                if (result == 0) {
+                    startsWithNthBit = i;
+                    result = 1;
+                } else {
+                    result = result * 2 ** i;
+                }
+            }
+        }
+        return (result, startsWithNthBit);
+    } */
+
+    function geosearch(int lat, int lng, uint searchRadius) view public returns (address[]) {
+        address[] memory result = new address[](enlistments.length);
+        for (uint i = 0; i < enlistments.length; i++) {
+            var (enlistmentLat, enlistmentLng) = Enlistment(enlistments[i]).getCoords();
+            if (distance(lat, lng, enlistmentLat, enlistmentLng) < searchRadius) {
+                result[i] = enlistments[i];
             }
         }
 
         return result;
-    }
-
-    function getEnlistmentsForGeosearch() view public returns (address[], bytes9[]) {
-        bytes9[] memory geohashes = new bytes9[](enlistments.length);
-        for (uint i = 0; i < enlistments.length; i++) {
-            Enlistment enlistmentContractInstance = Enlistment(enlistments[i]);
-            //geohashes[i] = enlistmentContractInstance.getGeohash();
-        }
-        return (enlistments, geohashes);
     }
 
     function getEnlistmentsForBidderFiltering() view public returns(address[], uint[]) {

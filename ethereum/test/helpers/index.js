@@ -38,5 +38,6 @@ module.exports = {
     structEqual,
     bigNumberEqual,
     expectThrowMessage,
-    toAscii
+    toAscii,
+    toNumber
 };
