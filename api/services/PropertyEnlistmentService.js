@@ -68,7 +68,8 @@ module.exports = {
     await enlistment.save();
 
     const coords = enlistment.geolocation.coordinates;
-    const enlistmentGeohash = ngeohash.encode(coords[0], coords[1]);
+    const lat = Math.abs(coords[0] * 1e6);
+    const lng = Math.abs(coords[1] * 1e6);
 
     const plainEnlistment = enlistment.get({plain: true});
     const detailsProps = ['propertyType', 'rentalType', 'availableFrom', 'availableUntil', 'nrOfBedrooms',
@@ -90,7 +91,8 @@ module.exports = {
       enlistment.apartment,
       enlistment.house,
       enlistment.zipCode,
-      enlistmentGeohash,
+      lat,
+      lng,
       detailsJson
     );
 
