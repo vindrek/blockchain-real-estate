@@ -3,7 +3,7 @@ pragma solidity ^0.4.18;
 import "./Trigonometry.sol";
 
 interface Enlistment {
-    function getCoords() view external returns(int, int);
+    function getCoords() view external returns(int32, int32);
     function getOfferAuthorsLength() view external returns (uint);
 }
 
@@ -14,7 +14,7 @@ contract EnlistmentRegistry {
     
     uint16 constant ANGLES_IN_CYCLE = 16384;
     int32 constant FULL_CYCLE_DEGREES = 360000000; // compensates 6 decimal points for coordinates
-    int constant AMPLITUDE = 32767;
+    int16 constant AMPLITUDE = 32767;
     uint24 constant EQUATOR_LNG_DEG_LEN = 111319; // distance of 1 degree of longitude on the equator in metres
 
     function EnlistmentRegistry() public {

@@ -8,9 +8,9 @@ contract Enlistment {
     string[] offerAuthors;
     mapping(string => AgreementDraft) tenantAgreementMap;
 
-    function Enlistment(string landlordEmail, string landlordName, string streetName, uint floorNr, uint apartmentNr, uint houseNr, uint postalCode, bytes9 geohash, string detailsJson) public
+    function Enlistment(string landlordEmail, string landlordName, string streetName, uint floorNr, uint apartmentNr, uint houseNr, uint postalCode, int32 lat, int32 lng, string detailsJson) public
     {
-        enlistment = EnlistmentStruct(landlordEmail, landlordName, streetName, floorNr, apartmentNr, houseNr, postalCode, geohash, detailsJson);
+        enlistment = EnlistmentStruct(landlordEmail, landlordName, streetName, floorNr, apartmentNr, houseNr, postalCode, lat, lng, detailsJson);
         owner = msg.sender;
     }
 
@@ -22,16 +22,12 @@ contract Enlistment {
         return (enlistment.landlordEmail, enlistment.landlordName);
     }
 
-    function getEnlistment() view public ownerOnly() returns (string, string, string, uint, uint, uint, uint, bytes9, string, bool) {
-        return (enlistment.landlordEmail, enlistment.landlordName, enlistment.streetName, enlistment.floorNr, enlistment.apartmentNr, enlistment.houseNr, enlistment.postalCode, enlistment.geohash, enlistment.detailsJson, locked);
+    function getEnlistment() view public ownerOnly() returns (string, string, string, uint[4], int32[2], string, bool) {
+        return (enlistment.landlordEmail, enlistment.landlordName, enlistment.streetName, [enlistment.floorNr, enlistment.apartmentNr, enlistment.houseNr, enlistment.postalCode], [enlistment.lat, enlistment.lng], enlistment.detailsJson, locked);
     }
 
-    function getGeohash() view public returns(bytes9) {
-        return enlistment.geohash;
-    }
-
-    function getCoords() view public returns(int, int) {
-        return (1,2);
+    function getCoords() view public returns(int32, int32) {
+        return (enlistment.lat, enlistment.lng);
     }
 
     function hasBid(string tenantEmail) view public returns(bool) {
@@ -68,7 +64,8 @@ contract Enlistment {
         uint apartmentNr;
         uint houseNr;
         uint postalCode;
-        bytes9 geohash;
+        int32 lat;
+        int32 lng;
         string detailsJson;
     }
 

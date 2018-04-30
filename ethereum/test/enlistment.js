@@ -62,14 +62,10 @@ contract('Enlistment', async ([owner]) => {
       assert.equal(enlistment[0], 'landlord@email.xd'),
       assert.equal(enlistment[1], 'landlord name');
       assert.equal(enlistment[2], 'Waker');
-      assert.equal(enlistment[3], 3);
-      assert.equal(enlistment[4], 2);
-      assert.equal(enlistment[5], 1);
-      assert.equal(enlistment[6], 15000);
-      assert.equal(enlistment[7], 58382794);
-      assert.equal(enlistment[8], 26734081);
-      assert.equal(enlistment[9], JSON.stringify(details));
-      assert.equal(enlistment[10], false); //locked
+      structEqual(enlistment[3], [3, 2, 1, 15000]); 
+      structEqual(enlistment[4], [58382794, 26734081]);
+      assert.equal(enlistment[5], JSON.stringify(details));
+      assert.equal(enlistment[6], false); //locked
     });
 
     it('should set locked property to false', async () => {
