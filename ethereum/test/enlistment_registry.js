@@ -76,7 +76,7 @@ contract('EnlistmentRegistry', async ([owner]) => {
         });
     });
 
-    contract('Filtering by bidder', async () => {
+    contract('Filtering by bidder or landlord', async () => {
         let registry;
         let enlistmentInstance;
         let enlistmentInstance2;
@@ -101,6 +101,22 @@ contract('EnlistmentRegistry', async ([owner]) => {
             const enlistments2 = await registry.getEnlistmentsByBidder('winston@noreply.xd');
             assert.sameMembers(enlistments2, [enlistmentInstance.address, enlistmentInstance2.address]);
         });
+
+        it('should retrieve enlistments for a given landlord', async () => {
+            let enlistmentInstance3 = await ETC.new('cassian@reply.xd', 'Cassian', 'Waker', 3, 1, 2, 50000, 58382794, 26735081, JSON.stringify(details));
+            await registry.addEnlistment(enlistmentInstance3.address);
+
+            const enlistments = await registry.getEnlistmentsByLandlord('john@wick.xd');
+            assert.include(enlistments, enlistmentInstance.address);
+            assert.notInclude(enlistments, enlistmentInstance2.address);
+            assert.notInclude(enlistments, enlistmentInstance3.address);
+
+            const enlistments2 = await registry.getEnlistmentsByBidder('cassian@noreply.xd');
+            assert.notInclude(enlistments, enlistmentInstance.address);
+            assert.include(enlistments, enlistmentInstance2.address);
+            assert.include(enlistments, enlistmentInstance3.address);
+        });
+
     });
 
     contract('Geosearch filtering', async () => {

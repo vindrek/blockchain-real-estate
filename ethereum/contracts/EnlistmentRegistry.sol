@@ -7,6 +7,8 @@ interface Enlistment {
 
 import "./GeoDistance.sol";
 
+// TODO: should guard for duplicates
+
 contract EnlistmentRegistry {
 
     address[] enlistments;
