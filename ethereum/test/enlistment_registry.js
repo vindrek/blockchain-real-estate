@@ -99,7 +99,7 @@ contract('EnlistmentRegistry', async ([owner]) => {
             assert.notInclude(enlistments, enlistmentInstance2.address);
 
             const enlistments2 = await registry.getEnlistmentsByBidder('winston@noreply.xd');
-            assert.equal(enlistments.filter((el) => el === enlistmentInstance.address).length, 2);
+            assert.sameMembers(enlistments2, [enlistmentInstance.address, enlistmentInstance2.address]);
         });
     });
 

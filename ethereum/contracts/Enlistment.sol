@@ -34,10 +34,6 @@ contract Enlistment {
         return tenantOfferMap[tenantEmail].initialized == true;
     }
 
-    function getOfferAuthorsLength() view public returns(uint) {
-        return offerAuthors.length;
-    }
-
     enum OfferStatus {
         PENDING,
         REJECTED,

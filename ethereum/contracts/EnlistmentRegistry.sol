@@ -2,7 +2,7 @@ pragma solidity ^0.4.18;
 
 interface Enlistment {
     function getCoords() view external returns(int32, int32);
-    function getOfferAuthorsLength() view external returns (uint);
+    function hasBid(string tenantEmail) view external returns (bool);
 }
 
 import "./GeoDistance.sol";
@@ -49,13 +49,16 @@ contract EnlistmentRegistry {
         return result;
     }
 
-    function getEnlistmentsForBidderFiltering() view public returns(address[], uint[]) {
-        uint[] memory offerCounts = new uint[](enlistments.length);
+    function getEnlistmentsByBidder(string tenantEmail) view public returns(address[]) {
+        address[] memory result = new address[](enlistments.length);
         for (uint i = 0; i < enlistments.length; i++) {
-            Enlistment enlistmentContractInstance = Enlistment(enlistments[i]);
-            offerCounts[i] = enlistmentContractInstance.getOfferAuthorsLength();
+            var en = enlistments[i];
+            Enlistment enlistmentContractInstance = Enlistment(en);
+            if (enlistmentContractInstance.hasBid(tenantEmail)) {
+                result[i] = en;
+            }
         }
-        return (enlistments, offerCounts);
+        return result;
     }
 
     function getEnlistments() view public ownerOnly() returns(address[]) {
