@@ -111,10 +111,15 @@ contract('EnlistmentRegistry', async ([owner]) => {
             assert.notInclude(enlistments, enlistmentInstance2.address);
             assert.notInclude(enlistments, enlistmentInstance3.address);
 
-            const enlistments2 = await registry.getEnlistmentsByBidder('cassian@noreply.xd');
-            assert.notInclude(enlistments, enlistmentInstance.address);
-            assert.include(enlistments, enlistmentInstance2.address);
-            assert.include(enlistments, enlistmentInstance3.address);
+            const enlistments2 = await registry.getEnlistmentsByLandlord('cassian@reply.xd');
+            assert.notInclude(enlistments2, enlistmentInstance.address);
+            assert.include(enlistments2, enlistmentInstance2.address);
+            assert.include(enlistments2, enlistmentInstance3.address);
+
+            const enlistments3 = await registry.getEnlistmentsByLandlord('cassian@noreply.xd');
+            assert.notInclude(enlistments3, enlistmentInstance.address);
+            assert.notInclude(enlistments3, enlistmentInstance2.address);
+            assert.notInclude(enlistments3, enlistmentInstance3.address);
         });
 
     });

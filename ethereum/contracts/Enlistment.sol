@@ -18,8 +18,8 @@ contract Enlistment {
         return owner;
     }
 
-    function getLandlord() view public ownerOnly() returns (string, string) {
-        return (enlistment.landlordEmail, enlistment.landlordName);
+    function getLandlordEmailKeccak256() view public returns (bytes32) {
+        return keccak256(enlistment.landlordEmail);
     }
 
     function getEnlistment() view public ownerOnly() returns (string, string, string, uint[4], int32[2], string, bool) {

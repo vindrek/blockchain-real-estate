@@ -3,6 +3,7 @@ pragma solidity ^0.4.18;
 interface Enlistment {
     function getCoords() view external returns(int32, int32);
     function hasBid(string tenantEmail) view external returns (bool);
+    function getLandlordEmailKeccak256() view external returns(bytes32);
 }
 
 import "./GeoDistance.sol";
@@ -61,6 +62,20 @@ contract EnlistmentRegistry {
             }
         }
         return result;
+    }
+
+    function getEnlistmentsByLandlord(string landlordEmail) view public returns(address[]) {
+        address[] memory result = new address[](enlistments.length);
+        for (uint i = 0; i < enlistments.length; i++) {
+            var en = enlistments[i];
+            Enlistment enlistmentContractInstance = Enlistment(en);
+            if (keccak256(landlordEmail) == enlistmentContractInstance.getLandlordEmailKeccak256()) {
+                result[i] = en;
+            }
+        }
+
+        return result;
+
     }
 
     function getEnlistments() view public ownerOnly() returns(address[]) {
