@@ -16,35 +16,6 @@ const getEnlistmentsForGeosearch = async () => {
         ({ address, geohash: web3utils.toAscii(contractEnlistmentsAndGeohashes[1][idx]) }));
 };
 
-const getEnlistmentsForBidderFiltering = async () => {
-    const contractEnlistmentsAndOfferCounts = await PropertyEnlistmentRegistryContractService.getEnlistmentsForBidderFiltering();
-
-    if (contractEnlistmentsAndOfferCounts[0].length === 0) {
-        return [];
-    }
-
-    return Promise.all(contractEnlistmentsAndOfferCounts[0].map(async (address, idx) => {
-        let offers = [];
-        for (let i = 0; i < contractEnlistmentsAndOfferCounts[1][idx]; i++) {
-            const offer = await PropertyEnlistmentContractService.getOfferByIndex(address, i);
-            offers.push(offer);
-        }
-        return { address, offers };
-    }));
-};
-
-const filterByEnlistmentOfferAuthor = (registryEnlistments, bidderEmail) => {
-    const filteringResult = registryEnlistments.filter((enlistmentWithOffers) => {
-        for (let i = 0; i< enlistmentWithOffers.offers.length; i++) {
-            if (enlistmentWithOffers.offers[i].tenantEmail === bidderEmail) {
-                return true;
-            }
-        }
-        return false;
-    });
-    return filteringResult;
-};
-
 const filterByEnlistmentLandlord = (mappedEnlistments, landlordEmail) => {
     const filteringResult = mappedEnlistments.filter((enlistment) => enlistment.landlordEmail === landlordEmail);
     return filteringResult;
@@ -82,9 +53,8 @@ module.exports = {
         return landlordEnlistments;
     },
     async findTenantBiddedEnlistments(bidderEmail) {
-        const registryEnlistmentsWithOffers = await getEnlistmentsForBidderFiltering();
-        const bidderRegistryEnlistments = filterByEnlistmentOfferAuthor(registryEnlistmentsWithOffers, bidderEmail);
-        log.verbose('Tenant with an email', bidderEmail, 'has bidded on', bidderRegistryEnlistments.length, ' enlistments.');
-        return mapAllRegistryEnlistments(bidderRegistryEnlistments);
+        const registryEnlistmentsByBidder = await PropertyEnlistmentRegistryContractService.getEnlistmentsByBidder(bidderEmail);
+        log.verbose('Tenant with an email', bidderEmail, 'has bidded on', registryEnlistmentsByBidder.length, ' enlistments.');
+        return mapAllRegistryEnlistments(registryEnlistmentsByBidder);
     }
 };

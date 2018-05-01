@@ -56,7 +56,7 @@ module.exports = {
     return filteredEnlistments;
   },
 
-  async findWithOffersByBidder(bidderEmail) {
+  async findByBidder(bidderEmail) {
     const filteredEnlistments = await PropertyEnlistmentRegistryService.findTenantBiddedEnlistments(bidderEmail);
     return filteredEnlistments;
   },

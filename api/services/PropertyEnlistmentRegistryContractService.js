@@ -8,6 +8,7 @@ const config = require('../../config/ethereum');
 const artifact = require('../../ethereum/build/contracts/EnlistmentRegistry.json');
 
 const provider = new Web3.providers.HttpProvider(config.provider);
+const web3 = new Web3(config.provider);
 
 const EnlistmentRegistryContract = contract(artifact);
 EnlistmentRegistryContract.setProvider(provider);
@@ -29,18 +30,15 @@ module.exports = {
         return EnlistmentRegistryContract.deployed()
             .then(contract => contract.getEnlistments.call());
     },
-    /*
-    @returns in form [[enlistment1Adr, enlistment2Adr, ...], [enlistment1Geohash, Enlistment2Geohash, ...]]
-    */
-    getEnlistmentsForGeosearch() {
+    getEnlistmentsByLandlord(landlordEmail) {
         return EnlistmentRegistryContract.deployed()
-            .then(contract => contract.getEnlistmentsForGeosearch.call());
+            .then(contract => contract.getEnlistmentsByLandlord.call(landlordEmail));
     },
-    /*
-    @returns in form [[enlistment1Adr, enlistment2Adr, ...], [enlistment1OfferCount, enlistment2OfferCount, ...]]
-    */
-    getEnlistmentsForBidderFiltering() {
+    async getEnlistmentsByBidder(tenantEmail) {
         return EnlistmentRegistryContract.deployed()
-            .then(contract => contract.getEnlistmentsForBidderFiltering.call());
+            .then(async contract => {
+                const addresses = await contract.getEnlistmentsByBidder.call(tenantEmail);
+                return addresses.filter((addr) => !(web3.toBigNumber(addr).isZero()));
+            });
     }
 };
