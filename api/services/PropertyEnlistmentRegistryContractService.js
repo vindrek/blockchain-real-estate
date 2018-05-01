@@ -30,9 +30,12 @@ module.exports = {
         return EnlistmentRegistryContract.deployed()
             .then(contract => contract.getEnlistments.call());
     },
-    getEnlistmentsByLandlord(landlordEmail) {
+    async getEnlistmentsByLandlord(landlordEmail) {
         return EnlistmentRegistryContract.deployed()
-            .then(contract => contract.getEnlistmentsByLandlord.call(landlordEmail));
+            .then(async contract => {
+                const addresses = await contract.getEnlistmentsByLandlord.call(landlordEmail);
+                return addresses.filter(addr => !(web3.toBigNumber(addr).isZero()));
+            });
     },
     async getEnlistmentsByBidder(tenantEmail) {
         return EnlistmentRegistryContract.deployed()

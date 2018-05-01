@@ -47,10 +47,9 @@ module.exports = {
         return mapAllRegistryEnlistments(inAreaRegistryEnlistments);
     },
     async findLandlordEnlistments(landlordEmail) {
-        const mappedEnlistments = await this.getAll();
-        const landlordEnlistments = filterByEnlistmentLandlord(mappedEnlistments, landlordEmail);
-        log.verbose('Landlord with an email', landlordEmail, 'has', landlordEnlistments.length, 'enlistments.');
-        return landlordEnlistments;
+        const registryEnlistmentsByLandlord = await PropertyEnlistmentRegistryContractService.getEnlistmentsByLandlord(landlordEmail);
+        log.verbose('Landlord with an email', landlordEmail, 'has', registryEnlistmentsByLandlord.length, 'enlistments.');
+        return mapAllRegistryEnlistments(registryEnlistmentsByLandlord);
     },
     async findTenantBiddedEnlistments(bidderEmail) {
         const registryEnlistmentsByBidder = await PropertyEnlistmentRegistryContractService.getEnlistmentsByBidder(bidderEmail);
