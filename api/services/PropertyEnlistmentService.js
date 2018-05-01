@@ -35,7 +35,6 @@ module.exports = {
 
   async findInArea(latitude, longitude, distance = 5000) {
     const filteredEnlistments = await PropertyEnlistmentRegistryService.findInArea(latitude, longitude, distance);
-    log.verbose('Returning mapped geosearch filtered enlistments:', filteredEnlistments);
     return filteredEnlistments;
   },
 

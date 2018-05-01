@@ -18,6 +18,8 @@ EnlistmentRegistryContract.defaults({
     gasPrice: 1000000000
 });
 
+const filterNonEmptyAddresses = (addresses) => addresses.filter(addr => !(web3.toBigNumber(addr).isZero()));
+
 module.exports = {
     addEnlistment(enlistmentAddress) {
         return EnlistmentRegistryContract.deployed()
@@ -30,18 +32,25 @@ module.exports = {
         return EnlistmentRegistryContract.deployed()
             .then(contract => contract.getEnlistments.call());
     },
+    async geosearch(lat, lng, distance) {
+        return EnlistmentRegistryContract.deployed()
+            .then(async contract => {
+                const addresses = await contract.geosearch.call(lat, lng, distance);
+                return filterNonEmptyAddresses(addresses);
+            });
+    },
     async getEnlistmentsByLandlord(landlordEmail) {
         return EnlistmentRegistryContract.deployed()
             .then(async contract => {
                 const addresses = await contract.getEnlistmentsByLandlord.call(landlordEmail);
-                return addresses.filter(addr => !(web3.toBigNumber(addr).isZero()));
+                return filterNonEmptyAddresses(addresses);
             });
     },
     async getEnlistmentsByBidder(tenantEmail) {
         return EnlistmentRegistryContract.deployed()
             .then(async contract => {
                 const addresses = await contract.getEnlistmentsByBidder.call(tenantEmail);
-                return addresses.filter((addr) => !(web3.toBigNumber(addr).isZero()));
+                return filterNonEmptyAddresses(addresses);
             });
     }
 };
