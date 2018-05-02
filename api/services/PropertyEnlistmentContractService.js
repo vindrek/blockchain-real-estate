@@ -85,12 +85,12 @@ module.exports = {
     return PropertyEnlistmentContract.at(contractAddress).then(contract => contract.reviewOffer(approved, tenantEmail));
   },
 
-  submitAgreementDraft(contractAddress, {
-    tenantEmail, landlordName, agreementTenantName, agreementTenantEmail, leaseStart, handoverDate, leasePeriod, otherTerms, hash
+  submitAgreementDraft(contractAddress, tenantEmail, {
+    landlordEmail, landlordName, agreementTenantName, agreementTenantEmail, leaseStart, handoverDate, leasePeriod, otherTerms, hash
   }) {
     return PropertyEnlistmentContract.at(contractAddress).then(contract => {
       return contract.submitDraft(
-        tenantEmail,
+        landlordEmail,
         landlordName,
         agreementTenantName,
         agreementTenantEmail,

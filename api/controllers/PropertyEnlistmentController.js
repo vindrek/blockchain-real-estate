@@ -21,9 +21,9 @@ module.exports = {
 
     let enlistment;
     if (req.query.from === 'off-chain') {
-      enlistment = await PropertyEnlistmentService.getOffChainEnlistment(req.params.id);
+      enlistment = await PropertyEnlistmentService.getOffChainEnlistment(req.params.idOrContractAddress);
     } else {
-      enlistment = await PropertyEnlistmentService.getOnChainEnlistment(req.params.id);
+      enlistment = await PropertyEnlistmentService.getOnChainEnlistment(req.params.idOrContractAddress);
     }
 
     res.json(enlistment);
