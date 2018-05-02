@@ -86,11 +86,11 @@ module.exports = {
   },
 
   submitAgreementDraft(contractAddress, tenantEmail, {
-    landlordEmail, landlordName, agreementTenantName, agreementTenantEmail, leaseStart, handoverDate, leasePeriod, otherTerms, hash
+    landlordName, agreementTenantName, agreementTenantEmail, leaseStart, handoverDate, leasePeriod, otherTerms, hash
   }) {
     return PropertyEnlistmentContract.at(contractAddress).then(contract => {
       return contract.submitDraft(
-        landlordEmail,
+        tenantEmail,
         landlordName,
         agreementTenantName,
         agreementTenantEmail,
