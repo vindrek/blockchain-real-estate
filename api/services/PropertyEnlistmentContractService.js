@@ -33,7 +33,7 @@ const agreementStatusMap = {
   4: 'CANCELLED',
   5: 'LANDLORD_SIGNED',
   6: 'TENANT_SIGNED',
-  7: 'COMPLETED'
+  7: 'STARTED'
 };
 
 module.exports = {
