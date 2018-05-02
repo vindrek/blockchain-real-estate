@@ -39,12 +39,12 @@ module.exports = {
     action: 'getOffer'
   },
 
-  'POST /enlistments/:id/offers/cancel': {
+  'POST /enlistments/:id/offers/:tenantEmail/cancel': {
     controller: 'OfferController',
     action: 'cancelOffer'
   },
 
-  'POST /enlistments/:id/offers/review': {
+  'POST /enlistments/:id/offers/:tenantEmail/review': {
     controller: 'OfferController',
     action: 'reviewOffer'
   },
@@ -54,27 +54,27 @@ module.exports = {
     action: 'submitAgreementDraft'
   },
 
-  'GET /enlistments/:id/agreements': {
+  'GET /enlistments/:id/agreements/:tenantEmail': {
     controller: 'AgreementContractController',
     action: 'getAgreement'
   },
 
-  'POST /enlistments/:id/agreements/review': {
+  'POST /enlistments/:id/agreements/:tenantEmail/review': {
     controller: 'AgreementContractController',
     action: 'reviewAgreement'
   },
 
-  'POST /enlistments/:id/agreements/sign': {
+  'POST /enlistments/:id/agreements/:tenantEmail/sign': {
     controller: 'AgreementContractController',
     action: 'signAgreement'
   },
 
-  'POST /enlistments/:id/agreements/cancel': {
+  'POST /enlistments/:id/agreements/:tenantEmail/cancel': {
     controller: 'AgreementContractController',
     action: 'cancelAgreement'
   },
 
-  'POST /enlistments/:id/payments': {
+  'POST /enlistments/:id/agreements/:tenantEmail/payments': {
     controller: 'AgreementContractController',
     action: 'receiveFirstMonthRent'
   },

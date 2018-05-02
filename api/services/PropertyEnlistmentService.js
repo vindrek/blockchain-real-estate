@@ -167,14 +167,14 @@ module.exports = {
     return PropertyEnlistmentContractService.reviewOffer(enlistment.contractAddress, tenantEmail, approved);
   },
 
-  async submitAgreementDraft(enlistmentId, agreementDraft) {
+  async submitAgreementDraft(enlistmentId, tenantEmail, agreementDraft) {
     const enlistment = await Models.PropertyEnlistment.findOne({
       where: {
         id: enlistmentId
       }
     });
 
-    return PropertyEnlistmentContractService.submitAgreementDraft(enlistment.contractAddress, agreementDraft);
+    return PropertyEnlistmentContractService.submitAgreementDraft(enlistment.contractAddress, tenantEmail, agreementDraft);
   },
 
   async getAgreement(enlistmentId, tenantEmail) {

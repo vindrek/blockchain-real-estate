@@ -28,7 +28,7 @@ module.exports = {
   },
 
   async cancelOffer(req, res) {
-    await PropertyEnlistmentService.cancelOffer(req.params.id, req.body.tenantEmail);
+    await PropertyEnlistmentService.cancelOffer(req.params.id, req.params.tenantEmail);
 
     log.info(`Offer cancelled`);
 
@@ -36,7 +36,7 @@ module.exports = {
   },
 
   async reviewOffer(req, res) {
-    await PropertyEnlistmentService.reviewOffer(req.params.id, req.body.tenantEmail, req.body.approved);
+    await PropertyEnlistmentService.reviewOffer(req.params.id, req.params.tenantEmail, req.body.approved);
 
     log.info(`Offer reviewed with resolution ${req.body.approved}`);
 
