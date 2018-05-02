@@ -23,7 +23,7 @@ const agreementStatusMap = {
   'CANCELLED': 4,
   'LANDLORD_SIGNED': 5,
   'TENANT_SIGNED': 6,
-  'COMPLETED': 7
+  'STARTED': 7
 };
 
 const revertErrorMsg = 'VM Exception while processing transaction: revert';
@@ -464,7 +464,7 @@ contract('Enlistment', async ([owner]) => {
 
         const agreementStatus = await instance.getAgreementStatus.call('cassian@reply.xd');
 
-        bigNumberEqual(agreementStatusMap['COMPLETED'], agreementStatus);
+        bigNumberEqual(agreementStatusMap['STARTED'], agreementStatus);
       });
     });
   });
