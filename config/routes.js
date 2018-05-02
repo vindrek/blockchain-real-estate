@@ -9,7 +9,7 @@ module.exports = {
     action: 'findEnlistments'
   },
 
-  'GET /enlistments/:id': {
+  'GET /enlistments/:idOrContractAddress': {
     controller: 'PropertyEnlistmentController',
     action: 'getEnlistment'
   },
@@ -24,12 +24,12 @@ module.exports = {
     action: 'rejectEnlistment'
   },
 
-  'POST /enlistments/:id/offers': {
+  'POST /enlistments/:contractAddress/offers': {
     controller: 'OfferController',
     action: 'sendOffer'
   },
 
-  'GET /enlistments/:id/offers': {
+  'GET /enlistments/:contractAddress/offers': {
     controller: 'OfferController',
     action: 'getOffers'
   },
@@ -39,42 +39,42 @@ module.exports = {
     action: 'getOffer'
   },
 
-  'POST /enlistments/:id/offers/cancel': {
+  'POST /enlistments/:contractAddress/offers/:tenantEmail/cancel': {
     controller: 'OfferController',
     action: 'cancelOffer'
   },
 
-  'POST /enlistments/:id/offers/review': {
+  'POST /enlistments/:contractAddress/offers/review': {
     controller: 'OfferController',
     action: 'reviewOffer'
   },
 
-  'POST /enlistments/:id/agreements': {
+  'POST /enlistments/:contractAddress/agreements': {
     controller: 'AgreementContractController',
     action: 'submitAgreementDraft'
   },
 
-  'GET /enlistments/:id/agreements': {
+  'GET /enlistments/:contractAddress/agreements/:tenantEmail': {
     controller: 'AgreementContractController',
     action: 'getAgreement'
   },
 
-  'POST /enlistments/:id/agreements/review': {
+  'POST /enlistments/:contractAddress/agreements/:tenantEmail/review': {
     controller: 'AgreementContractController',
     action: 'reviewAgreement'
   },
 
-  'POST /enlistments/:id/agreements/sign': {
+  'POST /enlistments/:contractAddress/agreements/:tenantEmail/sign': {
     controller: 'AgreementContractController',
     action: 'signAgreement'
   },
 
-  'POST /enlistments/:id/agreements/cancel': {
+  'POST /enlistments/:contractAddress/agreements/:tenantEmail/cancel': {
     controller: 'AgreementContractController',
     action: 'cancelAgreement'
   },
 
-  'POST /enlistments/:id/payments': {
+  'POST /enlistments/:contractAddress/agreements/:tenantEmail/payments': {
     controller: 'AgreementContractController',
     action: 'receiveFirstMonthRent'
   },

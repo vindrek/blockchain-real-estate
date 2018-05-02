@@ -34,7 +34,7 @@ contract EnlistmentRegistry {
                     startsWithNthBit = i;
                     result = 1;
                 } else {
-                    result = result * 2 ** i;
+                    result = result | 2 ** i;  bignumber.tostring(2)
                 }
             }
         }

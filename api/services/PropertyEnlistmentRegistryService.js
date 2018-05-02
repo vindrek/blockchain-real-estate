@@ -1,25 +1,7 @@
 'use strict';
 const PropertyEnlistmentRegistryContractService = require('./PropertyEnlistmentRegistryContractService');
 const PropertyEnlistmentContractService = require('./PropertyEnlistmentContractService');
-const LocationService = require('./LocationService');
 const log = require('../../server/logger');
-const web3utils = require('web3-utils');
-
-const getEnlistmentsForGeosearch = async () => {
-    const contractEnlistmentsAndGeohashes = await PropertyEnlistmentRegistryContractService.getEnlistmentsForGeosearch();
-
-    if (contractEnlistmentsAndGeohashes[0].length === 0) {
-        return [];
-    }
-
-    return contractEnlistmentsAndGeohashes[0].map((address, idx) =>
-        ({ address, geohash: web3utils.toAscii(contractEnlistmentsAndGeohashes[1][idx]) }));
-};
-
-const filterByEnlistmentLandlord = (mappedEnlistments, landlordEmail) => {
-    const filteringResult = mappedEnlistments.filter((enlistment) => enlistment.landlordEmail === landlordEmail);
-    return filteringResult;
-};
 
 const mapAllRegistryEnlistments = async (inAreaRegistryEnlistments) => {
     return Promise.all(inAreaRegistryEnlistments.map(async (registryEnlistment) => {
