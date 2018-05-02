@@ -24,6 +24,17 @@ const offerStatusMap = {
   3: 'ACCEPTED'
 };
 
+const agreementStatusMap = {
+  0: 'UNINITIALIZED', // internal
+  1: 'PENDING',
+  2: 'REJECTED',
+  3: 'CONFIRMED',
+  4: 'CANCELLED',
+  5: 'LANDLORD_SIGNED',
+  6: 'TENANT_SIGNED',
+  7: 'STARTED'
+};
+
 module.exports = {
   createEnlistment(landlordEmail, landlordName, streetName, floor, apartment, house, zipCode) {
     return PropertyEnlistmentContract.new(landlordEmail, landlordName, streetName, floor, apartment, house, zipCode).then(contract => {
@@ -104,7 +115,7 @@ module.exports = {
         hash,
         landlordSignature,
         tenantSignature,
-        status
+        status: agreementStatusMap[status]
       };
     });
   },
