@@ -34,7 +34,7 @@ module.exports = {
     action: 'getOffers'
   },
 
-  'GET /enlistments/:id/offers/:tenantEmail': {
+  'GET /enlistments/:contractAddress/offers/:tenantEmail': {
     controller: 'OfferController',
     action: 'getOffer'
   },
@@ -44,7 +44,7 @@ module.exports = {
     action: 'cancelOffer'
   },
 
-  'POST /enlistments/:contractAddress/offers/review': {
+  'POST /enlistments/:contractAddress/offers/:tenantEmail/review': {
     controller: 'OfferController',
     action: 'reviewOffer'
   },

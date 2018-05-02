@@ -138,8 +138,8 @@ module.exports = {
     return PropertyEnlistmentContractService.reviewOffer(enlistmentAddress, tenantEmail, approved);
   },
 
-  async submitAgreementDraft(enlistmentAddress, agreementDraft) {
-    return PropertyEnlistmentContractService.submitAgreementDraft(enlistmentAddress, agreementDraft);
+  async submitAgreementDraft(enlistmentAddress, tenantEmail, agreementDraft) {
+    return PropertyEnlistmentContractService.submitAgreementDraft(enlistmentAddress, tenantEmail, agreementDraft);
   },
 
   async getAgreement(enlistmentAddress, tenantEmail) {

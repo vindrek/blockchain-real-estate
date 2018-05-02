@@ -2068,8 +2068,15 @@
         "Trigonometry": "0x345ca3e014aaf5dca488057592ee47305d9b3e10"
       },
       "address": "0xf25186b5081ff5ce73482ad761db0eb0d25abfbf"
+    },
+    "1525299906659": {
+      "events": {},
+      "links": {
+        "Trigonometry": "0xb529f14aa8096f943177c09ca294ad66d2e08b1f"
+      },
+      "address": "0x3d49d1ef2ade060a33c6e6aa213513a7ee9a6241"
     }
   },
   "schemaVersion": "1.0.1",
-  "updatedAt": "2018-05-01T01:39:34.134Z"
+  "updatedAt": "2018-05-02T22:46:13.467Z"
 }
