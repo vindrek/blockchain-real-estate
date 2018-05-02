@@ -49,7 +49,7 @@ contract Enlistment {
         CANCELLED,
         LANDLORD_SIGNED,
         TENANT_SIGNED,
-        COMPLETED
+        STARTED
     }
 
     struct EnlistmentStruct {
@@ -107,7 +107,7 @@ contract Enlistment {
         var offerStatus = tenantOfferMap[tenantEmail].status;
         require(offerStatus == OfferStatus.PENDING || offerStatus == OfferStatus.ACCEPTED);
         var agreementStatus = tenantAgreementMap[tenantEmail].status;
-        require(!(agreementStatus == AgreementStatus.CANCELLED || agreementStatus == AgreementStatus.TENANT_SIGNED || agreementStatus == AgreementStatus.COMPLETED));
+        require(!(agreementStatus == AgreementStatus.CANCELLED || agreementStatus == AgreementStatus.TENANT_SIGNED || agreementStatus == AgreementStatus.STARTED));
         _;
     }
 
@@ -124,7 +124,7 @@ contract Enlistment {
 
     modifier agreementCancellable(string tenantEmail) {
         var agreementStatus = tenantAgreementMap[tenantEmail].status;
-        require(!(agreementStatus == AgreementStatus.CANCELLED || agreementStatus == AgreementStatus.TENANT_SIGNED || agreementStatus == AgreementStatus.COMPLETED || agreementStatus == AgreementStatus.REJECTED));
+        require(!(agreementStatus == AgreementStatus.CANCELLED || agreementStatus == AgreementStatus.TENANT_SIGNED || agreementStatus == AgreementStatus.STARTED || agreementStatus == AgreementStatus.REJECTED));
         _;
     }
 
@@ -269,6 +269,6 @@ contract Enlistment {
         offerInStatus(OfferStatus.ACCEPTED, tenantEmail)
         agreementInStatus(AgreementStatus.TENANT_SIGNED, tenantEmail)
     {
-        tenantAgreementMap[tenantEmail].status = AgreementStatus.COMPLETED;
+        tenantAgreementMap[tenantEmail].status = AgreementStatus.STARTED;
     }
 }
