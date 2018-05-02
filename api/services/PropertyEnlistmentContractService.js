@@ -89,7 +89,7 @@ module.exports = {
     }).then(([
                [landlordName, tenantName, tenantEmail],
                [amount, leaseStart, handoverDate, leasePeriod, otherTerms], // TODO: convert BigNumber
-               [hash, landlordSignatureHash, tenantSignatureHash],
+               [hash, landlordSignature, tenantSignature],
                status
              ]) => {
       return {
@@ -102,8 +102,8 @@ module.exports = {
         leasePeriod,
         otherTerms,
         hash,
-        landlordSignatureHash,
-        tenantSignatureHash,
+        landlordSignature,
+        tenantSignature,
         status
       };
     });
@@ -113,12 +113,12 @@ module.exports = {
     return PropertyEnlistmentContract.at(contractAddress).then(contract => contract.reviewAgreement(tenantEmail, confirmed));
   },
 
-  landlordSignAgreement(contractAddress, tenantEmail, signatureHash) {
-    return PropertyEnlistmentContract.at(contractAddress).then(contract => contract.landlordSignAgreement(tenantEmail, signatureHash));
+  landlordSignAgreement(contractAddress, tenantEmail, signature) {
+    return PropertyEnlistmentContract.at(contractAddress).then(contract => contract.landlordSignAgreement(tenantEmail, signature));
   },
 
-  tenantSignAgreement(contractAddress, tenantEmail, signatureHash) {
-    return PropertyEnlistmentContract.at(contractAddress).then(contract => contract.tenantSignAgreement(tenantEmail, signatureHash));
+  tenantSignAgreement(contractAddress, tenantEmail, signature) {
+    return PropertyEnlistmentContract.at(contractAddress).then(contract => contract.tenantSignAgreement(tenantEmail, signature));
   },
 
   cancelAgreement(contractAddress, tenantEmail) {

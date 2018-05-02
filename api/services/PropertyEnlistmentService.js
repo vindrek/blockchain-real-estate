@@ -197,7 +197,7 @@ module.exports = {
     return PropertyEnlistmentContractService.reviewAgreement(enlistment.contractAddress, tenantEmail, confirmed);
   },
 
-  async signAgreement(enlistmentId, tenantEmail, party, signatureHash) {
+  async signAgreement(enlistmentId, tenantEmail, party, signature) {
     const enlistment = await Models.PropertyEnlistment.findOne({
       where: {
         id: enlistmentId
@@ -205,9 +205,9 @@ module.exports = {
     });
 
     if (party === 'landlord') {
-      return PropertyEnlistmentContractService.landlordSignAgreement(enlistment.contractAddress, tenantEmail, signatureHash);
+      return PropertyEnlistmentContractService.landlordSignAgreement(enlistment.contractAddress, tenantEmail, signature);
     } else {
-      return PropertyEnlistmentContractService.tenantSignAgreement(enlistment.contractAddress, tenantEmail, signatureHash);
+      return PropertyEnlistmentContractService.tenantSignAgreement(enlistment.contractAddress, tenantEmail, signature);
     }
   },
 
