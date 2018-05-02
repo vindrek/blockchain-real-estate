@@ -5,7 +5,7 @@ const log = require('../../server/logger');
 
 module.exports = {
   async submitAgreementDraft(req, res) {
-    await PropertyEnlistmentService.submitAgreementDraft(req.params.contractAddress, req.params.tenantEmail, req.body);
+    await PropertyEnlistmentService.submitAgreementDraft(req.params.contractAddress, req.body.tenantEmail, req.body);
 
     log.info('Agreement draft submitted');
     res.status(201).send();
