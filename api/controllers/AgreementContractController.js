@@ -26,7 +26,7 @@ module.exports = {
 
   async signAgreement(req, res) {
     await PropertyEnlistmentService.signAgreement(req.params.contractAddress, req.params.tenantEmail,
-      req.body.party, req.body.signatureHash);
+      req.body.party, req.body.signature);
 
     log.info(`Agreement signed by ${req.body.party}`);
     res.status(200).send();

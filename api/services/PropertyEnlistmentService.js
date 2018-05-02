@@ -150,11 +150,11 @@ module.exports = {
     return PropertyEnlistmentContractService.reviewAgreement(enlistmentAddress, tenantEmail, confirmed);
   },
 
-  async signAgreement(enlistmentAddress, tenantEmail, party, signatureHash) {
+  async signAgreement(enlistmentAddress, tenantEmail, party, signature) {
     if (party === 'landlord') {
-      return PropertyEnlistmentContractService.landlordSignAgreement(enlistmentAddress, tenantEmail, signatureHash);
+      return PropertyEnlistmentContractService.landlordSignAgreement(enlistmentAddress, tenantEmail, signature);
     } else {
-      return PropertyEnlistmentContractService.tenantSignAgreement(enlistmentAddress, tenantEmail, signatureHash);
+      return PropertyEnlistmentContractService.tenantSignAgreement(enlistmentAddress, tenantEmail, signature);
     }
   },
 
