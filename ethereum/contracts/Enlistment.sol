@@ -85,9 +85,9 @@ contract Enlistment {
         uint handoverDate;
         uint leasePeriod;
         string otherTerms;
-        string hash;
-        string landlordSignedHash;
-        string tenantSignedHash;
+        string documentHash;
+        string landlordSignature;
+        string tenantSignature;
         AgreementStatus status;
     }
 
@@ -189,7 +189,7 @@ contract Enlistment {
     }
 
     function submitDraft(string tenantEmail, string landlordName, string agreementTenantName, string agreementTenantEmail,
-        uint leaseStart, uint handoverDate, uint leasePeriod, string otherTerms, string hash) payable public
+        uint leaseStart, uint handoverDate, uint leasePeriod, string otherTerms, string documentHash) payable public
         ownerOnly()
         offerExists(tenantEmail)
         offerInStatus(OfferStatus.ACCEPTED, tenantEmail)
@@ -200,7 +200,7 @@ contract Enlistment {
             agreementTenantName, agreementTenantEmail,
             amount, leaseStart,
             handoverDate, leasePeriod,
-            otherTerms, hash, "", "", AgreementStatus.PENDING);
+            otherTerms, documentHash, "", "", AgreementStatus.PENDING);
     }
 
     // getAgreement functions:
@@ -219,7 +219,7 @@ contract Enlistment {
 
     function getAgreementHashes(string tenantEmail) view public ownerOnly() returns (string, string, string) {
         var a = tenantAgreementMap[tenantEmail];
-        return (a.hash, a.landlordSignedHash, a.tenantSignedHash);
+        return (a.documentHash, a.landlordSignature, a.tenantSignature);
     }
 
     function getAgreementStatus(string tenantEmail) view public ownerOnly() returns (AgreementStatus) {
@@ -236,25 +236,25 @@ contract Enlistment {
         tenantAgreementMap[tenantEmail].status = result ? AgreementStatus.CONFIRMED : AgreementStatus.REJECTED;
     }
 
-    function landlordSignAgreement(string tenantEmail, string landlordSignedHash) payable public
+    function landlordSignAgreement(string tenantEmail, string landlordSignature) payable public
         ownerOnly()
         notLocked()
         offerExists(tenantEmail)
         offerInStatus(OfferStatus.ACCEPTED, tenantEmail)
         agreementInStatus(AgreementStatus.CONFIRMED, tenantEmail)
     {
-        tenantAgreementMap[tenantEmail].landlordSignedHash = landlordSignedHash;
+        tenantAgreementMap[tenantEmail].landlordSignature = landlordSignature;
         tenantAgreementMap[tenantEmail].status = AgreementStatus.LANDLORD_SIGNED;
         locked = true;
     }
 
-    function tenantSignAgreement(string tenantEmail, string tenantSignedHash) payable public
+    function tenantSignAgreement(string tenantEmail, string tenantSignature) payable public
         ownerOnly()
         offerExists(tenantEmail)
         offerInStatus(OfferStatus.ACCEPTED, tenantEmail)
         agreementInStatus(AgreementStatus.LANDLORD_SIGNED, tenantEmail)
     {
-        tenantAgreementMap[tenantEmail].tenantSignedHash = tenantSignedHash;
+        tenantAgreementMap[tenantEmail].tenantSignature = tenantSignature;
         tenantAgreementMap[tenantEmail].status = AgreementStatus.TENANT_SIGNED;
     }
 
