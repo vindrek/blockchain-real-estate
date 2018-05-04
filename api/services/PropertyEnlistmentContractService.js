@@ -72,7 +72,7 @@ module.exports = {
   },
 
   submitAgreementDraft(contractAddress, tenantEmail, {
-    landlordName, agreementTenantName, agreementTenantEmail, leaseStart, handoverDate, leasePeriod, otherTerms, hash
+    landlordName, agreementTenantName, agreementTenantEmail, leaseStart, handoverDate, leasePeriod, otherTerms, documentHash
   }) {
     return PropertyEnlistmentContract.at(contractAddress).then(contract => {
       return contract.submitDraft(
@@ -84,7 +84,7 @@ module.exports = {
         handoverDate,
         leasePeriod,
         otherTerms,
-        hash
+        documentHash
       );
     });
   },
@@ -100,7 +100,7 @@ module.exports = {
     }).then(([
                [landlordName, tenantName, tenantEmail],
                [amount, leaseStart, handoverDate, leasePeriod, otherTerms], // TODO: convert BigNumber
-               [hash, landlordSignature, tenantSignature],
+               [documentHash, landlordSignature, tenantSignature],
                status
              ]) => {
       return {
@@ -112,7 +112,7 @@ module.exports = {
         handoverDate,
         leasePeriod,
         otherTerms,
-        hash,
+        documentHash,
         landlordSignature,
         tenantSignature,
         status: agreementStatusMap[status]
