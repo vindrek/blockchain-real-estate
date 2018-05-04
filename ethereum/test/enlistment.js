@@ -242,7 +242,7 @@ contract('Enlistment', async ([owner]) => {
           });
 
           it('Multi-part requests: hashes', async () => {
-            const agreementHashes = await instance.getAgreementHashes.call('cassian@reply.xd'); // returns struct in the form of [unsignedHash, landlordSignedHash, tenantSignedHash]
+            const agreementHashes = await instance.getAgreementHashes.call('cassian@reply.xd'); // returns struct in the form of [unsignedHash, landlordSignature, tenantSignature]
             structEqual(['draftPDFH4sh', '', ''], agreementHashes);
           });
 

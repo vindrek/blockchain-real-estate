@@ -82,7 +82,7 @@ contract Enlistment {
         uint handoverDate;
         uint leasePeriod;
         string otherTerms;
-        string hash;
+        string documentHash;
         string landlordSignature;
         string tenantSignature;
         AgreementStatus status;
@@ -186,7 +186,7 @@ contract Enlistment {
     }
 
     function submitDraft(string tenantEmail, string landlordName, string agreementTenantName, string agreementTenantEmail,
-        uint leaseStart, uint handoverDate, uint leasePeriod, string otherTerms, string hash) payable public
+        uint leaseStart, uint handoverDate, uint leasePeriod, string otherTerms, string documentHash) payable public
         ownerOnly()
         offerExists(tenantEmail)
         offerInStatus(OfferStatus.ACCEPTED, tenantEmail)
@@ -197,7 +197,7 @@ contract Enlistment {
             agreementTenantName, agreementTenantEmail,
             amount, leaseStart,
             handoverDate, leasePeriod,
-            otherTerms, hash, "", "", AgreementStatus.PENDING);
+            otherTerms, documentHash, "", "", AgreementStatus.PENDING);
     }
 
     // getAgreement functions:
@@ -216,7 +216,7 @@ contract Enlistment {
 
     function getAgreementHashes(string tenantEmail) view public ownerOnly() returns (string, string, string) {
         var a = tenantAgreementMap[tenantEmail];
-        return (a.hash, a.landlordSignature, a.tenantSignature);
+        return (a.documentHash, a.landlordSignature, a.tenantSignature);
     }
 
     function getAgreementStatus(string tenantEmail) view public ownerOnly() returns (AgreementStatus) {
