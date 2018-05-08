@@ -38,13 +38,12 @@ contract EnlistmentRegistry {
         return result;
     }
 
-    function getEnlistmentsByBidder(string tenantEmail) view public returns(address[]) {
-        address[] memory result = new address[](enlistments.length);
+    function getEnlistmentsByBidder(string tenantEmail) view public returns(uint result) {
+        result = 0;
         for (uint i = 0; i < enlistments.length; i++) {
-            var en = enlistments[i];
-            Enlistment enlistmentContractInstance = Enlistment(en);
+            Enlistment enlistmentContractInstance = Enlistment(enlistments[i]);
             if (enlistmentContractInstance.hasBid(tenantEmail)) {
-                result[i] = en;
+                result = result | 2 ** i;
             }
         }
         return result;

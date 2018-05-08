@@ -95,12 +95,13 @@ contract('EnlistmentRegistry', async ([owner]) => {
         });
 
         it('should retrieve enlistments for a given tenant for which he/she has made an offers', async () => {
-            const enlistments = await registry.getEnlistmentsByBidder('ares@willreply.xd');
-            assert.include(enlistments, enlistmentInstance.address);
-            assert.notInclude(enlistments, enlistmentInstance2.address);
+            const enlistments = await registry.getEnlistmentsByBidder.call('ares@willreply.xd');
+            const bitset = enlistments.toString(2);
+            assert.equal(bitset, '1');
 
-            const enlistments2 = await registry.getEnlistmentsByBidder('winston@noreply.xd');
-            assert.sameMembers(enlistments2, [enlistmentInstance.address, enlistmentInstance2.address]);
+            const enlistments2 = await registry.getEnlistmentsByBidder.call('winston@noreply.xd');
+            const bitset2 = enlistments2.toString(2);
+            assert.equal(bitset2, '11');
         });
 
         it('should retrieve enlistments for a given landlord', async () => {

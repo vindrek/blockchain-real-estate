@@ -57,7 +57,7 @@ module.exports = {
       enlistments = await PropertyEnlistmentService.findAllUnpublished();
     } else if (req.query.latitude && req.query.longitude && req.query.distance) {
       enlistments = await PropertyEnlistmentService.findInArea(
-        parseFloat(req.query.latitude), parseFloat(req.query.longitude), parseFloat(req.query.distance)) || [];
+        parseFloat(req.query.latitude), parseFloat(req.query.longitude), parseFloat(req.query.distance)) || []; // distance in metres
     } else if (req.query.bidder) {
       enlistments = await PropertyEnlistmentService.findByBidder(req.query.bidder);
     } else if (req.query.landlord) {
