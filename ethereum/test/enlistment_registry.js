@@ -161,29 +161,29 @@ contract('EnlistmentRegistry', async ([owner]) => {
         // todo: add more tests for more diverse latitudes
         context('should filter enlistments based on geographical proximity', async () => {
             it('bitset test', async () => {
-                const result = await registry.geosearchBitSet.call(58377270, 26726120, 350 * 1e6); // 350m radius search with the marker in between Kaubamaja and Vanemuine
+                const result = await registry.geosearch.call(58377270, 26726120, 350 * 1e6); // 350m radius search with the marker in between Kaubamaja and Vanemuine
                 const bitset = result.toString(2);
                 assert.equal(bitset, '110010');
             });
             it('350m radius', async () => {
-                const result = await registry.geosearchBitSet.call(58377270, 26726120, 350 * 1e6); // 350m radius search with the marker in between Kaubamaja and Vanemuine
+                const result = await registry.geosearch.call(58377270, 26726120, 350 * 1e6); // 350m radius search with the marker in between Kaubamaja and Vanemuine
                 const bitset = result.toString(2);
                 assert.equal(bitset, '110010');
             });
             it('30m radius', async () => {
-                const result = await registry.geosearchBitSet.call(58366195, 26713644, 100 * 1e6); // 30m radius search with the marker right next to Tamme stadium
+                const result = await registry.geosearch.call(58366195, 26713644, 100 * 1e6); // 30m radius search with the marker right next to Tamme stadium
                 const bitset = result.toString(2);
                 assert.equal(bitset, '100');
             });
 
             it('10km radius', async () => {
-                const result = await registry.geosearchBitSet.call(58377270, 26726120, 10000 * 1e6); // 10km radius search with the marker in between Kaubamaja and Vanemuine. Should include all Tartu enlistments
+                const result = await registry.geosearch.call(58377270, 26726120, 10000 * 1e6); // 10km radius search with the marker in between Kaubamaja and Vanemuine. Should include all Tartu enlistments
                 const bitset = result.toString(2);
                 assert.equal(bitset, '111111');
             });
 
             it('5m accuracy test: 93m radius', async () => {
-                const result = await registry.geosearchBitSet.call(58377953, 26729051, 93 * 1e6); // 89m to kaubamaja, 98m to tasku
+                const result = await registry.geosearch.call(58377953, 26729051, 93 * 1e6); // 89m to kaubamaja, 98m to tasku
                 const bitset = result.toString(2);
                 assert.equal(bitset, '10000');
             });

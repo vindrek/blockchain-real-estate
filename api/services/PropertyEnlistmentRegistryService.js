@@ -23,7 +23,7 @@ module.exports = {
     },
     // inputs need to be transformed to integers.
     // For optimal geographical precision, 6 decimal points of a coordinate are taken into account.
-    // I.e. multiply params with 1e6
+    // I.e. multiply params with 1e6 before passing it to the method of the ABI
     async findInArea(latitude, longitude, distance = 5000) {
         const registryEnlistmentsByApproximity =
             await PropertyEnlistmentRegistryContractService.geosearch(latitude * 1e6, longitude * 1e6, distance * 1e6);

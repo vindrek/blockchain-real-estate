@@ -19,27 +19,20 @@ contract EnlistmentRegistry {
         owner = msg.sender;
     }
 
-    function addEnlistment(address enlistmentAddress) payable public {
+    function addEnlistment(address enlistmentAddress) payable public ownerOnly() {
         enlistments.push(enlistmentAddress);
     }
 
-    function geosearchBitSet(int lat, int lng, uint searchRadius) view public returns (uint result) {
+    function getEnlistmentAddressByIndex(uint idx) view public returns (address addr) {
+        return enlistments[idx];
+    }
+
+    function geosearch(int lat, int lng, uint searchRadius) view public returns (uint result) {
         result = 0;
         for (uint i = 0; i < enlistments.length; i++) {
             var (enlistmentLat, enlistmentLng) = Enlistment(enlistments[i]).getCoords();
             if (GeoDistance.distance(lat, lng, enlistmentLat, enlistmentLng) < searchRadius) {
-                result = result | 2 ** i;  // bignumber.tostring(2)
-            }
-        }
-        return result;
-    }
-
-    function geosearch(int lat, int lng, uint searchRadius) view public returns (address[]) {
-        address[] memory result = new address[](enlistments.length);
-        for (uint i = 0; i < enlistments.length; i++) {
-            var (enlistmentLat, enlistmentLng) = Enlistment(enlistments[i]).getCoords();
-            if (GeoDistance.distance(lat, lng, enlistmentLat, enlistmentLng) < searchRadius) {
-                result[i] = enlistments[i];
+                result = result | 2 ** i;
             }
         }
         return result;
@@ -81,6 +74,11 @@ contract EnlistmentRegistry {
 
     modifier ownerOnly() {
         require(msg.sender == owner);
+        _;
+    }
+
+    modifier indexInRange(uint index) {
+        require(enlistments.length > index);
         _;
     }
 
