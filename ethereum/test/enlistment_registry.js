@@ -9,6 +9,7 @@ const web3 = require('web3');
 const util = require('util');
 const web3utils = require('web3-utils');
 const trig = require('../../api/utils/trigonometry');
+const BigNumber = require('bignumber.js');
 
 /* tests run very unstable: sometimes all pass, sometimes there are multiple fails */
 
@@ -159,48 +160,32 @@ contract('EnlistmentRegistry', async ([owner]) => {
 
         // todo: add more tests for more diverse latitudes
         context('should filter enlistments based on geographical proximity', async () => {
-            it('350m radius', async () => {
-                const result = await registry.geosearch.call(58377270, 26726120, 350 * 1e6); // 350m radius search with the marker in between Kaubamaja and Vanemuine
-                assert.notInclude(result, testData.loc1);
-                assert.include(result, testData.loc2);
-                assert.notInclude(result, testData.loc3);
-                assert.notInclude(result, testData.loc4);
-                assert.include(result, testData.loc5);
-                assert.include(result, testData.loc6);
-                assert.notInclude(result, testData.loc7);
+            it('bitset test', async () => {
+                const result = await registry.geosearchBitSet.call(58377270, 26726120, 350 * 1e6); // 350m radius search with the marker in between Kaubamaja and Vanemuine
+                const bitset = result.toString(2);
+                assert.equal(bitset, '110010');
             });
-
+            it('350m radius', async () => {
+                const result = await registry.geosearchBitSet.call(58377270, 26726120, 350 * 1e6); // 350m radius search with the marker in between Kaubamaja and Vanemuine
+                const bitset = result.toString(2);
+                assert.equal(bitset, '110010');
+            });
             it('30m radius', async () => {
-                const result = await registry.geosearch.call(58366195, 26713644, 100 * 1e6); // 30m radius search with the marker right next to Tamme stadium
-                assert.notInclude(result, testData.loc1);
-                assert.notInclude(result, testData.loc2);
-                assert.include(result, testData.loc3);
-                assert.notInclude(result, testData.loc4);
-                assert.notInclude(result, testData.loc5);
-                assert.notInclude(result, testData.loc6);
-                assert.notInclude(result, testData.loc7);
+                const result = await registry.geosearchBitSet.call(58366195, 26713644, 100 * 1e6); // 30m radius search with the marker right next to Tamme stadium
+                const bitset = result.toString(2);
+                assert.equal(bitset, '100');
             });
 
             it('10km radius', async () => {
-                const result = await registry.geosearch.call(58377270, 26726120, 10000 * 1e6); // 10km radius search with the marker in between Kaubamaja and Vanemuine. Should include all Tartu enlistments
-                assert.include(result, testData.loc1);
-                assert.include(result, testData.loc2);
-                assert.include(result, testData.loc3);
-                assert.include(result, testData.loc4);
-                assert.include(result, testData.loc5);
-                assert.include(result, testData.loc6);
-                assert.notInclude(result, testData.loc7);
+                const result = await registry.geosearchBitSet.call(58377270, 26726120, 10000 * 1e6); // 10km radius search with the marker in between Kaubamaja and Vanemuine. Should include all Tartu enlistments
+                const bitset = result.toString(2);
+                assert.equal(bitset, '111111');
             });
 
             it('5m accuracy test: 93m radius', async () => {
-                const result = await registry.geosearch.call(58377953, 26729051, 93 * 1e6); // 89m to kaubamaja, 98m to tasku
-                assert.notInclude(result, testData.loc1);
-                assert.notInclude(result, testData.loc2);
-                assert.notInclude(result, testData.loc3);
-                assert.notInclude(result, testData.loc4);
-                assert.include(result, testData.loc5);
-                assert.notInclude(result, testData.loc6);
-                assert.notInclude(result, testData.loc7);
+                const result = await registry.geosearchBitSet.call(58377953, 26729051, 93 * 1e6); // 89m to kaubamaja, 98m to tasku
+                const bitset = result.toString(2);
+                assert.equal(bitset, '10000');
             });
         })
 

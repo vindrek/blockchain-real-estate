@@ -23,23 +23,16 @@ contract EnlistmentRegistry {
         enlistments.push(enlistmentAddress);
     }
 
-    /* discontinued: bitmasking technique for filter result array indices does not work for registries bigger than 256+1 */
-    /* function bitmask_geosearch(int lat, int lng, uint searchRadius) view public returns (uint result, uint startsWithNthBit) {
+    function geosearchBitSet(int lat, int lng, uint searchRadius) view public returns (uint result) {
         result = 0;
-        startsWithNthBit = 0;
         for (uint i = 0; i < enlistments.length; i++) {
             var (enlistmentLat, enlistmentLng) = Enlistment(enlistments[i]).getCoords();
-            if (distance(lat, lng, enlistmentLat, enlistmentLng) < searchRadius) {
-                if (result == 0) {
-                    startsWithNthBit = i;
-                    result = 1;
-                } else {
-                    result = result | 2 ** i;  bignumber.tostring(2)
-                }
+            if (GeoDistance.distance(lat, lng, enlistmentLat, enlistmentLng) < searchRadius) {
+                result = result | 2 ** i;  // bignumber.tostring(2)
             }
         }
-        return (result, startsWithNthBit);
-    } */
+        return result;
+    }
 
     function geosearch(int lat, int lng, uint searchRadius) view public returns (address[]) {
         address[] memory result = new address[](enlistments.length);
