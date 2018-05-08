@@ -66,7 +66,7 @@ module.exports = {
         return EnlistmentRegistryContract.deployed()
             .then(async contract => {
                 const bitset = (await contract.geosearch.call(lat, lng, distance)).toString(2);
-                log.info('bitset', bitset);
+                log.debug('Geosearch bitset result', bitset);
                 return bitsetToAddresses(bitset);
             });
     },
@@ -80,8 +80,9 @@ module.exports = {
     async getEnlistmentsByBidder(tenantEmail) {
         return EnlistmentRegistryContract.deployed()
             .then(async contract => {
-                const addresses = await contract.getEnlistmentsByBidder.call(tenantEmail);
-                return filterNonEmptyAddresses(addresses);
+                const bitset = await contract.getEnlistmentsByBidder.call(tenantEmail);
+                log.debug('Enlistment offer author filtering bitset result', bitset);
+                return bitsetToAddresses(bitset);
             });
     }
 };
