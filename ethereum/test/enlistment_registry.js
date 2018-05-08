@@ -108,20 +108,14 @@ contract('EnlistmentRegistry', async ([owner]) => {
             let enlistmentInstance3 = await ETC.new('cassian@reply.xd', 'Cassian', 'Waker', 3, 1, 2, 50000, 58382794, 26735081, JSON.stringify(details));
             await registry.addEnlistment(enlistmentInstance3.address);
 
-            const enlistments = await registry.getEnlistmentsByLandlord('john@wick.xd');
-            assert.include(enlistments, enlistmentInstance.address);
-            assert.notInclude(enlistments, enlistmentInstance2.address);
-            assert.notInclude(enlistments, enlistmentInstance3.address);
+            const enlistments = await registry.getEnlistmentsByLandlord.call('john@wick.xd');
+            assert.equal(enlistments.toString(2), '1');
 
-            const enlistments2 = await registry.getEnlistmentsByLandlord('cassian@reply.xd');
-            assert.notInclude(enlistments2, enlistmentInstance.address);
-            assert.include(enlistments2, enlistmentInstance2.address);
-            assert.include(enlistments2, enlistmentInstance3.address);
+            const enlistments2 = await registry.getEnlistmentsByLandlord.call('cassian@reply.xd');
+            assert.equal(enlistments2.toString(2), '110');
 
-            const enlistments3 = await registry.getEnlistmentsByLandlord('cassian@noreply.xd');
-            assert.notInclude(enlistments3, enlistmentInstance.address);
-            assert.notInclude(enlistments3, enlistmentInstance2.address);
-            assert.notInclude(enlistments3, enlistmentInstance3.address);
+            const enlistments3 = await registry.getEnlistmentsByLandlord.call('cassian@noreply.xd');
+            assert.equal(enlistments3.toString(2), '0');
         });
 
     });

@@ -49,16 +49,14 @@ contract EnlistmentRegistry {
         return result;
     }
 
-    function getEnlistmentsByLandlord(string landlordEmail) view public returns(address[]) {
-        address[] memory result = new address[](enlistments.length);
+    function getEnlistmentsByLandlord(string landlordEmail) view public returns(uint result) {
+        result = 0;
         for (uint i = 0; i < enlistments.length; i++) {
-            var en = enlistments[i];
-            Enlistment enlistmentContractInstance = Enlistment(en);
+            Enlistment enlistmentContractInstance = Enlistment(enlistments[i]);
             if (keccak256(landlordEmail) == enlistmentContractInstance.getLandlordEmailKeccak256()) {
-                result[i] = en;
+                result = result | 2 ** i;
             }
         }
-
         return result;
 
     }
