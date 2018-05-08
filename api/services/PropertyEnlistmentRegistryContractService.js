@@ -73,14 +73,15 @@ module.exports = {
     async getEnlistmentsByLandlord(landlordEmail) {
         return EnlistmentRegistryContract.deployed()
             .then(async contract => {
-                const addresses = await contract.getEnlistmentsByLandlord.call(landlordEmail);
-                return filterNonEmptyAddresses(addresses);
+                const bitset = (await contract.getEnlistmentsByLandlord.call(landlordEmail)).toString(2);
+                log.debug('Enlistment landlord filtering bitset result', bitset);
+                return bitsetToAddresses(bitset);
             });
     },
     async getEnlistmentsByBidder(tenantEmail) {
         return EnlistmentRegistryContract.deployed()
             .then(async contract => {
-                const bitset = await contract.getEnlistmentsByBidder.call(tenantEmail);
+                const bitset = (await contract.getEnlistmentsByBidder.call(tenantEmail)).toString(2);
                 log.debug('Enlistment offer author filtering bitset result', bitset);
                 return bitsetToAddresses(bitset);
             });
