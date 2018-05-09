@@ -1,7 +1,7 @@
 'use strict';
 
 const haversine = (p1, p2) => {
-    const R = 6372800; // Earth radius
+    const R = 6371000; // Earth mean radius (https://link.springer.com/article/10.1007%2Fs001900050278)
     const phi1 = degreesToRadians(p1.lat);
     const phi2 = degreesToRadians(p2.lat);
     const deltaPhi = degreesToRadians(p2.lat - p1.lat);

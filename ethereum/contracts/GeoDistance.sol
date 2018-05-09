@@ -19,7 +19,15 @@ library GeoDistance {
     uint16 constant ANGLES_IN_CYCLE = 16384; // number of angles in a circle to be used in the internal cosine calculation
     int32 constant FULL_CYCLE_DEGREES = 360000000; // compensates 6 decimal points for coordinates
     int16 constant AMPLITUDE = 32767; // projected amplitude of the internal cosine function
-    uint24 constant EQUATOR_LNG_DEG_LEN = 111319; // distance of 1 degree of longitude on the equator in metres
+
+    /*
+    * Distance of 1 degree of WGS 84 longitude on the Equator in metres
+    * 
+    * semi-major axis of the Earth on the Equator = 6378137 metres (http://epsg.io/7030-ellipsoid)
+    * 
+    * EQUATOR_LNG_DEG_LEN = circumference of the Earth on the Equator / 360 = semi-major axis * 2 * PI / 360 = 6378137 * 2 * PI / 360 = 111319
+    */
+    uint24 constant EQUATOR_LNG_DEG_LEN = 111319; 
 
 
     // Projects coordinates to integer angles
@@ -28,12 +36,12 @@ library GeoDistance {
     }
 
     /*
-     * @params 6 decimal point bearings of 2 points projected to integers
-     * @return distance between bearings in micrometres
+     * @params 6 decimal point WSG 84 coordinades of 2 points encoded as integers
+     * @return distance between locations in micrometres
     */
     function distance(int lat1, int lng1, int lat2, int lng2) pure public returns(uint) {
         int dLat = lat1 - lat2;
-        int adjustedDLng = (lng1 - lng2) * Trigonometry.cos(degreesToIntAngle(lat2)) / AMPLITUDE;
+        int adjustedDLng = (lng1 - lng2) * Trigonometry.cos(degreesToIntAngle((lat1 + lat2) / 2)) / AMPLITUDE;
         return EQUATOR_LNG_DEG_LEN * sqrt(uint(dLat * dLat) + uint(adjustedDLng * adjustedDLng));
     }
 
