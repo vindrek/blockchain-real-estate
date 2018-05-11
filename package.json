@@ -7,9 +7,11 @@
     "start": "node app.js",
     "start:eth": "ganache-cli -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\" --gasLimit 9000000",
     "lint": "eslint api/ server/",
-    "test": "cd ethereum && truffle test",
+    "test": "cd ethereum && truffle test ./test/enlistment.js ./test/enlistment_registry.js",
     "test:registry": "cd ethereum && truffle test ./test/enlistment_registry.js",
-    "test:library": "cd ethereum && truffle test ./test/geodistance.js"
+    "test:library": "cd ethereum && truffle test ./test/geodistance.js",
+    "test:library_performance": "cd ethereum && truffle test ./test/geodistance_perf.js",
+    "truffle:cm": "cd ethereum && truffle compile && truffle migrate"
   },
   "dependencies": {
     "bluebird": "^3.5.1",

@@ -1,6 +1,7 @@
 const EnlistmentRegistry = artifacts.require('./EnlistmentRegistry.sol');
 const Trigonometry = artifacts.require('./Trigonometry.sol');
 const GeoDistance = artifacts.require('./GeoDistance.sol');
+const GeoDistanceSqrtTest = artifacts.require('./GeoDistanceSqrtTest.sol');
 
 const opts = {
   from: '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
@@ -11,7 +12,9 @@ const opts = {
 module.exports = function (deployer) {
   deployer.deploy(Trigonometry, opts);
   deployer.link(Trigonometry, GeoDistance);
+  deployer.link(Trigonometry, GeoDistanceSqrtTest); // only for testing purposes
   deployer.deploy(GeoDistance, opts);
+  deployer.deploy(GeoDistanceSqrtTest, opts); // only for testing purposes
   deployer.link(GeoDistance, EnlistmentRegistry);
   deployer.deploy(EnlistmentRegistry, opts);
 

@@ -1,18 +1,9 @@
 'use strict';
 
-const ngeohash = require('ngeohash');
 const PropertyEnlistmentContractService = require('./PropertyEnlistmentContractService');
 const PropertyEnlistmentRegistryService = require('./PropertyEnlistmentRegistryService');
 const Status = require('../models/enums/PropertyEnlistmentStatus');
 const log = require('../../server/logger');
-
-async function mapAllContractEnlistments(registryEnlistments) {
-  return Promise.all(registryEnlistments.map(async (enlistmentContractAddress) => {
-    const contractEnlistment =
-      await PropertyEnlistmentContractService.getEnlistment(enlistmentContractAddress);
-    return contractEnlistment;
-  }));
-}
 
 module.exports = {
   createEnlistment(enlistment) {

@@ -1,7 +1,8 @@
-const GD = artifacts.require("GeoDistance");
+const GD = artifacts.require("GeoDistanceSqrtTest");
 const trig = require('../../api/utils/trigonometry');
 
-contract('GeoDistance library', async ([owner]) => {
+/* This tests the performance impact of using square root in distance calculation vs returning distance with the power of 2 */
+contract('GeoDistanceSqrt performance test library', async ([owner]) => {
 
     let library;
     before(async () => {
@@ -15,7 +16,7 @@ contract('GeoDistance library', async ([owner]) => {
      * accurate enough test: result difference with Haversine method must not be more than 1% of the distance radius provided by the user. Assumption: reasonable search distance radius input is considered to be in between 30m and 30km; latitude between 80...-80 (projection distortion gets worse near poles)
      * 
     */
-    it('should calculate distance accurate enough for the purpose', async () => {
+    it('should output performance test results to console', async () => {
         const rawTestData = [
             [[58.382794, 26.734081], [58.381581, 26.729116]], // sanity test: around 320m (source: https://rechneronline.de/geo-coordinates/#distance)
             [[58.656685, 25.031867], [58.646353, 25.039849]], // 1240m
@@ -39,22 +40,17 @@ contract('GeoDistance library', async ([owner]) => {
             });
         });
         var maxError = 0;
+        console.log('The distance of the test data varies from 300m to 34000m');
+        let gainPrcts = [];
         for (let idx = 0; idx < intTestData.length; idx++) {
             const points = intTestData[idx];
-            const contractDistance = (await library.distancePow2.call(points[0][0], points[0][1], points[1][0], points[1][1])) / 1e6; // response is in micrometres, convert it back
-            const haversineDistance = trig.haversine({ lat: rawTestData[idx][0][0], lng: rawTestData[idx][0][1] }, { lat: rawTestData[idx][1][0], lng: rawTestData[idx][1][1] });
-            const diff = Math.abs(contractDistance - haversineDistance);
-            const error = diff / haversineDistance;
-
-            if (error > maxError) {
-                maxError = error;
-            }
-            if (diff > 10) {
-                //console.log('Distance diff bigger than 10metres. Error', error, 'Diff', diff, 'contractEuclideanDistance', contractEuclideanDistance, 'haversineDistance', haversineDistance, 'points', rawTestData[idx]);
-            }
+            const sqrtDistanceGas = await library.distanceSqrt.estimateGas(points[0][0], points[0][1], points[1][0], points[1][1]);
+            const pow2DistanceGas = await library.distance.estimateGas(points[0][0], points[0][1], points[1][0], points[1][1]);
+            console.log('Gas estimate using sqrt function for distance calculation:', sqrtDistanceGas + '. Without sqrt (pow 2 result):', pow2DistanceGas);
+            gainPrcts.push((sqrtDistanceGas - pow2DistanceGas) / sqrtDistanceGas);
         }
-        assert.isAtMost(maxError, 0.05);
-        console.log('Max distance difference error', maxError);
+        var mean = gainPrcts.reduce((a,b) => a + b) / gainPrcts.length;
+        console.log('Mean gain:', (mean * 100).toFixed(2) + '%');
     });
 
 });

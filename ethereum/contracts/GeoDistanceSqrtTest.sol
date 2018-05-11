@@ -7,6 +7,7 @@
  *
  * Square root function based on Babylonian method. Trigonometry library based on a sine lookup table.
  *
+ * This is library is only designed to test the performance of using square root in the distance calculation vs returning a result on the power of 2
  * @author Indrek Värva
  */
 
@@ -14,7 +15,7 @@ pragma solidity ^0.4.18;
 
 import "./Trigonometry.sol";
 
-library GeoDistance {
+library GeoDistanceSqrtTest {
 
     uint16 constant ANGLES_IN_CYCLE = 16384; // number of angles in a circle to be used in the internal cosine calculation
     int32 constant FULL_CYCLE_DEGREES = 360000000; // compensates 6 decimal points for coordinates
@@ -29,6 +30,7 @@ library GeoDistance {
     * take the result to the power of 2 to avoid the necessity to use expensive square root function in the calculation of distance
     * 111319**2 = 12391919761
     */
+    uint40 constant EQUATOR_LNG_DEG_LEN = 111319; 
     uint40 constant EQUATOR_LNG_DEG_LEN_POW_2 = 12391919761; 
 
 
@@ -41,17 +43,25 @@ library GeoDistance {
      * @params 6 decimal point WSG 84 coordinades of 2 points encoded as integers
      * @return distance between locations in micrometres
     */
-    function distancePow2(int lat1, int lng1, int lat2, int lng2) pure public returns(uint) {
+    function distance(int lat1, int lng1, int lat2, int lng2) pure public returns(uint) {
         int dLat = lat1 - lat2;
         int adjustedDLng = (lng1 - lng2) * Trigonometry.cos(degreesToIntAngle((lat1 + lat2) / 2)) / AMPLITUDE;
         return EQUATOR_LNG_DEG_LEN_POW_2 * (uint(dLat * dLat) + uint(adjustedDLng * adjustedDLng));
     }
 
     /*
-    * Implementation by chriseth (https://github.com/chriseth) posted in https://github.com/ethereum/dapp-bin/pull/50.
-    * Refactored out for optimization purposes.
+     * @params 6 decimal point WSG 84 coordinades of 2 points encoded as integers
+     * @return distance between locations in micrometres
     */
-    /* function sqrt(uint x) pure internal returns (uint y) {
+    function distanceSqrt(int lat1, int lng1, int lat2, int lng2) pure public returns(uint) {
+        int dLat = lat1 - lat2;
+        int adjustedDLng = (lng1 - lng2) * Trigonometry.cos(degreesToIntAngle((lat1 + lat2) / 2)) / AMPLITUDE;
+        return EQUATOR_LNG_DEG_LEN_POW_2 * sqrt(uint(dLat * dLat) + uint(adjustedDLng * adjustedDLng));
+    }
+    /*
+    * Implementation by chriseth (https://github.com/chriseth) posted in https://github.com/ethereum/dapp-bin/pull/50.
+    */
+    function sqrt(uint x) pure internal returns (uint y) {
         if (x == 0) return 0;
         else if (x <= 3) return 1;
         uint z = (x + 1) / 2;
@@ -60,6 +70,6 @@ library GeoDistance {
             y = z;
             z = (x / z + z) / 2;
         }
-    } */
+    }
 
 }

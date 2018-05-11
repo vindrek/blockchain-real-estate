@@ -157,22 +157,30 @@ contract('EnlistmentRegistry', async ([owner]) => {
         context('should filter enlistments based on geographical proximity', async () => {
             it('bitset test', async () => {
                 const result = await registry.geosearch.call(58377270, 26726120, 350 * 1e6); // 350m radius search with the marker in between Kaubamaja and Vanemuine
+                const gasEstimate = await registry.geosearch.estimateGas(58377270, 26726120, 350 * 1e6);
+                console.log('gasEstimate', gasEstimate);
                 const bitset = result.toString(2);
                 assert.equal(bitset, '110010');
             });
             it('350m radius', async () => {
                 const result = await registry.geosearch.call(58377270, 26726120, 350 * 1e6); // 350m radius search with the marker in between Kaubamaja and Vanemuine
+                const gasEstimate = await registry.geosearch.estimateGas(58377270, 26726120, 350 * 1e6);
+                console.log('gasEstimate', gasEstimate);
                 const bitset = result.toString(2);
                 assert.equal(bitset, '110010');
             });
             it('30m radius', async () => {
                 const result = await registry.geosearch.call(58366195, 26713644, 100 * 1e6); // 30m radius search with the marker right next to Tamme stadium
+                const gasEstimate = await registry.geosearch.estimateGas(58366195, 26713644, 100 * 1e6);
+                console.log('gasEstimate', gasEstimate);
                 const bitset = result.toString(2);
                 assert.equal(bitset, '100');
             });
 
             it('10km radius', async () => {
                 const result = await registry.geosearch.call(58377270, 26726120, 10000 * 1e6); // 10km radius search with the marker in between Kaubamaja and Vanemuine. Should include all Tartu enlistments
+                const gasEstimate = await registry.geosearch.estimateGas(58377270, 26726120, 10000 * 1e6);
+                console.log('gasEstimate', gasEstimate);
                 const bitset = result.toString(2);
                 assert.equal(bitset, '111111');
             });

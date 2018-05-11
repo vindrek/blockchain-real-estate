@@ -167,6 +167,10 @@ contract Enlistment {
         locked = false; 
     }
 
+    function getOfferAuthorsLength() view public returns(uint) {
+        return offerAuthors.length;
+    }
+
     function getOffer(string tenantEmail) view public ownerOnly() returns (bool, uint, string, string, OfferStatus) {
         var o = tenantOfferMap[tenantEmail];
         return (o.initialized, o.amount, o.tenantName, o.tenantEmail, o.status);

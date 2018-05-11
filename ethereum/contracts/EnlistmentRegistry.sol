@@ -29,9 +29,10 @@ contract EnlistmentRegistry {
 
     function geosearch(int lat, int lng, uint searchRadius) view public returns (uint result) {
         result = 0;
+        uint searchRadius2 = searchRadius**2;
         for (uint i = 0; i < enlistments.length; i++) {
             var (enlistmentLat, enlistmentLng) = Enlistment(enlistments[i]).getCoords();
-            if (GeoDistance.distance(lat, lng, enlistmentLat, enlistmentLng) < searchRadius) {
+            if (GeoDistance.distancePow2(lat, lng, enlistmentLat, enlistmentLng) < searchRadius2) {
                 result = result | 2 ** i;
             }
         }
