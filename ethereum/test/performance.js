@@ -6,8 +6,13 @@ const config = require('../../config/ethereum');
 const util = require('util');
 const web3utils = require('web3-utils');
 const BigNumber = require('bignumber.js');
+const fs = require('fs');
+const path = require('path');
 
 /* Measure efficiency of the on-chain service implementation */
+
+/* Configuration */
+const LOG_TO_OUTPUT = false;
 
 /* Test data */
 
@@ -77,7 +82,10 @@ const scenarioMockOffers = [
 /* Helper functions to measure gas for each type of service interactions: contract creation, ABI tx, ABI call */
 
 const sendTxAndGetGasUsed = async (fn, ...params) => {
+    const start = new Date();
     let txHash = await fn.sendTransaction(...params);
+    const end = new Date();
+    stepRunningTimer += (end-start); // tx time measured in this test setup with blocks being instamined and no competition in tx pools is irrelevant to a production environment context running against Ethereum main network. ignore in analysis
     const tx = await web3.eth.getTransaction(txHash);
     const receipt = await web3.eth.getTransactionReceipt(txHash);
     // console.log('should be true', balanceBefore.minus(balanceAfter).toNumber(), receipt.gasUsed * (web3.eth.gasPrice).toNumber()); truffle uses different gas price, so explicitly set gas price with ganache
@@ -86,7 +94,10 @@ const sendTxAndGetGasUsed = async (fn, ...params) => {
 
 const createContractAndGetRefAndGasUsed = async (fn, ...params) => {
     let balanceBefore = await web3.eth.getBalance(web3.eth.accounts[0]);
-    let ref = await fn(...params);
+    const start = new Date();
+    let ref = await fn(...params); // tx time measured in this test setup with blocks being instamined and no competition in tx pools is irrelevant to a production environment context running against Ethereum main network. ignore in analysis
+    const end = new Date();
+    stepRunningTimer += (end-start);
     const balanceAfter = await web3.eth.getBalance(web3.eth.accounts[0]);
     // truffle uses different gas price, so explicitly set gas price with ganache
     const gasUsed = balanceBefore.minus(balanceAfter).dividedBy(web3.eth.gasPrice).toNumber();
@@ -97,7 +108,10 @@ const makeCallAndEstimateGas = async (fn, ...params) => {
     // first do the estimation
     const gasEstimation = await fn.estimateGas(...params);
     // now do the actual call and get data
+    const start = new Date();
     const output = await fn(...params);
+    const end = new Date();
+    stepRunningTimer += (end-start);
     return { gasEstimation, output };
 };
 
@@ -109,22 +123,70 @@ const flattenDeep = (arr) => {
 
 const sum = (arr) => arr.reduce((a, b) => a + b);
 
-const printResult = (step, compositeOf) => {
+// use this method in the end of each step to flush measurements to organized data structures and clean up (reset step timer)
+const appendResult = (step, compositeOf) => {
     const flatGasMeasurementArray = flattenDeep(compositeOf);
-    console.log('Step ' + step + ' gas:', sum(flatGasMeasurementArray) + ' (composite of:', compositeOf.join(' and ') + ')'); // comment this line to disable output to console
-    console.log('Step ' + step + ' request count:', flatGasMeasurementArray.length);
+    const aggregateGas = sum(flatGasMeasurementArray);
+    const requestCount = flatGasMeasurementArray.length;
+
+    scenarioRunForGas.push(aggregateGas);
+    scenarioRunForRequestCount.push(requestCount);
+    scenarioRunForTime.push(stepRunningTimer);
+
+    if (LOG_TO_OUTPUT) {
+        console.log('Step ' + step + ' gas:', aggregateGas + ' (composite of:', compositeOf.join(' and ') + ')'); // comment this line to disable output to console
+        console.log('Step ' + step + ' request count:', requestCount);
+    }
+
+    // reset timer
+    stepRunningTimer = 0;
+};
+
+const scenarioResultsToCsv = async (results, filePath, headerRow) => {
+    const newline = '\r\n';
+    if (!fs.existsSync(filePath)) {
+        fs.writeFileSync(filePath, '', { encoding: 'utf8' });
+    }
+
+    const writer = fs.createWriteStream(filePath, { flags: 'w' }); // overwrite previous file
+    writer.on('open', () => {
+        writer.write(headerRow + newline);
+        results.forEach((run, idx) => {
+            writer.write(run.join(',') + newline);
+        });
+        writer.end();
+    });
+};
+
+/* Test data population functions */
+
+const populateOffers = async (enlistment) => {
+    for (let i = 0; i < scenarioMockOffers.length; i++) {
+        const mockOffer = scenarioMockOffers[i];
+        await enlistment.sendOffer(mockOffer.amount, mockOffer.tenantName, mockOffer.tenantEmail);
+    }
+};
+
+const populateEnlistments = async (registry, numberOfEnlistments) => {
+    for (let i = 0; i < numberOfEnlistments; i++) {
+        const enlistment = await ETC.new(scenarioEnlistmentData.landlordEmail, scenarioEnlistmentData.landlordName, scenarioEnlistmentData.streetName, scenarioEnlistmentData.floorNr, scenarioEnlistmentData.apartmentNr, scenarioEnlistmentData.houseNr, scenarioEnlistmentData.postalCode, scenarioEnlistmentData.lat, scenarioEnlistmentData.lng, scenarioEnlistmentData.detilsJson);
+        await registry.addEnlistment(enlistment.address);
+        await populateOffers(enlistment);
+    }
 };
 
 /* Steps of the scenario */
 
 const step1 = async (registry) => {
+
     const enlistmentInit = await createContractAndGetRefAndGasUsed(ETC.new, scenarioEnlistmentData.landlordEmail, scenarioEnlistmentData.landlordName, scenarioEnlistmentData.streetName, scenarioEnlistmentData.floorNr, scenarioEnlistmentData.apartmentNr, scenarioEnlistmentData.houseNr, scenarioEnlistmentData.postalCode, scenarioEnlistmentData.lat, scenarioEnlistmentData.lng, scenarioEnlistmentData.detilsJson);
+
     const enlistment = enlistmentInit.ref;
     const enlistmentGasUsed = enlistmentInit.gasUsed;
 
     const appendRegistryGasUsed = await sendTxAndGetGasUsed(registry.addEnlistment, enlistment.address);
 
-    printResult(1, [enlistmentGasUsed, appendRegistryGasUsed]);
+    appendResult(1, [enlistmentGasUsed, appendRegistryGasUsed]);
 
     return enlistment;
 };
@@ -142,7 +204,7 @@ const step2 = async (registry) => {
         mappingEstimations.push(mapping.gasEstimation);
     }
 
-    printResult(2, [publishedEnlistmentsGasEstimate, mappingEstimations]);
+    appendResult(2, [publishedEnlistmentsGasEstimate, mappingEstimations]);
 };
 
 const step3 = async (registry) => {
@@ -173,18 +235,18 @@ const step3 = async (registry) => {
         geosearchEnlistmentMappingEstimations.push(mapping.gasEstimation);
     }
 
-    printResult(3, [geosearchEnlistmentsGasEstimate, geosearchIndicesMappingEstimations, geosearchEnlistmentMappingEstimations]);
+    appendResult(3, [geosearchEnlistmentsGasEstimate, geosearchIndicesMappingEstimations, geosearchEnlistmentMappingEstimations]);
 };
 
 const step4 = async (enlistment) => {
     const enlistmentRetrievalInit = await makeCallAndEstimateGas(enlistment.getEnlistment);
     const enlistmentRetrievalGasEstimate = enlistmentRetrievalInit.gasEstimation;
-    printResult(4, [enlistmentRetrievalGasEstimate]);
+    appendResult(4, [enlistmentRetrievalGasEstimate]);
 };
 
 const step5 = async (enlistment) => {
     const sendOfferGasUsed = await sendTxAndGetGasUsed(enlistment.sendOffer, scenarioOfferData.amount, scenarioOfferData.tenantName, scenarioOfferData.tenantEmail);
-    printResult(5, [sendOfferGasUsed]);
+    appendResult(5, [sendOfferGasUsed]);
 };
 
 const step6 = async (registry) => {
@@ -213,7 +275,7 @@ const step6 = async (registry) => {
         const mapping = await makeCallAndEstimateGas(enlistmentToBeMapped.getEnlistment);
         landlordEnlistmentMappingEstimations.push(mapping.gasEstimation);
     }
-    printResult(6, [landlordEnlistmentsGasEstimate, landlordIndicesMappingEstimations, landlordEnlistmentMappingEstimations]);
+    appendResult(6, [landlordEnlistmentsGasEstimate, landlordIndicesMappingEstimations, landlordEnlistmentMappingEstimations]);
 };
 
 const step7 = async (enlistment) => {
@@ -227,19 +289,19 @@ const step7 = async (enlistment) => {
         const offerToBeMapped = await makeCallAndEstimateGas(enlistment.getOfferByIndex, i);
         offerMappingEstimations.push(offerToBeMapped.gasEstimation);
     }
-    printResult(7, [offerAuthorsLengthGasEstimate, offerMappingEstimations]);
+    appendResult(7, [offerAuthorsLengthGasEstimate, offerMappingEstimations]);
 };
 
 const step8 = async (enlistment) => {
     const offerInit = await makeCallAndEstimateGas(enlistment.getOffer, scenarioOfferData.tenantEmail);
     const offerGasEstimate = offerInit.gasEstimation;
 
-    printResult(8, [offerGasEstimate]);
+    appendResult(8, [offerGasEstimate]);
 };
 
 const step9 = async (enlistment) => {
     const acceptOfferGasUsed = await sendTxAndGetGasUsed(enlistment.reviewOffer, true, scenarioOfferData.tenantEmail);
-    printResult(9, [acceptOfferGasUsed]);
+    appendResult(9, [acceptOfferGasUsed]);
 };
 
 const step10 = async (enlistment) => {
@@ -254,7 +316,7 @@ const step10 = async (enlistment) => {
         scenarioTenancyAgreementData.leasePeriod,
         scenarioTenancyAgreementData.otherTerms,
         scenarioTenancyAgreementData.documentHash);
-    printResult(10, [submitAgreementGasUsed]);
+    appendResult(10, [submitAgreementGasUsed]);
 };
 
 const step11 = async (registry) => {
@@ -283,7 +345,7 @@ const step11 = async (registry) => {
         const mapping = await makeCallAndEstimateGas(enlistmentToBeMapped.getEnlistment);
         tenantEnlistmentMappingEstimations.push(mapping.gasEstimation);
     }
-    printResult(11, [tenantEnlistmentsGasEstimate, tenantIndicesMappingEstimations, tenantEnlistmentMappingEstimations]);
+    appendResult(11, [tenantEnlistmentsGasEstimate, tenantIndicesMappingEstimations, tenantEnlistmentMappingEstimations]);
 };
 
 const step12 = async (enlistment) => {
@@ -293,136 +355,195 @@ const step12 = async (enlistment) => {
     const tenancyAgreementDetailsInit = await makeCallAndEstimateGas(enlistment.getAgreementDetails, stepTenantEmail);
     const tenancyAgreementHashesInit = await makeCallAndEstimateGas(enlistment.getAgreementHashes, stepTenantEmail);
     const tenancyAgreementStatusInit = await makeCallAndEstimateGas(enlistment.getAgreementStatus, stepTenantEmail);
-    printResult(12, [tenancyAgreementParticipantsInit.gasEstimation, tenancyAgreementDetailsInit.gasEstimation, tenancyAgreementHashesInit.gasEstimation, tenancyAgreementStatusInit.gasEstimation]);
+    appendResult(12, [tenancyAgreementParticipantsInit.gasEstimation, tenancyAgreementDetailsInit.gasEstimation, tenancyAgreementHashesInit.gasEstimation, tenancyAgreementStatusInit.gasEstimation]);
 };
 
 const step13 = async (enlistment) => {
     const acceptAgreementGasUsed = await sendTxAndGetGasUsed(enlistment.reviewAgreement, scenarioTenancyAgreementData.tenantEmail, true);
-    printResult(13, [acceptAgreementGasUsed]);
+    appendResult(13, [acceptAgreementGasUsed]);
 };
 
 const step14 = async (enlistment) => {
     const landlordSignAgreementGasUsed = await sendTxAndGetGasUsed(enlistment.landlordSignAgreement, scenarioTenancyAgreementData.tenantEmail, scenarioTenancyAgreementData.landlordSignature);
-    printResult(14, [landlordSignAgreementGasUsed]);
+    appendResult(14, [landlordSignAgreementGasUsed]);
 };
 
 const step15 = async (enlistment) => {
     const tenantSignAgreementGasUsed = await sendTxAndGetGasUsed(enlistment.tenantSignAgreement, scenarioTenancyAgreementData.tenantEmail, scenarioTenancyAgreementData.tenantSignature);
-    printResult(15, [tenantSignAgreementGasUsed]);
+    appendResult(15, [tenantSignAgreementGasUsed]);
 };
 
 const step16 = async (enlistment) => {
     const receiveFirstMonthRentGasUsed = await sendTxAndGetGasUsed(enlistment.receiveFirstMonthRent, scenarioTenancyAgreementData.tenantEmail);
-    printResult(16, [receiveFirstMonthRentGasUsed]);
+    appendResult(16, [receiveFirstMonthRentGasUsed]);
 };
+
+var scenarioRunsForGas = [];
+var scenarioRunsForRequestCount = [];
+var scenarioRunForGas = [];
+var scenarioRunForRequestCount = [];
+var scenarioRunForTime = [];
+var scenarioRunsForTime = [];
+
+var stepRunningTimer = 0; // only add time from invocation of truffle call/tx wrapper to its result. reset after flushing results of a step
 
 contract('Performance test', async ([owner]) => {
 
-    contract('Singleton contract deployment', async ([deployerAddress]) => {
+    contract('Singleton contract deployment - writes the results to ./out/deployment-gas.csv', async ([deployerAddress]) => {
 
-        it('should measure deployment cost and print the results to the console', async () => {
+        let trigonometryGasUsed;
+        let geodistanceGasUsed;
+        let registryGasUsed;
+
+        it('should measure deployment', async () => {
             const trigonometryInit = await createContractAndGetRefAndGasUsed(T.new);
             const trigonometry = trigonometryInit.ref;
-            const trigonometryGasUsed = trigonometryInit.gasUsed;
+            trigonometryGasUsed = trigonometryInit.gasUsed;
 
             const geodistanceInit = await createContractAndGetRefAndGasUsed(GD.new);
             const geodistance = geodistanceInit.ref;
-            const geodistanceGasUsed = geodistanceInit.gasUsed;
+            geodistanceGasUsed = geodistanceInit.gasUsed;
 
             const registryInit = await createContractAndGetRefAndGasUsed(ER.new);
             const registry = registryInit.ref;
-            const registryGasUsed = registryInit.gasUsed;
+            registryGasUsed = registryInit.gasUsed;
 
-            console.log('Trigonometry deployment gas used:', trigonometryGasUsed);
-            console.log('GeoDistance deployment gas used:', geodistanceGasUsed);
-            console.log('EnlistmentRegistry deployment gas used:', registryGasUsed);
+            if (LOG_TO_OUTPUT) {
+                console.log('Trigonometry deployment gas used:', trigonometryGasUsed);
+                console.log('GeoDistance deployment gas used:', geodistanceGasUsed);
+                console.log('EnlistmentRegistry deployment gas used:', registryGasUsed);
+            }
+        });
+
+        after(() => {
+            const headerRow = 'trigonometry,geodistance,enlistmentregistry';
+            const filePath = path.resolve(__dirname, 'out/deployment-gas.csv');
+            scenarioResultsToCsv([[trigonometryGasUsed, geodistanceGasUsed, registryGasUsed]], filePath, headerRow);
         });
 
     });
 
-    contract('Sending consequtive offers', async () => {
+    contract('Sending consequtive offers - writes results to .out/offer-gas.csv', async () => {
         let registry;
+        let gasResults = [];
 
         before(async () => {
             registry = await ER.new();
         });
 
-        it('should measure cost for sending 5 consequtive offers and print the results to console', async () => {
-            const enlistment = await step1(registry);
-            await step2(registry);
-            await step3(registry);
-            await step4(enlistment);
+        it('should measure cost for sending 5 consequtive offers', async () => {
+            const enlistment = await ETC.new(scenarioEnlistmentData.landlordEmail, scenarioEnlistmentData.landlordName, scenarioEnlistmentData.streetName, scenarioEnlistmentData.floorNr, scenarioEnlistmentData.apartmentNr, scenarioEnlistmentData.houseNr, scenarioEnlistmentData.postalCode, scenarioEnlistmentData.lat, scenarioEnlistmentData.lng, scenarioEnlistmentData.detilsJson);
             const gas1 = await sendTxAndGetGasUsed(enlistment.sendOffer, scenarioOfferData.amount, scenarioOfferData.tenantName, scenarioOfferData.tenantEmail + '0');
             const gas2 = await sendTxAndGetGasUsed(enlistment.sendOffer, scenarioOfferData.amount, scenarioOfferData.tenantName, scenarioOfferData.tenantEmail + '1');
             const gas3 = await sendTxAndGetGasUsed(enlistment.sendOffer, scenarioOfferData.amount, scenarioOfferData.tenantName, scenarioOfferData.tenantEmail + '2');
             const gas4 = await sendTxAndGetGasUsed(enlistment.sendOffer, scenarioOfferData.amount, scenarioOfferData.tenantName, scenarioOfferData.tenantEmail + '3');
             const gas5 = await sendTxAndGetGasUsed(enlistment.sendOffer, scenarioOfferData.amount, scenarioOfferData.tenantName, scenarioOfferData.tenantEmail + '4');
-            console.log('Prices of the offer sending txs in the order they were sent:', [gas1, gas2, gas3, gas4, gas5]);
+            gasResults = [gas1, gas2, gas3, gas4, gas5];
+            if (LOG_TO_OUTPUT) {
+                console.log('Prices of the offer sending txs in the order they were sent:', gasResults);
+            }
+        });
+
+        after(() => {
+            const headerRow = 'offer1gas,offer2gas,offer3gas,offer4gas,offer5gas';
+            const filePath = path.resolve(__dirname, 'out/offer-gas.csv');
+            scenarioResultsToCsv([gasResults], filePath, headerRow); // to reuse the csv writer, just save the data in one row
         });
 
     });
 
-    contract('Scenario', async () => {
+    contract('Scenario to run 255 iterations of the happy path flow of 16 steps with arbitrary amount of data previously stored in the smart contract - writes results to ./out/scenario-gas.csv & ./out/scenario-requests.csv & ./out/scenario-timer.csv', async () => {
 
         let registry;
 
         before(async () => {
-            registry = await ER.new();
+            scenarioRunsForGas = [];
+            scenarioRunsForRequestCount = [];
+            scenarioRunForGas = [];
+            scenarioRunForRequestCount = [];
+            scenarioRunForTime = [];
+            scenarioRunsForTime = [];
         });
 
-        it('should run 255 iterations of the happy path flow of 16 steps with arbitrary amount of data previously stored in the smart contract and print results to the console', async () => {
+        for (let run = 0; run < 256; run++) {
+            it('Scenario run with ' + run + ' enlistments previously stored in the registry, each of which has 3 offers', async () => {
 
-            /*** 1.	An enlistment is deployed and added to the registry of published resources. ***/
-            const enlistment = await step1(registry);
+                
+                const registry = await ER.new();
 
-            // populate with 3 mock offers as the scenario requires
-            //populateOffers(enlistment);
+                // populate registry with mock enlistments each of which has 3 offers as the scenario requires
+                await populateEnlistments(registry, run);
 
-            /*** 2.	Tenant retrieves all published enlistments. ***/
-            await step2(registry);
+                /*** 1.	An enlistment is deployed and added to the registry of published resources. ***/
+                const enlistment = await step1(registry);
 
-            /*** 3. Tenant runs a geographic approximity search. ***/
-            await step3(registry);
+                // populate with 3 mock offers as the scenario requires
+                await populateOffers(enlistment);
 
-            /*** 4. Tenant requests the enlistment data. ***/
-            await step4(enlistment);
+                /*** 2.	Tenant retrieves all published enlistments. ***/
+                await step2(registry);
 
-            /*** 5.	Tenant places an offer. ***/
-            await step5(enlistment);
+                /*** 3. Tenant runs a geographic approximity search. ***/
+                await step3(registry);
 
-            /*** 6.	Landlord queries for his enlistments. ***/
-            await step6(registry);
+                /*** 4. Tenant requests the enlistment data. ***/
+                await step4(enlistment);
 
-            /*** 7. Landlord queries all offers for an enlistment. ***/
-            await step7(enlistment);
+                /*** 5.	Tenant places an offer. ***/
+                await step5(enlistment);
 
-            /*** 8.	Landlord retrieves one offer. ***/
-            await step8(enlistment);
+                /*** 6.	Landlord queries for his enlistments. ***/
+                await step6(registry);
 
-            /*** 9. Landlord accepts the offer. ***/
-            await step9(enlistment);
+                /*** 7. Landlord queries all offers for an enlistment. ***/
+                await step7(enlistment);
 
-            /*** 10. Landlord issues a tenancy agreement. ***/
-            await step10(enlistment);
+                /*** 8.	Landlord retrieves one offer. ***/
+                await step8(enlistment);
 
-            /*** 11. Tenant queries for the enlistments that he has bid on. ***/
-            await step11(registry);
+                /*** 9. Landlord accepts the offer. ***/
+                await step9(enlistment);
 
-            /*** 12. Tenant retrieves a tenancy agreement. ***/
-            await step12(enlistment);
+                /*** 10. Landlord issues a tenancy agreement. ***/
+                await step10(enlistment);
 
-            /*** 13.Tenant accepts the tenancy agreement. ***/
-            await step13(enlistment);
+                /*** 11. Tenant queries for the enlistments that he has bid on. ***/
+                await step11(registry);
 
-            /*** 14. Landlord signs the agreement. ***/
-            await step14(enlistment);
+                /*** 12. Tenant retrieves a tenancy agreement. ***/
+                await step12(enlistment);
 
-            /*** 15. Tenant signs the agreement. ***/
-            await step15(enlistment);
+                /*** 13.Tenant accepts the tenancy agreement. ***/
+                await step13(enlistment);
 
-            /*** 16. Tenant sends the first month rent. ***/
-            await step16(enlistment);
+                /*** 14. Landlord signs the agreement. ***/
+                await step14(enlistment);
 
+                /*** 15. Tenant signs the agreement. ***/
+                await step15(enlistment);
+
+                /*** 16. Tenant sends the first month rent. ***/
+                await step16(enlistment);
+
+                // collect intermediate test data
+                scenarioRunsForGas.push(scenarioRunForGas);
+                scenarioRunsForRequestCount.push(scenarioRunForRequestCount);
+                scenarioRunsForTime.push(scenarioRunForTime);
+                // clean up for the next iteration
+                scenarioRunForGas = [];
+                scenarioRunForRequestCount = [];
+                scenarioRunForTime = [];
+            });
+        }
+
+        after(async () => {
+            const headerRow = 'step1,step2,step3,step4,step5,step6,step7,step8,step9,step10,step11,step12,step13,step14,step15,step16';
+            const gasFilePath = path.resolve(__dirname, 'out/scenario-gas.csv');
+            scenarioResultsToCsv(scenarioRunsForGas, gasFilePath, headerRow);
+            const requestCounterFilePath = path.resolve(__dirname, 'out/scenario-requests.csv');
+            scenarioResultsToCsv(scenarioRunsForRequestCount, requestCounterFilePath, headerRow);
+            const timerFilePath = path.resolve(__dirname, 'out/scenario-timer.csv');
+            scenarioResultsToCsv(scenarioRunsForTime, timerFilePath, headerRow);
         });
 
     });
