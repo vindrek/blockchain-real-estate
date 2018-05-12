@@ -110,7 +110,9 @@ const flattenDeep = (arr) => {
 const sum = (arr) => arr.reduce((a, b) => a + b);
 
 const printResult = (step, compositeOf) => {
-    console.log('Step ' + step + ':', sum(flattenDeep(compositeOf)) + ' (composite of:', compositeOf.join(' and ') + ')'); // comment this line to disable output to console
+    const flatGasMeasurementArray = flattenDeep(compositeOf);
+    console.log('Step ' + step + ' gas:', sum(flatGasMeasurementArray) + ' (composite of:', compositeOf.join(' and ') + ')'); // comment this line to disable output to console
+    console.log('Step ' + step + ' request count:', flatGasMeasurementArray.length);
 };
 
 /* Steps of the scenario */
