@@ -61,6 +61,8 @@ const scenarioTenancyAgreementData = {
     tenantSignature: 'bcba4717b73af51965b789810085b54ff074708f8ed0f8e2666067c06608754f'
 };
 
+const scenarioMockEnlistment = Object.assign({}, scenarioEnlistmentData, {landlordEmail: 'non-john@wick.xd'}); // for brevity, make it so that the landlord in the scenario has no previous enlistments
+
 const scenarioMockOffers = [
     {
         amount: 101,
@@ -169,7 +171,8 @@ const populateOffers = async (enlistment) => {
 
 const populateEnlistments = async (registry, numberOfEnlistments) => {
     for (let i = 0; i < numberOfEnlistments; i++) {
-        const enlistment = await ETC.new(scenarioEnlistmentData.landlordEmail, scenarioEnlistmentData.landlordName, scenarioEnlistmentData.streetName, scenarioEnlistmentData.floorNr, scenarioEnlistmentData.apartmentNr, scenarioEnlistmentData.houseNr, scenarioEnlistmentData.postalCode, scenarioEnlistmentData.lat, scenarioEnlistmentData.lng, scenarioEnlistmentData.detilsJson);
+        
+        const enlistment = await ETC.new(scenarioMockEnlistment.landlordEmail, scenarioMockEnlistment.landlordName, scenarioMockEnlistment.streetName, scenarioMockEnlistment.floorNr, scenarioMockEnlistment.apartmentNr, scenarioMockEnlistment.houseNr, scenarioMockEnlistment.postalCode, scenarioMockEnlistment.lat, scenarioMockEnlistment.lng, scenarioMockEnlistment.detilsJson);
         await registry.addEnlistment(enlistment.address);
         await populateOffers(enlistment);
     }
@@ -452,7 +455,7 @@ contract('Performance test', async ([owner]) => {
 
     });
 
-    contract('Scenario to run 255 iterations of the happy path flow of 16 steps with arbitrary amount of data previously stored in the smart contract - writes results to ./out/scenario-gas.csv & ./out/scenario-requests.csv & ./out/scenario-timer.csv', async () => {
+    contract('Scenario to run 64 iterations of the happy path flow of 16 steps with arbitrary amount of data previously stored in the smart contract - writes results to ./out/scenario-gas.csv & ./out/scenario-requests.csv & ./out/scenario-timer.csv', async () => {
 
         let registry;
 
@@ -465,7 +468,7 @@ contract('Performance test', async ([owner]) => {
             scenarioRunsForTime = [];
         });
 
-        for (let run = 0; run < 256; run++) {
+        for (let run = 0; run < 64; run++) {
             it('Scenario run with ' + run + ' enlistments previously stored in the registry, each of which has 3 offers', async () => {
 
                 
