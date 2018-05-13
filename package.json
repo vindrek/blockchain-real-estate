@@ -5,9 +5,11 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "start:eth": "ganache-cli -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\" --gasLimit 8000000",
+    "start:eth": "ganache-cli -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\" --gasLimit 8000000 --gasPrice 100000000000 --defaultBalanceEther 25000 --account=\"0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3,1000000000000000000000000000000000000000\"",
     "lint": "eslint api/ server/",
-    "test": "cd ethereum && truffle test"
+    "test": "cd ethereum && truffle test",
+    "test:performance": "cd ethereum && truffle test ./test/performance.js",
+    "truffle:cm": "cd ethereum && truffle compile && truffle migrate"
   },
   "dependencies": {
     "bluebird": "^3.5.1",
@@ -37,7 +39,7 @@
     "real-estate",
     "smart contracts"
   ],
-  "author": "Vladyslav Kopylash",
+  "author": "Indrek Värva & Vladyslav Kopylash",
   "license": "MIT",
   "engines": {
     "node": ">=8.0.0"
