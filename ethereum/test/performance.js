@@ -13,6 +13,8 @@ const path = require('path');
 
 /* Configuration */
 const LOG_TO_OUTPUT = false;
+const RUNS = 64;
+const GEOSEARCH_EXCLUSIVE = false; // run with both true and false to get both data
 
 /* Test data */
 
@@ -61,7 +63,12 @@ const scenarioTenancyAgreementData = {
     tenantSignature: 'bcba4717b73af51965b789810085b54ff074708f8ed0f8e2666067c06608754f'
 };
 
-const scenarioMockEnlistment = Object.assign({}, scenarioEnlistmentData, {landlordEmail: 'non-john@wick.xd'}); // for brevity, make it so that the landlord in the scenario has no previous enlistments
+const scenarioMockEnlistment = Object.assign({}, scenarioEnlistmentData, { landlordEmail: 'non-john@wick.xd' }); // for brevity, make it so that the landlord in the scenario has no previous enlistments
+
+const geosearchExclusiveRunLocation = {
+    lat: 58382335,
+    lng: 26.762960
+};
 
 const scenarioMockOffers = [
     {
@@ -87,7 +94,7 @@ const sendTxAndGetGasUsed = async (fn, ...params) => {
     const start = new Date();
     let txHash = await fn.sendTransaction(...params);
     const end = new Date();
-    stepRunningTimer += (end-start); // tx time measured in this test setup with blocks being instamined and no competition in tx pools is irrelevant to a production environment context running against Ethereum main network. ignore in analysis
+    stepRunningTimer += (end - start); // tx time measured in this test setup with blocks being instamined and no competition in tx pools is irrelevant to a production environment context running against Ethereum main network. ignore in analysis
     const tx = await web3.eth.getTransaction(txHash);
     const receipt = await web3.eth.getTransactionReceipt(txHash);
     // console.log('should be true', balanceBefore.minus(balanceAfter).toNumber(), receipt.gasUsed * (web3.eth.gasPrice).toNumber()); truffle uses different gas price, so explicitly set gas price with ganache
@@ -99,7 +106,7 @@ const createContractAndGetRefAndGasUsed = async (fn, ...params) => {
     const start = new Date();
     let ref = await fn(...params); // tx time measured in this test setup with blocks being instamined and no competition in tx pools is irrelevant to a production environment context running against Ethereum main network. ignore in analysis
     const end = new Date();
-    stepRunningTimer += (end-start);
+    stepRunningTimer += (end - start);
     const balanceAfter = await web3.eth.getBalance(web3.eth.accounts[0]);
     // truffle uses different gas price, so explicitly set gas price with ganache
     const gasUsed = balanceBefore.minus(balanceAfter).dividedBy(web3.eth.gasPrice).toNumber();
@@ -113,7 +120,7 @@ const makeCallAndEstimateGas = async (fn, ...params) => {
     const start = new Date();
     const output = await fn(...params);
     const end = new Date();
-    stepRunningTimer += (end-start);
+    stepRunningTimer += (end - start);
     return { gasEstimation, output };
 };
 
@@ -170,9 +177,19 @@ const populateOffers = async (enlistment) => {
 };
 
 const populateEnlistments = async (registry, numberOfEnlistments) => {
+
+    let lat; let lng;
+    if (GEOSEARCH_EXCLUSIVE) {
+        lat = geosearchExclusiveRunLocation.lat;
+        lng = geosearchExclusiveRunLocation.lng;
+    } else {
+        lat = scenarioMockEnlistment.lat;
+        lng = scenarioMockEnlistment.lng;
+    }
+
     for (let i = 0; i < numberOfEnlistments; i++) {
-        
-        const enlistment = await ETC.new(scenarioMockEnlistment.landlordEmail, scenarioMockEnlistment.landlordName, scenarioMockEnlistment.streetName, scenarioMockEnlistment.floorNr, scenarioMockEnlistment.apartmentNr, scenarioMockEnlistment.houseNr, scenarioMockEnlistment.postalCode, scenarioMockEnlistment.lat, scenarioMockEnlistment.lng, scenarioMockEnlistment.detilsJson);
+
+        const enlistment = await ETC.new(scenarioMockEnlistment.landlordEmail, scenarioMockEnlistment.landlordName, scenarioMockEnlistment.streetName, scenarioMockEnlistment.floorNr, scenarioMockEnlistment.apartmentNr, scenarioMockEnlistment.houseNr, scenarioMockEnlistment.postalCode, lat, lng, scenarioMockEnlistment.detilsJson);
         await registry.addEnlistment(enlistment.address);
         await populateOffers(enlistment);
     }
@@ -211,6 +228,7 @@ const step2 = async (registry) => {
 };
 
 const step3 = async (registry) => {
+
     // geosearch input location 500m away from the enlistment in the scenario, search radius 1000 metres, all enlistments in the registry are within 500 metres to the input
     const geosearchEnlistmentsInit = await makeCallAndEstimateGas(registry.geosearch, 58381746, 26742426, 1000 * 1e6);
     const geosearchEnlistmentBitset = geosearchEnlistmentsInit.output.toString(2);
@@ -397,8 +415,22 @@ contract('Performance test', async ([owner]) => {
         let trigonometryGasUsed;
         let geodistanceGasUsed;
         let registryGasUsed;
+        let enlistmentGasUsed;
+
+        after(() => {
+            if (enlistmentGasUsed) { // only write results when the test was actually executed (mocha's 'xit' still execudes 'before' and 'after' blocks)
+                const headerRow = 'trigonometry,geodistance,enlistmentregistry,enlistment';
+                const filePath = path.resolve(__dirname, 'out/deployment-gas.csv');
+                scenarioResultsToCsv([[trigonometryGasUsed, geodistanceGasUsed, registryGasUsed, enlistmentGasUsed]], filePath, headerRow);
+            }
+        });
 
         it('should measure deployment', async () => {
+
+            const enlistmentInit = await createContractAndGetRefAndGasUsed(ETC.new, scenarioEnlistmentData.landlordEmail, scenarioEnlistmentData.landlordName, scenarioEnlistmentData.streetName, scenarioEnlistmentData.floorNr, scenarioEnlistmentData.apartmentNr, scenarioEnlistmentData.houseNr, scenarioEnlistmentData.postalCode, scenarioEnlistmentData.lat, scenarioEnlistmentData.lng, scenarioEnlistmentData.detilsJson);
+            const enlistment = enlistmentInit.ref;
+            enlistmentGasUsed = enlistmentInit.gasUsed;
+
             const trigonometryInit = await createContractAndGetRefAndGasUsed(T.new);
             const trigonometry = trigonometryInit.ref;
             trigonometryGasUsed = trigonometryInit.gasUsed;
@@ -418,11 +450,7 @@ contract('Performance test', async ([owner]) => {
             }
         });
 
-        after(() => {
-            const headerRow = 'trigonometry,geodistance,enlistmentregistry';
-            const filePath = path.resolve(__dirname, 'out/deployment-gas.csv');
-            scenarioResultsToCsv([[trigonometryGasUsed, geodistanceGasUsed, registryGasUsed]], filePath, headerRow);
-        });
+
 
     });
 
@@ -432,6 +460,14 @@ contract('Performance test', async ([owner]) => {
 
         before(async () => {
             registry = await ER.new();
+        });
+
+        after(() => {
+            if (gasResults.length > 0) { // only write results when the test was actually executed and not skipped
+                const headerRow = 'offer1gas,offer2gas,offer3gas,offer4gas,offer5gas';
+                const filePath = path.resolve(__dirname, 'out/offer-gas.csv');
+                scenarioResultsToCsv([gasResults], filePath, headerRow); // to reuse the csv writer, just save the data in one row
+            }
         });
 
         it('should measure cost for sending 5 consequtive offers', async () => {
@@ -447,15 +483,11 @@ contract('Performance test', async ([owner]) => {
             }
         });
 
-        after(() => {
-            const headerRow = 'offer1gas,offer2gas,offer3gas,offer4gas,offer5gas';
-            const filePath = path.resolve(__dirname, 'out/offer-gas.csv');
-            scenarioResultsToCsv([gasResults], filePath, headerRow); // to reuse the csv writer, just save the data in one row
-        });
+
 
     });
 
-    contract('Scenario to run 64 iterations of the happy path flow of 16 steps with arbitrary amount of data previously stored in the smart contract - writes results to ./out/scenario-gas.csv & ./out/scenario-requests.csv & ./out/scenario-timer.csv', async () => {
+    contract('Scenario to run 64 iterations of the happy path flow of 16 steps with arbitrary amount of data previously stored in the smart contract - ' + (GEOSEARCH_EXCLUSIVE ?'(with locations outside of the geosearch query in step 3) - writes results to ./out/geosearch-exclusive-scenario-gas.csv & ./out/geosearch-exclusive-scenario-requests.csv & ./out/geosearch-exclusive scenario-timer.csv' :  'writes results to ./out/scenario-gas.csv & ./out/scenario-requests.csv & ./out/scenario-timer.csv'), async () => {
 
         let registry;
 
@@ -468,10 +500,22 @@ contract('Performance test', async ([owner]) => {
             scenarioRunsForTime = [];
         });
 
-        for (let run = 0; run < 64; run++) {
+        after(async () => {
+            if (scenarioRunsForGas.length > 0) { // only write results when the test was actually executed (mocha's 'xit' still execudes 'before' and 'after' blocks)
+                const headerRow = 'step1,step2,step3,step4,step5,step6,step7,step8,step9,step10,step11,step12,step13,step14,step15,step16';
+                const gasFilePath = path.resolve(__dirname, 'out/' + (GEOSEARCH_EXCLUSIVE ? 'geosearch-exclusive-': '') + 'scenario-gas.csv');
+                scenarioResultsToCsv(scenarioRunsForGas, gasFilePath, headerRow);
+                const requestCounterFilePath = path.resolve(__dirname, 'out/' + (GEOSEARCH_EXCLUSIVE ? 'geosearch-exclusive-': '') + 'scenario-requests.csv');
+                scenarioResultsToCsv(scenarioRunsForRequestCount, requestCounterFilePath, headerRow);
+                const timerFilePath = path.resolve(__dirname, 'out/' + (GEOSEARCH_EXCLUSIVE ? 'geosearch-exclusive-': '') + 'scenario-timer.csv');
+                scenarioResultsToCsv(scenarioRunsForTime, timerFilePath, headerRow);
+            }
+        });
+
+        for (let run = 0; run < RUNS; run++) {
             it('Scenario run with ' + run + ' enlistments previously stored in the registry, each of which has 3 offers', async () => {
 
-                
+
                 const registry = await ER.new();
 
                 // populate registry with mock enlistments each of which has 3 offers as the scenario requires
@@ -538,16 +582,6 @@ contract('Performance test', async ([owner]) => {
                 scenarioRunForTime = [];
             });
         }
-
-        after(async () => {
-            const headerRow = 'step1,step2,step3,step4,step5,step6,step7,step8,step9,step10,step11,step12,step13,step14,step15,step16';
-            const gasFilePath = path.resolve(__dirname, 'out/scenario-gas.csv');
-            scenarioResultsToCsv(scenarioRunsForGas, gasFilePath, headerRow);
-            const requestCounterFilePath = path.resolve(__dirname, 'out/scenario-requests.csv');
-            scenarioResultsToCsv(scenarioRunsForRequestCount, requestCounterFilePath, headerRow);
-            const timerFilePath = path.resolve(__dirname, 'out/scenario-timer.csv');
-            scenarioResultsToCsv(scenarioRunsForTime, timerFilePath, headerRow);
-        });
 
     });
 
