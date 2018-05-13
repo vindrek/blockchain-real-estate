@@ -11,6 +11,7 @@ const path = require('path');
 
 /* Configuration */
 const LOG_TO_OUTPUT = false;
+const RUNS = 32;
 
 /* Test data */
 
@@ -388,7 +389,7 @@ contract('Performance test', async ([owner]) => {
             }
         });
 
-        it('should measure deployment', async () => {
+        xit('should measure deployment', async () => {
 
             const enlistmentInit = await createContractAndGetRefAndGasUsed(ETC.new, scenarioEnlistmentData.landlordEmail, scenarioEnlistmentData.landlordName, scenarioEnlistmentData.streetName, scenarioEnlistmentData.floorNr, scenarioEnlistmentData.apartmentNr, scenarioEnlistmentData.houseNr, scenarioEnlistmentData.postalCode, scenarioEnlistmentData.geohash, scenarioEnlistmentData.detilsJson);
             const enlistment = enlistmentInit.ref;
@@ -421,7 +422,7 @@ contract('Performance test', async ([owner]) => {
             }
         });
 
-        it('should measure cost for sending 5 consequtive offers', async () => {
+        xit('should measure cost for sending 5 consequtive offers', async () => {
             const enlistment = await ETC.new(scenarioEnlistmentData.landlordEmail, scenarioEnlistmentData.landlordName, scenarioEnlistmentData.streetName, scenarioEnlistmentData.floorNr, scenarioEnlistmentData.apartmentNr, scenarioEnlistmentData.houseNr, scenarioEnlistmentData.postalCode, scenarioEnlistmentData.geohash, scenarioEnlistmentData.detilsJson);
             const gas1 = await sendTxAndGetGasUsed(enlistment.sendOffer, scenarioOfferData.amount, scenarioOfferData.tenantName, scenarioOfferData.tenantEmail + '0');
             const gas2 = await sendTxAndGetGasUsed(enlistment.sendOffer, scenarioOfferData.amount, scenarioOfferData.tenantName, scenarioOfferData.tenantEmail + '1');
@@ -461,8 +462,8 @@ contract('Performance test', async ([owner]) => {
             }
         });
 
-        for (let run = 0; run < 4; run++) {
-            it('Scenario run with ' + run + ' enlistments previously stored in the registry, each of which has 3 offers', async () => {
+        for (let run = 0; run < RUNS; run++) {
+            xit('Scenario run with ' + run + ' enlistments previously stored in the registry, each of which has 3 offers', async () => {
 
 
                 const registry = await ER.new();
@@ -561,7 +562,7 @@ contract('Performance test', async ([owner]) => {
             }
         });
 
-        for (let run = 0; run < 4; run++) {
+        for (let run = 0; run < RUNS; run++) {
             it('Scenario run with ' + run + ' enlistments previously stored in the registry, each of which has 3 offers', async () => {
 
 

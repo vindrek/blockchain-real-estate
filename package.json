@@ -41,7 +41,7 @@
     "real-estate",
     "smart contracts"
   ],
-  "author": "Vladyslav Kopylash & Indrek Värva",
+  "author": "Indrek Värva & Vladyslav Kopylash",
   "license": "MIT",
   "engines": {
     "node": ">=8.0.0"
