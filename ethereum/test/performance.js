@@ -220,7 +220,7 @@ const step3 = async (registry, runType, enlistment) => {
         const enlistmentRetrievalInit = await makeCallAndEstimateGas(enlistment.getEnlistment);
         const enlistmentRetrievalGasEstimate = enlistmentRetrievalInit.gasEstimation;
 
-        appendResult(3, [enlistmentRetrievalGasEstimate]);
+        appendResult(3, [geosearchEnlistmentsGasEstimate, enlistmentRetrievalGasEstimate]);
     } else { // we know that the run scenario is such that all enlistments are in the geosearch input area
 
         const geosearchFilteredEnlistments = geosearchEnlistments[0]; // scenario mock data is such that all enlistments are included in the filter
@@ -461,7 +461,7 @@ contract('Performance test', async ([owner]) => {
             }
         });
 
-        for (let run = 0; run < 64; run++) {
+        for (let run = 0; run < 4; run++) {
             it('Scenario run with ' + run + ' enlistments previously stored in the registry, each of which has 3 offers', async () => {
 
 
@@ -552,16 +552,16 @@ contract('Performance test', async ([owner]) => {
         after(async () => {
             if (scenarioRunsForGas.length > 0) { // only write results when the test was actually executed (mocha's 'xit' still execudes 'before' and 'after' blocks)
                 const headerRow = 'step1,step2,step3,step4,step5,step6,step7,step8,step9,step10,step11,step12,step13,step14,step15,step16';
-                const gasFilePath = path.resolve(__dirname, 'out/scenario-gas.csv');
+                const gasFilePath = path.resolve(__dirname, 'out/geosearch-exclusive-scenario-gas.csv');
                 scenarioResultsToCsv(scenarioRunsForGas, gasFilePath, headerRow);
-                const requestCounterFilePath = path.resolve(__dirname, 'out/scenario-requests.csv');
+                const requestCounterFilePath = path.resolve(__dirname, 'out/geosearch-exclusive-scenario-requests.csv');
                 scenarioResultsToCsv(scenarioRunsForRequestCount, requestCounterFilePath, headerRow);
-                const timerFilePath = path.resolve(__dirname, 'out/scenario-timer.csv');
+                const timerFilePath = path.resolve(__dirname, 'out/geosearch-exclusive-scenario-timer.csv');
                 scenarioResultsToCsv(scenarioRunsForTime, timerFilePath, headerRow);
             }
         });
 
-        for (let run = 0; run < 64; run++) {
+        for (let run = 0; run < 4; run++) {
             it('Scenario run with ' + run + ' enlistments previously stored in the registry, each of which has 3 offers', async () => {
 
 
