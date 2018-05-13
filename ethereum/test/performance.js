@@ -13,8 +13,8 @@ const path = require('path');
 
 /* Configuration */
 const LOG_TO_OUTPUT = false;
-const RUNS = 64;
-const GEOSEARCH_EXCLUSIVE = false; // run with both true and false to get both data
+const RUNS = 32;
+const GEOSEARCH_EXCLUSIVE = true; // run with both true and false to get both data
 
 /* Test data */
 
