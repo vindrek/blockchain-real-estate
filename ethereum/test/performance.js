@@ -1,6 +1,5 @@
 const ER = artifacts.require("EnlistmentRegistry");
 const ETC = artifacts.require("Enlistment");
-const T = artifacts.require("Trigonometry");
 const config = require('../../config/ethereum');
 const util = require('util');
 const web3utils = require('web3-utils');
@@ -254,7 +253,7 @@ const step6 = async (registry) => {
         mappingEstimations.push(mapping.gasEstimation);
     }
     
-    appendResult(6, [landlordEnlistmentsGasEstimate, landlordIndicesMappingEstimations, landlordEnlistmentMappingEstimations]);
+    appendResult(6, [publishedEnlistmentsGasEstimate, mappingEstimations]);
 };
 
 const step7 = async (enlistment) => {
@@ -298,10 +297,10 @@ const step10 = async (enlistment) => {
     appendResult(10, [submitAgreementGasUsed]);
 };
 
-const step11 = async (registry) => {
+const step11 = async (registry, enlistment) => {
 
     
-    const tenantEnlistmentsInit = await makeCallAndEstimateGas(registry.getEnlistmentsByBidder, scenarioOfferData.tenantEmail);
+    const tenantEnlistmentsInit = await makeCallAndEstimateGas(registry.getEnlistmentsForBidderFiltering);
     const tenantEnlistmentFilteringData = tenantEnlistmentsInit.output;
     const tenantEnlistmentsGasEstimate = tenantEnlistmentsInit.gasEstimation;
 
@@ -310,7 +309,8 @@ const step11 = async (registry) => {
     let offerRetrievingEstimations = [];
     for (let i = 0; i < tenantEnlistmentFilteringData[0].length; i++) {
         for (let u = 0; u < tenantEnlistmentFilteringData[1][i]; u++) {
-            const offerToBeMapped = await makeCallAndEstimateGas(enlistment.getOfferByIndex, u);
+            const enlistmentForMappingOffers = await ETC.at(tenantEnlistmentFilteringData[0][i]);
+            const offerToBeMapped = await makeCallAndEstimateGas(enlistmentForMappingOffers.getOfferByIndex, u);
             offerRetrievingEstimations.push(offerToBeMapped.gasEstimation);
         }
     }
@@ -428,7 +428,7 @@ contract('Performance test', async ([owner]) => {
             scenarioRunsForTime = [];
         });
 
-        for (let run = 0; run < 1; run++) {
+        for (let run = 0; run < 64; run++) {
             it('Scenario run with ' + run + ' enlistments previously stored in the registry, each of which has 3 offers', async () => {
 
                 
@@ -471,7 +471,7 @@ contract('Performance test', async ([owner]) => {
                 await step10(enlistment);
 
                 /*** 11. Tenant queries for the enlistments that he has bid on. ***/
-                await step11(registry);
+                await step11(registry, enlistment);
 
                 /*** 12. Tenant retrieves a tenancy agreement. ***/
                 await step12(enlistment);
