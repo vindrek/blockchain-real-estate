@@ -12,6 +12,8 @@ const path = require('path');
 /* Configuration */
 const LOG_TO_OUTPUT = false;
 const RUNS = 32;
+const VARIANT_ID = 'v2';
+const GEOSEARCH_EXCLUSIVE = false;
 
 /* Test data */
 
@@ -153,6 +155,24 @@ const scenarioResultsToCsv = async (results, filePath, headerRow) => {
         writer.write(headerRow + newline);
         results.forEach((run, idx) => {
             writer.write(run.join(',') + newline);
+        });
+        writer.end();
+    });
+};
+
+const scenarioResultsToCsv2 = async (results, filePath, headerRow) => {
+    const newline = '\r\n';
+    if (!fs.existsSync(filePath)) {
+        fs.writeFileSync(filePath, '', { encoding: 'utf8' });
+    }
+
+    const writer = fs.createWriteStream(filePath, { flags: 'w' }); // overwrite previous file
+    writer.on('open', () => {
+        writer.write('enlistments,variant,type,measurement' + newline);
+        results.forEach((run, idx) => {
+            run.forEach((measurement, udx) => {
+                writer.write(idx+','+VARIANT_ID+',step'+(udx+1)+','+measurement+newline);
+            })
         });
         writer.end();
     });
@@ -389,7 +409,7 @@ contract('Performance test', async ([owner]) => {
             }
         });
 
-        xit('should measure deployment', async () => {
+        it('should measure deployment', async () => {
 
             const enlistmentInit = await createContractAndGetRefAndGasUsed(ETC.new, scenarioEnlistmentData.landlordEmail, scenarioEnlistmentData.landlordName, scenarioEnlistmentData.streetName, scenarioEnlistmentData.floorNr, scenarioEnlistmentData.apartmentNr, scenarioEnlistmentData.houseNr, scenarioEnlistmentData.postalCode, scenarioEnlistmentData.geohash, scenarioEnlistmentData.detilsJson);
             const enlistment = enlistmentInit.ref;
@@ -422,7 +442,7 @@ contract('Performance test', async ([owner]) => {
             }
         });
 
-        xit('should measure cost for sending 5 consequtive offers', async () => {
+        it('should measure cost for sending 5 consequtive offers', async () => {
             const enlistment = await ETC.new(scenarioEnlistmentData.landlordEmail, scenarioEnlistmentData.landlordName, scenarioEnlistmentData.streetName, scenarioEnlistmentData.floorNr, scenarioEnlistmentData.apartmentNr, scenarioEnlistmentData.houseNr, scenarioEnlistmentData.postalCode, scenarioEnlistmentData.geohash, scenarioEnlistmentData.detilsJson);
             const gas1 = await sendTxAndGetGasUsed(enlistment.sendOffer, scenarioOfferData.amount, scenarioOfferData.tenantName, scenarioOfferData.tenantEmail + '0');
             const gas2 = await sendTxAndGetGasUsed(enlistment.sendOffer, scenarioOfferData.amount, scenarioOfferData.tenantName, scenarioOfferData.tenantEmail + '1');
@@ -437,7 +457,7 @@ contract('Performance test', async ([owner]) => {
 
     });
 
-    contract('Scenario to run 64 iterations of the happy path flow of 16 steps with arbitrary amount of data previously stored in the smart contract - writes results to ./out/scenario-gas.csv & ./out/scenario-requests.csv & ./out/scenario-timer.csv', async () => {
+    contract('Scenario to run 64 iterations of the happy path flow of 16 steps with arbitrary amount of data previously stored in the smart contract - ' + (GEOSEARCH_EXCLUSIVE ? '(with locations outside of the geosearch query in step 3) - writes results to ./out/geosearch-exclusive-scenario-gas.csv & ./out/geosearch-exclusive-scenario-requests.csv & ./out/geosearch-exclusive scenario-timer.csv' : 'writes results to ./out/scenario-gas.csv & ./out/scenario-requests.csv & ./out/scenario-timer.csv'), async () => {
 
         let registry;
 
@@ -453,111 +473,11 @@ contract('Performance test', async ([owner]) => {
         after(async () => {
             if (scenarioRunsForGas.length > 0) { // only write results when the test was actually executed (mocha's 'xit' still execudes 'before' and 'after' blocks)
                 const headerRow = 'step1,step2,step3,step4,step5,step6,step7,step8,step9,step10,step11,step12,step13,step14,step15,step16';
-                const gasFilePath = path.resolve(__dirname, 'out/scenario-gas.csv');
+                const gasFilePath = path.resolve(__dirname, 'out/' + (GEOSEARCH_EXCLUSIVE ? 'geosearch-exclusive-' : '') + 'scenario-gas.csv');
                 scenarioResultsToCsv(scenarioRunsForGas, gasFilePath, headerRow);
-                const requestCounterFilePath = path.resolve(__dirname, 'out/scenario-requests.csv');
+                const requestCounterFilePath = path.resolve(__dirname, 'out/' + (GEOSEARCH_EXCLUSIVE ? 'geosearch-exclusive-' : '') + 'scenario-requests.csv');
                 scenarioResultsToCsv(scenarioRunsForRequestCount, requestCounterFilePath, headerRow);
-                const timerFilePath = path.resolve(__dirname, 'out/scenario-timer.csv');
-                scenarioResultsToCsv(scenarioRunsForTime, timerFilePath, headerRow);
-            }
-        });
-
-        for (let run = 0; run < RUNS; run++) {
-            xit('Scenario run with ' + run + ' enlistments previously stored in the registry, each of which has 3 offers', async () => {
-
-
-                const registry = await ER.new();
-
-                // populate registry with mock enlistments each of which has 3 offers as the scenario requires
-                await populateEnlistments(registry, run);
-
-                /*** 1.	An enlistment is deployed and added to the registry of published resources. ***/
-                const enlistment = await step1(registry);
-
-                // populate with 3 mock offers as the scenario requires
-                await populateOffers(enlistment);
-
-                /*** 2.	Tenant retrieves all published enlistments. ***/
-                await step2(registry);
-
-                /*** 3. Tenant runs a geographic approximity search. ***/
-                await step3(registry);
-
-                /*** 4. Tenant requests the enlistment data. ***/
-                await step4(enlistment);
-
-                /*** 5.	Tenant places an offer. ***/
-                await step5(enlistment);
-
-                /*** 6.	Landlord queries for his enlistments. ***/
-                await step6(registry);
-
-                /*** 7. Landlord queries all offers for an enlistment. ***/
-                await step7(enlistment);
-
-                /*** 8.	Landlord retrieves one offer. ***/
-                await step8(enlistment);
-
-                /*** 9. Landlord accepts the offer. ***/
-                await step9(enlistment);
-
-                /*** 10. Landlord issues a tenancy agreement. ***/
-                await step10(enlistment);
-
-                /*** 11. Tenant queries for the enlistments that he has bid on. ***/
-                await step11(registry, enlistment);
-
-                /*** 12. Tenant retrieves a tenancy agreement. ***/
-                await step12(enlistment);
-
-                /*** 13.Tenant accepts the tenancy agreement. ***/
-                await step13(enlistment);
-
-                /*** 14. Landlord signs the agreement. ***/
-                await step14(enlistment);
-
-                /*** 15. Tenant signs the agreement. ***/
-                await step15(enlistment);
-
-                /*** 16. Tenant sends the first month rent. ***/
-                await step16(enlistment);
-
-                // collect intermediate test data
-                scenarioRunsForGas.push(scenarioRunForGas);
-                scenarioRunsForRequestCount.push(scenarioRunForRequestCount);
-                scenarioRunsForTime.push(scenarioRunForTime);
-                // clean up for the next iteration
-                scenarioRunForGas = [];
-                scenarioRunForRequestCount = [];
-                scenarioRunForTime = [];
-            });
-        }
-
-
-
-    });
-
-    contract('Scenario to run 64 iterations of the happy path flow of 16 steps with arbitrary amount of data previously stored in the smart contract (with locations outside of the geosearch query in step 3) - writes results to ./out/geosearch-exclusive-scenario-gas.csv & ./out/geosearch-exclusive-scenario-requests.csv & ./out/geosearch-exclusive scenario-timer.csv', async () => {
-
-        let registry;
-
-        before(async () => {
-            scenarioRunsForGas = [];
-            scenarioRunsForRequestCount = [];
-            scenarioRunForGas = [];
-            scenarioRunForRequestCount = [];
-            scenarioRunForTime = [];
-            scenarioRunsForTime = [];
-        });
-
-        after(async () => {
-            if (scenarioRunsForGas.length > 0) { // only write results when the test was actually executed (mocha's 'xit' still execudes 'before' and 'after' blocks)
-                const headerRow = 'step1,step2,step3,step4,step5,step6,step7,step8,step9,step10,step11,step12,step13,step14,step15,step16';
-                const gasFilePath = path.resolve(__dirname, 'out/geosearch-exclusive-scenario-gas.csv');
-                scenarioResultsToCsv(scenarioRunsForGas, gasFilePath, headerRow);
-                const requestCounterFilePath = path.resolve(__dirname, 'out/geosearch-exclusive-scenario-requests.csv');
-                scenarioResultsToCsv(scenarioRunsForRequestCount, requestCounterFilePath, headerRow);
-                const timerFilePath = path.resolve(__dirname, 'out/geosearch-exclusive-scenario-timer.csv');
+                const timerFilePath = path.resolve(__dirname, 'out/' + (GEOSEARCH_EXCLUSIVE ? 'geosearch-exclusive-' : '') + 'scenario-timer.csv');
                 scenarioResultsToCsv(scenarioRunsForTime, timerFilePath, headerRow);
             }
         });
@@ -581,7 +501,12 @@ contract('Performance test', async ([owner]) => {
                 await step2(registry);
 
                 /*** 3. Tenant runs a geographic approximity search. ***/
-                await step3(registry, 'geosearch-exclusive', enlistment);
+                if (GEOSEARCH_EXCLUSIVE) {
+                    await step3(registry, 'geosearch-exclusive', enlistment);
+                } else {
+                    await step3(registry);
+                }
+                
 
                 /*** 4. Tenant requests the enlistment data. ***/
                 await step4(enlistment);
