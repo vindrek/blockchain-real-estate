@@ -10,6 +10,8 @@ const path = require('path');
 
 /* Configuration */
 const LOG_TO_OUTPUT = false;
+const RUNS = 32;
+const GEOSEARCH_EXCLUSIVE = false;
 
 /* Test data */
 
@@ -402,7 +404,7 @@ contract('Performance test', async ([owner]) => {
 
     });
 
-    contract('Scenario to run 64 iterations of the happy path flow of 16 steps with arbitrary amount of data previously stored in the smart contract - writes results to ./out/scenario-gas.csv & ./out/scenario-requests.csv & ./out/scenario-timer.csv', async () => {
+    contract('Scenario to run 64 iterations of the happy path flow of 16 steps with arbitrary amount of data previously stored in the smart contract - ' + (GEOSEARCH_EXCLUSIVE ? '(with locations outside of the geosearch query in step 3) - writes results to ./out/geosearch-exclusive-scenario-gas.csv & ./out/geosearch-exclusive-scenario-requests.csv & ./out/geosearch-exclusive scenario-timer.csv' : 'writes results to ./out/scenario-gas.csv & ./out/scenario-requests.csv & ./out/scenario-timer.csv' ), async () => {
 
         let mockRegistry; // mock the off-chain datastore
         let mockOfferAuthors; // mock the off-chain datastore
@@ -419,11 +421,11 @@ contract('Performance test', async ([owner]) => {
         after(async () => {
             if (scenarioRunsForGas.length > 0) { // only write results when the test was actually executed (mocha's 'xit' still execudes 'before' and 'after' blocks)
                 const headerRow = 'step1,step2,step3,step4,step5,step6,step7,step8,step9,step10,step11,step12,step13,step14,step15,step16';
-                const gasFilePath = path.resolve(__dirname, 'out/scenario-gas.csv');
+                const gasFilePath = path.resolve(__dirname, 'out/' + (GEOSEARCH_EXCLUSIVE ? 'geosearch-exclusive-' : '') + 'scenario-gas.csv');
                 scenarioResultsToCsv(scenarioRunsForGas, gasFilePath, headerRow);
-                const requestCounterFilePath = path.resolve(__dirname, 'out/scenario-requests.csv');
+                const requestCounterFilePath = path.resolve(__dirname, 'out/' + (GEOSEARCH_EXCLUSIVE ? 'geosearch-exclusive-' : '') + 'scenario-requests.csv');
                 scenarioResultsToCsv(scenarioRunsForRequestCount, requestCounterFilePath, headerRow);
-                const timerFilePath = path.resolve(__dirname, 'out/scenario-timer.csv');
+                const timerFilePath = path.resolve(__dirname, 'out/' + (GEOSEARCH_EXCLUSIVE ? 'geosearch-exclusive-' : '') + 'scenario-timer.csv');
                 scenarioResultsToCsv(scenarioRunsForTime, timerFilePath, headerRow);
             }
         });
@@ -447,7 +449,11 @@ contract('Performance test', async ([owner]) => {
                 await step2(mockRegistry);
 
                 /*** 3. Tenant runs a geographic approximity search. ***/
-                await step3(mockRegistry);
+                if (GEOSEARCH_EXCLUSIVE) {
+                    await step3(mockRegistry, 'geosearch-exclusive', enlistment);
+                } else {
+                    await step3(mockRegistry);
+                }
 
                 /*** 4. Tenant requests the enlistment data. ***/
                 await step4(enlistment);
@@ -501,102 +507,4 @@ contract('Performance test', async ([owner]) => {
 
     });
 
-    contract('Scenario to run 64 iterations of the happy path flow of 16 steps with arbitrary amount of data previously stored in the smart contract (with locations outside of the geosearch query in step 3) - writes results to ./out/geosearch-exclusive-scenario-gas.csv & ./out/geosearch-exclusive-scenario-requests.csv & ./out/geosearch-exclusive scenario-timer.csv', async () => {
-
-        let mockRegistry; // mock the off-chain datastore
-        let mockOfferAuthors; // mock the off-chain datastore
-
-        before(async () => {
-            scenarioRunsForGas = [];
-            scenarioRunsForRequestCount = [];
-            scenarioRunForGas = [];
-            scenarioRunForRequestCount = [];
-            scenarioRunForTime = [];
-            scenarioRunsForTime = [];
-        });
-
-        after(async () => {
-            if (scenarioRunsForGas.length > 0) { // only write results when the test was actually executed (mocha's 'xit' still execudes 'before' and 'after' blocks)
-                const headerRow = 'step1,step2,step3,step4,step5,step6,step7,step8,step9,step10,step11,step12,step13,step14,step15,step16';
-                const gasFilePath = path.resolve(__dirname, 'out/geosearch-exclusive-scenario-gas.csv');
-                scenarioResultsToCsv(scenarioRunsForGas, gasFilePath, headerRow);
-                const requestCounterFilePath = path.resolve(__dirname, 'out/geosearch-exclusive-scenario-requests.csv');
-                scenarioResultsToCsv(scenarioRunsForRequestCount, requestCounterFilePath, headerRow);
-                const timerFilePath = path.resolve(__dirname, 'out/geosearch-exclusive-scenario-timer.csv');
-                scenarioResultsToCsv(scenarioRunsForTime, timerFilePath, headerRow);
-            }
-        });
-
-        for (let run = 0; run < 64; run++) {
-            it('Scenario run with ' + run + ' enlistments previously stored in the off-chain mock registry, each of which has 3 offers', async () => {
-
-                mockRegistry = [];
-                mockOfferAuthors = [];
-
-                // populate registry with mock enlistments each of which has 3 offers as the scenario requires
-                await populateEnlistments(mockRegistry, run);
-
-                /*** 1.	An enlistment is deployed and added to the registry of published resources. ***/
-                const enlistment = await step1(mockRegistry);
-
-                // populate with 3 mock offers as the scenario requires
-                await populateOffers(enlistment, mockOfferAuthors);
-
-                /*** 2.	Tenant retrieves all published enlistments. ***/
-                await step2(mockRegistry);
-
-                /*** 3. Tenant runs a geographic approximity search. ***/
-                await step3(mockRegistry, 'geosearch-exclusive', enlistment);
-
-                /*** 4. Tenant requests the enlistment data. ***/
-                await step4(enlistment);
-
-                /*** 5.	Tenant places an offer. ***/
-                await step5(enlistment, mockOfferAuthors);
-
-                /*** 6.	Landlord queries for his enlistments. ***/
-                await step6(enlistment);
-
-                /*** 7. Landlord queries all offers for an enlistment. ***/
-                await step7(enlistment, mockOfferAuthors);
-
-                /*** 8.	Landlord retrieves one offer. ***/
-                await step8(enlistment);
-
-                /*** 9. Landlord accepts the offer. ***/
-                await step9(enlistment);
-
-                /*** 10. Landlord issues a tenancy agreement. ***/
-                await step10(enlistment);
-
-                /*** 11. Tenant queries for the enlistments that he has bid on. ***/
-                await step11(enlistment, mockOfferAuthors);
-
-                /*** 12. Tenant retrieves a tenancy agreement. ***/
-                await step12(enlistment);
-
-                /*** 13.Tenant accepts the tenancy agreement. ***/
-                await step13(enlistment);
-
-                /*** 14. Landlord signs the agreement. ***/
-                await step14(enlistment);
-
-                /*** 15. Tenant signs the agreement. ***/
-                await step15(enlistment);
-
-                /*** 16. Tenant sends the first month rent. ***/
-                await step16(enlistment);
-
-                // collect intermediate test data
-                scenarioRunsForGas.push(scenarioRunForGas);
-                scenarioRunsForRequestCount.push(scenarioRunForRequestCount);
-                scenarioRunsForTime.push(scenarioRunForTime);
-                // clean up for the next iteration
-                scenarioRunForGas = [];
-                scenarioRunForRequestCount = [];
-                scenarioRunForTime = [];
-            });
-        }
-
-    });
 });
