@@ -13,7 +13,7 @@ const path = require('path');
 const LOG_TO_OUTPUT = false;
 const RUNS = 32;
 const VARIANT_ID = 'v2';
-const GEOSEARCH_EXCLUSIVE = false;
+const GEOSEARCH_EXCLUSIVE = true;
 
 /* Test data */
 
