@@ -11,7 +11,7 @@ const path = require('path');
 /* Configuration */
 const LOG_TO_OUTPUT = false;
 const RUNS = 32;
-const GEOSEARCH_EXCLUSIVE = false;
+const GEOSEARCH_EXCLUSIVE = true;
 
 /* Test data */
 
@@ -359,7 +359,7 @@ contract('Performance test', async ([owner]) => {
             }
         });
 
-        xit('should measure deployment', async () => {
+        it('should measure deployment', async () => {
             const enlistmentInit = await createContractAndGetRefAndGasUsed(ETC.new, scenarioEnlistmentData.landlordEmail, scenarioEnlistmentData.landlordName, scenarioEnlistmentData.streetName, scenarioEnlistmentData.floorNr, scenarioEnlistmentData.apartmentNr, scenarioEnlistmentData.houseNr, scenarioEnlistmentData.postalCode);
             const enlistment = enlistmentInit.ref;
             enlistmentGasUsed = enlistmentInit.gasUsed;
@@ -387,7 +387,7 @@ contract('Performance test', async ([owner]) => {
             }
         });
 
-        xit('should measure cost for sending 5 consequtive offers', async () => {
+        it('should measure cost for sending 5 consequtive offers', async () => {
             const enlistment = await ETC.new(scenarioEnlistmentData.landlordEmail, scenarioEnlistmentData.landlordName, scenarioEnlistmentData.streetName, scenarioEnlistmentData.floorNr, scenarioEnlistmentData.apartmentNr, scenarioEnlistmentData.houseNr, scenarioEnlistmentData.postalCode);
             const gas1 = await sendTxAndGetGasUsed(enlistment.sendOffer, scenarioOfferData.amount, scenarioOfferData.tenantName, scenarioOfferData.tenantEmail + '0');
             const gas2 = await sendTxAndGetGasUsed(enlistment.sendOffer, scenarioOfferData.amount, scenarioOfferData.tenantName, scenarioOfferData.tenantEmail + '1');
@@ -430,8 +430,8 @@ contract('Performance test', async ([owner]) => {
             }
         });
 
-        for (let run = 0; run < 64; run++) {
-            xit('Scenario run with ' + run + ' enlistments previously stored in the off-chain mock registry, each of which has 3 offers', async () => {
+        for (let run = 0; run < RUNS; run++) {
+            it('Scenario run with ' + run + ' enlistments previously stored in the off-chain mock registry, each of which has 3 offers', async () => {
 
                 mockRegistry = [];
                 mockOfferAuthors = [];
