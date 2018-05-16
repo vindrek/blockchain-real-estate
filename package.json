@@ -10,7 +10,8 @@
     "test": "cd ethereum && truffle test",
     "test-registry": "cd ethereum && truffle test ./test/enlistment_registry.js",
     "test:performance": "cd ethereum && truffle test ./test/performance.js",
-    "truffle:cm": "cd ethereum && truffle compile && truffle migrate"
+    "truffle:cm": "cd ethereum && truffle compile && truffle migrate",
+    "truffle:bytecode": "cd ethereum && node bytecode-size-printer.js"
   },
   "dependencies": {
     "bluebird": "^3.5.1",
