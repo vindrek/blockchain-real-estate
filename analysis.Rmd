@@ -1,0 +1,527 @@
+---
+title: "Blockchain Real Estate Rental"
+author: "Indrek Värva (B26236)"
+date: "5/13/2018"
+output: html_document
+---
+
+```{r setup, include=TRUE}
+library(ggplot2)
+library(scales)
+library(gridExtra)
+options(scipen=10000)
+knitr::opts_chunk$set(echo = TRUE, collapse=TRUE, fig.width=12)
+```
+
+Read the data in.
+
+```{r}
+v1deploymentGas = read.csv(file=file.path("data", "v1", "deployment-gas.csv"), header = TRUE, sep = ",");
+v1offerGas = read.csv(file=file.path("data", "v1", "offer-gas.csv"), header = TRUE, sep = ",")
+v1scenarioGas = read.csv(file=file.path("data", "v1", "scenario-gas.csv"), header = TRUE, sep = ",")
+v1scenarioRequests = read.csv(file=file.path("data", "v1", "scenario-requests.csv"), header = TRUE, sep = ",")
+v1scenarioTimer = read.csv(file=file.path("data", "v1", "scenario-timer.csv"), header = TRUE, sep = ",")
+v1geoScenarioGas = read.csv(file=file.path("data", "v1", "geosearch-exclusive-scenario-gas.csv"), header = TRUE, sep = ",")
+v1geoScenarioRequests = read.csv(file=file.path("data", "v1", "geosearch-exclusive-scenario-requests.csv"), header = TRUE, sep = ",")
+v1geoScenarioTimer = read.csv(file=file.path("data", "v1", "geosearch-exclusive-scenario-timer.csv"), header = TRUE, sep = ",")
+
+v2deploymentGas = read.csv(file=file.path("data", "v2", "deployment-gas.csv"), header = TRUE, sep = ",");
+v2offerGas = read.csv(file=file.path("data", "v2", "offer-gas.csv"), header = TRUE, sep = ",")
+v2scenarioGas = read.csv(file=file.path("data", "v2", "scenario-gas.csv"), header = TRUE, sep = ",")
+v2scenarioRequests = read.csv(file=file.path("data", "v2", "scenario-requests.csv"), header = TRUE, sep = ",")
+v2scenarioTimer = read.csv(file=file.path("data", "v2", "scenario-timer.csv"), header = TRUE, sep = ",")
+v2geoScenarioGas = read.csv(file=file.path("data", "v2", "geosearch-exclusive-scenario-gas.csv"), header = TRUE, sep = ",")
+v2geoScenarioRequests = read.csv(file=file.path("data", "v2", "geosearch-exclusive-scenario-requests.csv"), header = TRUE, sep = ",")
+v2geoScenarioTimer = read.csv(file=file.path("data", "v2", "geosearch-exclusive-scenario-timer.csv"), header = TRUE, sep = ",")
+
+v3deploymentGas = read.csv(file=file.path("data", "v3", "deployment-gas.csv"), header = TRUE, sep = ",");
+v3offerGas = read.csv(file=file.path("data", "v3", "offer-gas.csv"), header = TRUE, sep = ",")
+v3scenarioGas = read.csv(file=file.path("data", "v3", "scenario-gas.csv"), header = TRUE, sep = ",")
+v3scenarioRequests = read.csv(file=file.path("data", "v3", "scenario-requests.csv"), header = TRUE, sep = ",")
+v3scenarioTimer = read.csv(file=file.path("data", "v3", "scenario-timer.csv"), header = TRUE, sep = ",")
+v3geoScenarioGas = read.csv(file=file.path("data", "v3", "geosearch-exclusive-scenario-gas.csv"), header = TRUE, sep = ",")
+v3geoScenarioRequests = read.csv(file=file.path("data", "v3", "geosearch-exclusive-scenario-requests.csv"), header = TRUE, sep = ",")
+v3geoScenarioTimer = read.csv(file=file.path("data", "v3", "geosearch-exclusive-scenario-timer.csv"), header = TRUE, sep = ",")
+```
+
+Reshape the data to a necessary form.
+
+```{r}
+prepareData <- function(df,cls) {
+  m = ncol(df)
+  enlistments = rep(as.factor(as.numeric(rownames(df))-1), each=m)
+  df <- t(df)
+  n = ncol(df)
+  steps = rep(rownames(df), n)
+  res = data.frame(run = enlistments, step = steps, value = as.vector(as.matrix(df)))
+  res$variant = cls
+  return(res)
+}
+
+vv1deploymentGas = prepareData(v1deploymentGas, "v1");
+vv1offerGas = prepareData(v1offerGas, "v1");
+vv1scenarioGas = prepareData(v1scenarioGas, "v1");
+vv1scenarioRequests = prepareData(v1scenarioRequests, "v1");
+vv1geoScenarioGas = prepareData(v1geoScenarioGas, "v1");
+vv1geoScenarioRequests = prepareData(v1geoScenarioRequests, "v1");
+
+vv2deploymentGas = prepareData(v2deploymentGas, "v2");
+vv2offerGas = prepareData(v2offerGas, "v2");
+vv2scenarioGas = prepareData(v2scenarioGas, "v2");
+vv2scenarioRequests = prepareData(v2scenarioRequests, "v2");
+vv2geoScenarioGas = prepareData(v2geoScenarioGas, "v2");
+vv2geoScenarioRequests = prepareData(v2geoScenarioRequests, "v2");
+
+vv3deploymentGas = prepareData(v3deploymentGas, "v3");
+vv3offerGas = prepareData(v3offerGas, "v3");
+vv3scenarioGas = prepareData(v3scenarioGas, "v3");
+vv3scenarioRequests = prepareData(v3scenarioRequests, "v3");
+vv3geoScenarioGas = prepareData(v3geoScenarioGas, "v3");
+vv3geoScenarioRequests = prepareData(v3geoScenarioRequests, "v3");
+
+# vertical merge the variants
+deploymentGas = rbind(vv1deploymentGas, vv2deploymentGas, vv3deploymentGas);
+offerGas = rbind(vv1offerGas, vv2offerGas, vv3offerGas);
+scenarioGas = rbind(vv1scenarioGas, vv2scenarioGas, vv3scenarioGas);
+scenarioRequests = rbind(vv1scenarioRequests, vv2scenarioRequests, vv3scenarioRequests);
+geoScenarioGas = rbind(vv1geoScenarioGas, vv2geoScenarioGas, vv3geoScenarioGas);
+geoScenarioRequests = rbind(vv1geoScenarioRequests, vv2geoScenarioRequests, vv3geoScenarioRequests);
+
+```
+
+
+Deployment cost
+
+```{r}
+# deploymentGas, offerGas, scenarioGas, scenarioRequests, geoScenarioGas, geoScenarioRequests
+
+
+deploymentGas$step = as.character(deploymentGas$step)
+deploymentGas$step[deploymentGas$step == 'trigonometry'] <- 'Trigonometry library'
+deploymentGas$step[deploymentGas$step == 'geodistance'] <- 'Geodistance library'
+deploymentGas$step[deploymentGas$step == 'enlistmentregistry'] <- 'Enlistment Registry'
+deploymentGas$step[deploymentGas$step == 'enlistment'] <- 'Enlistment'
+deploymentGas$step <- factor(deploymentGas$step, levels=c("Trigonometry library", "Geodistance library", "Enlistment Registry", "Enlistment"))
+
+deploymentGas$variant = as.character(deploymentGas$variant)
+deploymentGas$variant[deploymentGas$variant == 'v1'] <- 'Baseline'
+deploymentGas$variant[deploymentGas$variant == 'v2'] <- 'Data migration'
+deploymentGas$variant[deploymentGas$variant == 'v3'] <- 'Operation migration'
+
+# Final plot 2
+ggplot(data = deploymentGas, aes(x=variant, y=value, fill=step)) +
+  geom_bar(stat="identity", color="black") +
+  ylab("Gas") +
+  xlab("Variant") +
+  guides(fill=guide_legend(title="Smart Contract")) +
+  theme_bw(base_size=22) +
+  theme(
+    text = element_text(size=22),
+    plot.title = element_blank(),
+    axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)),
+    axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
+    legend.key.size = unit(2, 'lines')
+    ) + 
+  scale_y_continuous(breaks = round(seq(0, 8000000, by = 500000),2))
+
+# Final plot 1
+omitEnlistmentDeployment <- subset(deploymentGas, step != "Enlistment")
+
+# to explicitly show on the plot that variant 1 has no singleton gas usage, add a row with value 0
+zeroValueRow<-data.frame("0","Enlistment Registry",0,"Baseline")
+names(zeroValueRow)<-c("run", "step","value","variant")
+
+omitEnlistmentDeploymentVariant1Added <- rbind(omitEnlistmentDeployment,zeroValueRow)
+ggplot(data = omitEnlistmentDeploymentVariant1Added, aes(x=variant, y=value, fill=step)) +
+  geom_bar(stat="identity", color="black") +
+  ggtitle('Comparison of System Singleton Smart Contract Deployment Gas Usage') +
+  ylab("Gas") +
+  xlab("Variant") +
+  guides(fill=guide_legend(title="Smart Contract")) +
+  theme_bw(base_size=22) +
+  theme(
+    text = element_text(size=22),
+    plot.title = element_blank(),
+    axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)),
+    axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
+    legend.key.size = unit(2, 'lines')
+    ) +
+  scale_x_discrete(drop=FALSE) +
+  scale_y_continuous(breaks = round(seq(0, 8000000, by = 100000),2))
+
+```
+
+RESULT INTERPRETATION
+
+1. Contract deployment costs for all versions.
+
+In terms of smart contract deployment costs, variation 3 is the most demanding. When comparing the gas consumption for singleton contract deployments required for the variations to operate, v3 deploys a total of 3 contracts. Meanwhile, v2 only requires 1 singleton contract and v1 operates without any singletons. However, for the case of multiple-instance contract to manage rental intermediation subprocesses, the gas consumption gets bigger with every iteration.
+
+```{r}
+# progressive ops: 1, 5, 9, 10, 13, 14, 15, 16
+includedSteps = c('step1', 'step5', 'step9', 'step10', 'step13', 'step14', 'step15', 'step16')
+N = 10
+
+pData = subset(scenarioGas, step %in% includedSteps & run == '10')
+pData$variant = as.character(pData$variant)
+pData$variant[pData$variant == 'v1'] <- 'Baseline'
+pData$variant[pData$variant == 'v2'] <- 'Data migration'
+pData$variant[pData$variant == 'v3'] <- 'Operation migration'
+
+# subtract enlistment deployment cost from step1
+v1eCost = 4574231
+v2eCost = 5698313
+v3eCost = 5599812
+
+pData$step <- factor(pData$step, levels=c("step1","step2","step3","step4","step5","step6","step7","step8","step9","step10","step11","step12","step13","step14","step15","step16"))
+
+# final plot 3
+ggplot(data = pData, aes(x=step, y=value, fill=variant)) +
+  geom_bar(stat="identity", color="black", position=position_dodge()) +
+  ylab("Gas") +
+  xlab("Step") +
+  guides(fill=guide_legend(title="Variant")) +
+  theme_bw(base_size=22) +
+  theme(
+    text = element_text(size=22),
+    plot.title = element_blank(),
+    axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)),
+    axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
+    legend.key.size = unit(2, 'lines')
+    ) +
+  scale_x_discrete(drop=TRUE) +
+  scale_y_continuous(breaks = round(seq(0, 8000000, by = 500000),2))
+
+prData <- pData
+prData$value[prData$step == 'step1'] = prData$value[prData$step == 'step1'] - c(v1eCost, v2eCost, v3eCost)
+
+# final plot 4
+ggplot(data = prData, aes(x=step, y=value, fill=variant)) +
+  geom_bar(stat="identity", color="black", position=position_dodge()) +
+  ylab("Gas") + 
+  xlab("Step") + 
+  guides(fill=guide_legend(title="Variant")) + 
+  theme_bw(base_size=22) +
+  theme(
+    text = element_text(size=22),
+    axis.title.x = element_text(margin = margin(t = 30, r = 0, b = 0, l = 0)),
+    axis.title.y = element_text(margin = margin(t = 0, r = 30, b = 0, l = 0)),
+    legend.key.size = unit(2, 'lines')
+    ) + 
+  scale_x_discrete(drop=TRUE) +
+  scale_y_continuous(breaks = round(seq(0, 8000000, by = 50000),2))
+
+# sum(subset(prData, variant=='Baseline')$value)
+
+```
+
+```{r}
+# prepare data for arbitrary prior data analysis
+# progressive ops: 1, 5, 9, 10, 13, 14, 15, 16
+# change of gas usage for arbitrary N
+
+pfData = subset(scenarioGas, step %in% includedSteps)
+pfData$variant = as.character(pfData$variant)
+pfData$variant[pfData$variant == 'v1'] <- 'Baseline'
+pfData$variant[pfData$variant == 'v2'] <- 'Data migration'
+pfData$variant[pfData$variant == 'v3'] <- 'Operation migration'
+pfData$step <- factor(pfData$step, levels=c("step1","step2","step3","step4","step5","step6","step7","step8","step9","step10","step11","step12","step13","step14","step15","step16"))
+
+pf1Data = subset(pfData, step == 'step1')
+pf5Data = subset(pfData, step == 'step5')
+pf9Data = subset(pfData, step == 'step9')
+pf10Data = subset(pfData, step == 'step10')
+pf13Data = subset(pfData, step == 'step13')
+pf14Data = subset(pfData, step == 'step14')
+pf15Data = subset(pfData, step == 'step15')
+pf16Data = subset(pfData, step == 'step16')
+```
+
+
+```{r}
+
+
+#legend example
+ggplot(pf15Data, aes(x=run,y=value,group=variant)) + 
+  geom_point(aes(color=variant, fill=variant, shape=variant, size=variant), color="black", shape=21, alpha=1) + 
+  ggtitle('Step 15 Gas Usage for 0..31 Prior Enlistments\nin the Registry (N)') +
+  ylab("Gas [wei]") + xlab("N") +
+  guides(fill=guide_legend(title="Variant", override.aes = list(size=4))) +
+  guides(size=FALSE) +
+  theme(
+    text = element_text(size=28),
+    axis.title.x = element_text(margin = margin(t = 30, r = 0, b = 0, l = 0)),
+    axis.title.y = element_text(margin = margin(t = 0, r = 30, b = 0, l = 0)),
+    legend.text = element_text(size=28),
+    legend.key.size = unit(2.5, 'lines')
+    ) +
+  scale_x_discrete(drop=TRUE, breaks = round(seq(0, 31, by = 8),2)) +
+  scale_y_continuous(expand = c(0.3, 0.3)) +
+  scale_size_manual(values=c(4,5,2)) +
+  scale_fill_manual(values=c("#D55E00", "#0072B2", "#F0E442")) 
+
+
+getGasPlot <- function(df, stepNr) {
+  return(
+    ggplot(df, aes(x=run,y=value,group=variant)) +
+      geom_point(aes(color=variant, fill=variant, shape=variant, size=variant), shape=21, alpha=1) +
+      geom_line(alpha=0.6) +
+      guides(size=FALSE) +
+      guides(fill=FALSE) +
+      guides(color=FALSE) +
+      guides(shape=FALSE) +
+      xlab("N") +
+      ggtitle(paste("Step ", stepNr)) +
+      theme_bw(base_size=14) +
+      theme(
+        text = element_text(size=18),
+        axis.title.x = element_text(size=14),
+        axis.title.y = element_blank(),
+        axis.text = element_text(size=13),
+        plot.title = element_text(size=16, hjust = 0.5),
+        legend.position = "none"
+        ) +
+      scale_y_continuous(expand = c(0.3, 0.3)) +
+      scale_x_discrete(drop=TRUE, breaks = round(seq(0, 31, by = 8),2)) +
+      scale_size_manual(values=c(6,4,2)) +
+      scale_fill_manual(values=c("#D55E00", "#0072B2", "#F0E442"))
+  );
+}
+
+s1p <- getGasPlot(pf1Data, "1")
+s5p <- getGasPlot(pf5Data, "5")
+s9p <- getGasPlot(pf9Data, "9")
+s10p <- getGasPlot(pf10Data, "10")
+s13p <- getGasPlot(pf13Data, "13")
+s14p <- getGasPlot(pf14Data, "14")
+s15p <- getGasPlot(pf15Data, "15")
+s16p <- getGasPlot(pf16Data, "16")
+# final plot
+grid.arrange(s1p, s5p, s9p, s10p, s13p, s14p, s15p, s16p, nrow=3)
+```
+
+
+Request count analysis
+
+```{r}
+includedSteps = c('step1', 'step5', 'step9', 'step10', 'step13', 'step14', 'step15', 'step16')
+rreqData = subset(geoScenarioRequests, step %in% includedSteps)
+rreqData$variant = as.character(rreqData$variant)
+rreqData$variant[rreqData$variant == 'v1'] <- 'Baseline'
+rreqData$variant[rreqData$variant == 'v2'] <- 'Data migration'
+rreqData$variant[rreqData$variant == 'v3'] <- 'Operation migration'
+rreqData$step <- factor(rreqData$step, levels=c("step1","step2","step3","step4","step5","step6","step7","step8","step9","step10","step11","step12","step13","step14","step15","step16"))
+
+rreq1Data = subset(rreqData, step == 'step1')
+rreq5Data = subset(rreqData, step == 'step5')
+rreq9Data = subset(rreqData, step == 'step9')
+rreq10Data = subset(rreqData, step == 'step10')
+rreq13Data = subset(rreqData, step == 'step13')
+rreq14Data = subset(rreqData, step == 'step14')
+rreq15Data = subset(rreqData, step == 'step15')
+rreq16Data = subset(rreqData, step == 'step16')
+
+requestBreaks <- function() scale_y_continuous(breaks=c(0,1,2,3), expand = c(0.5, 0.5))
+
+r1p <- getGasPlot(rreq1Data, "1") + requestBreaks()
+r5p <- getGasPlot(rreq5Data, "5") + requestBreaks()
+r9p <- getGasPlot(rreq9Data, "9") + requestBreaks()
+r10p <- getGasPlot(rreq10Data, "10") + requestBreaks()
+r13p <- getGasPlot(rreq13Data, "13") + requestBreaks()
+r14p <- getGasPlot(rreq14Data, "14") + requestBreaks()
+r15p <- getGasPlot(rreq15Data, "15") + requestBreaks()
+r16p <- getGasPlot(rreq16Data, "16") + requestBreaks()
+# final plot
+grid.arrange(r1p, r5p, r9p, r10p, r13p, r14p, r15p, r16p, nrow=3)
+
+```
+
+
+```{r}
+# Total mean execution cost (write)
+includedSteps = c('step1', 'step5', 'step9', 'step10', 'step13', 'step14', 'step15', 'step16')
+# calculate scenario mean for write steps
+v1WriteStepsMeans = prepareData(as.data.frame.list((colMeans(v1geoScenarioGas))[includedSteps]), "Baseline")
+v1meanCost = sum(v1WriteStepsMeans$value)
+
+v2WriteStepsMeans = prepareData(as.data.frame.list((colMeans(v2geoScenarioGas))[includedSteps]), "Data migration")
+v2meanCost = sum(v2WriteStepsMeans$value)
+
+v3WriteStepsMeans = prepareData(as.data.frame.list((colMeans(v3geoScenarioGas))[includedSteps]), "Operation migration")
+v3meanCost = sum(v3WriteStepsMeans$value)
+
+meanWriteCosts = rbind(v1WriteStepsMeans, v2WriteStepsMeans, v3WriteStepsMeans)
+
+ggplot(meanWriteCosts, aes(x=step,y=value,group=variant)) +
+      geom_point(aes(color=variant, fill=variant, shape=variant, size=variant), shape=21, alpha=1) +
+      guides(size=FALSE) +
+      guides(fill=FALSE) +
+      guides(color=FALSE) +
+      guides(shape=FALSE) +
+      xlab("N") +
+      theme_bw(base_size=14) +
+      theme(
+        text = element_text(size=18),
+        axis.title.x = element_text(size=14),
+        axis.title.y = element_blank(),
+        axis.text = element_text(size=13),
+        plot.title = element_text(size=16, hjust = 0.5),
+        legend.position = "none"
+        ) +
+      scale_y_continuous(expand = c(0.3, 0.3)) +
+      scale_size_manual(values=c(6,4,2)) +
+      scale_fill_manual(values=c("#D55E00", "#0072B2", "#F0E442"));
+```
+
+
+
+
+```{r}
+# progressive ops: 2, 3, 4, 6, 7, 8, 11, 12
+aIncludedSteps = c('step2', 'step3', 'step4', 'step6', 'step7', 'step8', 'step11', 'step12')
+N = 10
+
+oData = subset(geoScenarioGas, step %in% aIncludedSteps & run == '10')
+oData$variant = as.character(oData$variant)
+oData$variant[oData$variant == 'v1'] <- 'Baseline'
+oData$variant[oData$variant == 'v2'] <- 'Data migration'
+oData$variant[oData$variant == 'v3'] <- 'Operation migration'
+
+
+oData$step <- factor(oData$step, levels=c("step1","step2","step3","step4","step5","step6","step7","step8","step9","step10","step11","step12","step13","step14","step15","step16"))
+
+# final plot
+ggplot(data = oData, aes(x=step, y=value, fill=variant)) +
+  geom_bar(stat="identity", color="black", position=position_dodge()) +
+  ylab("Gas") +
+  xlab("Step") +
+  guides(fill=guide_legend(title="Variant")) +
+  theme_bw(base_size=22) +
+  theme(
+    text = element_text(size=22),
+    plot.title = element_blank(),
+    axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)),
+    axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
+    legend.key.size = unit(2, 'lines')
+    ) +
+  scale_x_discrete(drop=TRUE) +
+  scale_y_continuous(breaks = round(seq(0, 8000000, by = 100000),2))
+
+```
+
+Data preparation for arbitrary prior enlistments analysis.
+```{r}
+
+# assistive ops: 2, 3, 4, 6, 7, 8, 11, 12
+
+asData = subset(geoScenarioGas, step %in% aIncludedSteps)
+asData$variant = as.character(asData$variant)
+asData$variant[asData$variant == 'v1'] <- 'Baseline'
+asData$variant[asData$variant == 'v2'] <- 'Data migration'
+asData$variant[asData$variant == 'v3'] <- 'Operation migration'
+asData$step <- factor(asData$step, levels=c("step1","step2","step3","step4","step5","step6","step7","step8","step9","step10","step11","step12","step13","step14","step15","step16"))
+
+as2Data = subset(asData, step == 'step2')
+as3Data = subset(asData, step == 'step3')
+as4Data = subset(asData, step == 'step4')
+as6Data = subset(asData, step == 'step6')
+as7Data = subset(asData, step == 'step7')
+as8Data = subset(asData, step == 'step8')
+as11Data = subset(asData, step == 'step11')
+as12Data = subset(asData, step == 'step12')
+
+```
+
+
+```{r}
+getAsGasPlot <- function(df, stepNr) {
+  return(
+    ggplot(df, aes(x=run,y=value,group=variant)) +
+      geom_point(aes(color=variant, fill=variant, shape=variant, size=variant), shape=21, alpha=1) +
+      geom_line(alpha=0.6) +
+      guides(size=FALSE) +
+      guides(fill=FALSE) +
+      guides(color=FALSE) +
+      guides(shape=FALSE) +
+      xlab("N") +
+      ggtitle(paste("Step ", stepNr)) +
+      theme_bw(base_size=14) +
+      theme(
+        text = element_text(size=18),
+        axis.title.x = element_text(size=14),
+        axis.title.y = element_blank(),
+        axis.text = element_text(size=13),
+        plot.title = element_text(size=16, hjust = 0.5),
+        legend.position = "none"
+        ) +
+      scale_y_continuous(expand = c(0.3, 0.3)) +
+      scale_x_discrete(drop=TRUE, breaks = round(seq(0, 31, by = 8),2)) +
+      scale_size_manual(values=c(6,4,2)) +
+      scale_fill_manual(values=c("#D55E00", "#0072B2", "#F0E442"))
+  );
+}
+
+# assistive ops: 2, 3, 4, 6, 7, 8, 11, 12
+
+a2p <- getAsGasPlot(as2Data, "2")
+a3p <- getAsGasPlot(as3Data, "3")
+a4p <- getAsGasPlot(as4Data, "4")
+a6p <- getAsGasPlot(as6Data, "6")
+a7p <- getAsGasPlot(as7Data, "7")
+a8p <- getAsGasPlot(as8Data, "8")
+a11p <- getAsGasPlot(as11Data, "11")
+a12p <- getAsGasPlot(as12Data, "12")
+# final plot
+grid.arrange(a2p, a3p, a4p, a6p, a7p, a8p, a11p, a12p, nrow=3)
+```
+
+```{r}
+# assistive ops: 2, 3, 4, 6, 7, 8, 11, 12
+readIncludedSteps = c('step2', 'step3', 'step4', 'step6', 'step7', 'step8', 'step11', 'step12')
+xData = subset(geoScenarioRequests, step %in% readIncludedSteps)
+xData$variant = as.character(xData$variant)
+xData$variant[xData$variant == 'v1'] <- 'Baseline'
+xData$variant[xData$variant == 'v2'] <- 'Data migration'
+xData$variant[xData$variant == 'v3'] <- 'Operation migration'
+xData$step <- factor(xData$step, levels=c("step1","step2","step3","step4","step5","step6","step7","step8","step9","step10","step11","step12","step13","step14","step15","step16"))
+
+x2Data = subset(xData, step == 'step2')
+x3Data = subset(xData, step == 'step3')
+x4Data = subset(xData, step == 'step4')
+x6Data = subset(xData, step == 'step6')
+x7Data = subset(xData, step == 'step7')
+x8Data = subset(xData, step == 'step8')
+x11Data = subset(xData, step == 'step11')
+x12Data = subset(xData, step == 'step12')
+
+xRequestBreaks <- function() scale_y_continuous(breaks=c(0,1,2,3), expand = c(0.5, 0.5))
+
+x2p <- getGasPlot(x2Data, "2")
+x3p <- getGasPlot(x3Data, "3")
+x4p <- getGasPlot(x4Data, "4") + scale_y_continuous(breaks=c(0,1,2,3), expand = c(0.5, 0.5))
+x6p <- getGasPlot(x6Data, "6")
+x7p <- getGasPlot(x7Data, "7") + scale_y_continuous(breaks=c(3,4,5,6), expand = c(0.5, 0.5))
+x8p <- getGasPlot(x8Data, "8") + scale_y_continuous(breaks=c(0,1,2,3), expand = c(0.5, 0.5))
+x11p <- getGasPlot(x11Data, "11")
+x12p <- getGasPlot(x12Data, "12") + scale_y_continuous(breaks=c(3,4,5,6), expand = c(0.5, 0.5))
+# final plot
+grid.arrange(x2p, x3p, x4p, x6p, x7p, x8p, x11p, x12p, nrow=3)
+```
+
+Mean calculation (read)
+
+```{r}
+# assistive ops: 2, 3, 4, 6, 7, 8, 11, 12
+readIncludedSteps = c('step2', 'step3', 'step4', 'step6', 'step7', 'step8', 'step11', 'step12')
+# calculate scenario mean for write steps
+v1ReadStepsMeans = prepareData(as.data.frame.list((colMeans(v1geoScenarioGas))[readIncludedSteps]), "Baseline")
+v1meanReadCost = sum(v1ReadStepsMeans$value)
+
+v2ReadStepsMeans = prepareData(as.data.frame.list((colMeans(v2geoScenarioGas))[readIncludedSteps]), "Data migration")
+v2meanReadCost = sum(v2ReadStepsMeans$value)
+
+v3ReadStepsMeans = prepareData(as.data.frame.list((colMeans(v3geoScenarioGas))[readIncludedSteps]), "Operation migration")
+v3meanReadCost = sum(v3ReadStepsMeans$value)
+```
+
+
