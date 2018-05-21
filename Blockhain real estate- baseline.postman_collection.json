@@ -1,0 +1,830 @@
+{
+	"info": {
+		"_postman_id": "26865800-1203-4a5c-b745-62e7709928c9",
+		"name": "Blockhain real estate: baseline",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "enlistment",
+			"description": null,
+			"item": [
+				{
+					"name": "Create enlistment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "00fd3771-2bcd-4a0c-a601-0b06563868e3",
+								"type": "text/javascript",
+								"exec": [
+									"var id = JSON.parse(responseBody).id;",
+									"pm.environment.set(\"enlistmentId\", id);",
+									"postman.setNextRequest(\"Admin get unpublished enlistments\");"
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "60499b4f-8d4a-4206-92cf-b8559719d6b3",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"landlordEmail\": \"andres9@email.ee\",\n\t\"landlordName\": \"RNGAC\",\n\t\"streetName\": \"Annea\",\n\t\"house\": 22,\n\t\"floor\": 3,\n\t\"apartment\": 628,\n\t\"zipCode\": 51019,\n\t\"propertyType\": \"PRIVATE_APARTMENT\",\n\t\"rentalType\": \"ROOM\",\n\t\"availableFrom\": \"2018-08-08\",\n\t\"availableUntil\": \"2018-10-08\",\n\t\"nrOfBedrooms\": 2,\n\t\"nrOfBathrooms\": 1,\n\t\"minPrice\": 100,\n\t\"floorSize\": 55.6,\n\t\"description\": \"nice house. no cats.\",\n\t\"furniture\": [\"DRYER\", \"OVEN\"],\n\t\"photos\": [\"https://URL1.com\", \"https://URL2.com\"],\n\t\"latitude\": 58.3817947,\n\t\"longitude\": 26.7321715\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/enlistments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"enlistments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin get unpublished enlistments",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "618379c7-d77d-4454-b34a-1fb824070021",
+								"type": "text/javascript",
+								"exec": [
+									"postman.setNextRequest(\"Approve enlistment\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8080/enlistments?admin=true",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"enlistments"
+							],
+							"query": [
+								{
+									"key": "admin",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reject enlistment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "bae56f6e-1754-4e5c-835b-74455db396af",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8080/enlistments/{{enlistmentId}}/reject",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"enlistments",
+								"{{enlistmentId}}",
+								"reject"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Approve enlistment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "51c85c9a-6b97-4755-a1d4-727b484d2e83",
+								"type": "text/javascript",
+								"exec": [
+									"var adr = responseBody;",
+									"pm.environment.set(\"enlistmentAddress\", adr);",
+									"postman.setNextRequest(\"Geosearch\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8080/enlistments/{{enlistmentId}}/approve",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"enlistments",
+								"{{enlistmentId}}",
+								"approve"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Geosearch",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ef041beb-cd72-4bd6-912b-ff683cb35083",
+								"type": "text/javascript",
+								"exec": [
+									"postman.setNextRequest(\"Find all published enlistments\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8080/enlistments?latitude=58.37947&longitude=26.7321715&distance=3000",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"enlistments"
+							],
+							"query": [
+								{
+									"key": "latitude",
+									"value": "58.37947"
+								},
+								{
+									"key": "longitude",
+									"value": "26.7321715"
+								},
+								{
+									"key": "distance",
+									"value": "3000"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find all published enlistments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8080/enlistments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"enlistments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get enlistments by bidder",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e74df74d-97e8-4091-9a95-7e2819b7a808",
+								"type": "text/javascript",
+								"exec": [
+									"postman.setNextRequest(\"Get enlistments by landlord\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"tenantName\": \"Vlad\",\n\t\"amount\": 15,\n\t\"tenantEmail\": \"vkop@ut.com\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/enlistments?bidder={{tenantEmail}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"enlistments"
+							],
+							"query": [
+								{
+									"key": "bidder",
+									"value": "{{tenantEmail}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get enlistments by landlord",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "37ea6d36-7242-46e1-89e6-37efdfe095a2",
+								"type": "text/javascript",
+								"exec": [
+									"postman.setNextRequest(\"Get enlistment\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8080/enlistments?landlord={{landlordEmail}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"enlistments"
+							],
+							"query": [
+								{
+									"key": "landlord",
+									"value": "{{landlordEmail}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get enlistment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "13167cf9-b1c4-468a-8e15-4b2fb64d31de",
+								"type": "text/javascript",
+								"exec": [
+									"postman.setNextRequest(\"Send offer\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8080/enlistments/{{enlistmentAddress}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"enlistments",
+								"{{enlistmentAddress}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "offers",
+			"description": null,
+			"item": [
+				{
+					"name": "Send offer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e8e3095d-ad94-4d26-9401-db4196c8def3",
+								"type": "text/javascript",
+								"exec": [
+									"postman.setNextRequest(\"Get offers\");",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"tenantName\": \"Vlad\",\n\t\"amount\": 60,\n\t\"tenantEmail\": \"{{tenantEmail}}\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/enlistments/{{enlistmentId}}/offers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"enlistments",
+								"{{enlistmentId}}",
+								"offers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel offer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "433557a1-2cfd-404f-a5b3-4610f81a6458",
+								"type": "text/javascript",
+								"exec": [
+									"postman.setNextRequest(\"Send offer\");",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8080/enlistments/{{enlistmentId}}/offers/{{tenantEmail}}/cancel",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"enlistments",
+								"{{enlistmentId}}",
+								"offers",
+								"{{tenantEmail}}",
+								"cancel"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get offers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "43d74abb-89df-4a6d-8497-26a9bc668866",
+								"type": "text/javascript",
+								"exec": [
+									"postman.setNextRequest(\"Get offer\");",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"tenantName\": \"Vlad\",\n\t\"amount\": 15,\n\t\"tenantEmail\": \"vkop@ut.com\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/enlistments/{{enlistmentId}}/offers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"enlistments",
+								"{{enlistmentId}}",
+								"offers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get offer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "923cf1b8-7267-4bec-8283-4c0e1d7f2eea",
+								"type": "text/javascript",
+								"exec": [
+									"postman.setNextRequest(\"Review offer\");",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"tenantName\": \"Vlad\",\n\t\"amount\": 15,\n\t\"tenantEmail\": \"vkop@ut.com\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/enlistments/{{enlistmentId}}/offers/{{tenantEmail}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"enlistments",
+								"{{enlistmentId}}",
+								"offers",
+								"{{tenantEmail}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Review offer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b352c1bd-465a-4ba1-aa1a-bdd6522e13f6",
+								"type": "text/javascript",
+								"exec": [
+									"postman.setNextRequest(\"Send agreement draft\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"approved\": true\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/enlistments/{{enlistmentId}}/offers/{{tenantEmail}}/review",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"enlistments",
+								"{{enlistmentId}}",
+								"offers",
+								"{{tenantEmail}}",
+								"review"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "agreement",
+			"description": null,
+			"item": [
+				{
+					"name": "Send agreement draft",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "cdd08998-6b0e-44e5-bc66-00541ebaf486",
+								"type": "text/javascript",
+								"exec": [
+									"postman.setNextRequest(\"Get agreement\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"tenantEmail\": \"{{tenantEmail}}\",\n\t\"landlordName\": \"Vlad Kopylash\",\n\t\"agreementTenantName\": \"Vlad Kopylash\",\n\t\"agreementTenantEmail\": \"kopylash@ut.ee\",\n\t\"leaseStart\": 144,\n\t\"handoverDate\": 186,\n\t\"leasePeriod\": 6,\n\t\"otherTerms\": \"not provided\",\n\t\"hash\": \"df654asfq65w2q3d6sa56d65f4vcbe\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/enlistments/{{enlistmentId}}/agreements",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"enlistments",
+								"{{enlistmentId}}",
+								"agreements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get agreement",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0e3145a1-76f6-435f-ae31-f09a52c9ce35",
+								"type": "text/javascript",
+								"exec": [
+									"postman.setNextRequest(\"Review agreement\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8080/enlistments/{{enlistmentId}}/agreements/{{tenantEmail}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"enlistments",
+								"{{enlistmentId}}",
+								"agreements",
+								"{{tenantEmail}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Review agreement",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ca9fbca7-275d-4162-84c6-4159f0f4e9c6",
+								"type": "text/javascript",
+								"exec": [
+									"postman.setNextRequest(\"Sign: landlord\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"confirmed\": true\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/enlistments/{{enlistmentId}}/agreements/{{tenantEmail}}/review",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"enlistments",
+								"{{enlistmentId}}",
+								"agreements",
+								"{{tenantEmail}}",
+								"review"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign: landlord",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1838cbfd-350a-4b36-a960-12e9e1c12480",
+								"type": "text/javascript",
+								"exec": [
+									"postman.setNextRequest(\"Sign: tenant\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"party\": \"landlord\",\n  \"signature\": \"Landlord0x64d\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/enlistments/{{enlistmentId}}/agreements/{{tenantEmail}}/sign",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"enlistments",
+								"{{enlistmentId}}",
+								"agreements",
+								"{{tenantEmail}}",
+								"sign"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign: tenant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "06696232-cf02-42db-8d21-9d9dfe671b9c",
+								"type": "text/javascript",
+								"exec": [
+									"postman.setNextRequest(\"Payment received\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"party\": \"tenant\",\n\t\"signature\": \"Tenant0x11e\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/enlistments/{{enlistmentId}}/agreements/{{tenantEmail}}/sign",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"enlistments",
+								"{{enlistmentId}}",
+								"agreements",
+								"{{tenantEmail}}",
+								"sign"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Payment received",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8080/enlistments/{{enlistmentId}}/agreements/{{tenantEmail}}/payments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"enlistments",
+								"{{enlistmentId}}",
+								"agreements",
+								"{{tenantEmail}}",
+								"payments"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
