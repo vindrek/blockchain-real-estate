@@ -1,6 +1,6 @@
-# Blockchain real-estate app
+# Blockchain real-estate app - data migration variant
 
-Proof of concept of a hybrid real-estate app with blockchain and Ethereum smart contracts.
+Proof of concept of a hybrid real-estate app with blockchain and Ethereum smart contracts. 
 
 ## Getting Started
 
@@ -27,7 +27,7 @@ npm install -g ganache-cli
 Clone the repo
 
 ```
-git clone https://github.com/kopylash/blockchain-real-estate-v1.git
+git clone -b enlistment-filtering-on-chain https://github.com/vindrek/blockchain-real-estate.git
 ```
 
 Install dependencies
@@ -54,7 +54,7 @@ CREATE EXTENSION POSTGIS;
 
 Database is automatically synchronized with Models definition.
 
-### Run
+### Setup
 
 Before starting the app start local ethereum blockchain with Ganache. 
 For this either open Ganache app or run:
@@ -82,10 +82,26 @@ Check [Truffle docs](http://truffleframework.com/docs/) for details.
 truffle migrate
 ```
 
-Then run server with 
+### Run
+
+Complete the setup and then run the server
 
 ```
 npm start
+```
+
+### Performance test
+
+Complete the setup and then run the performance test script. See the config for the scenario execution in /ethereum/test/performance.js
+```
+npm run test:performance
+```
+
+### Bytecode size
+
+Complete the setup and then run the bytecode size evaluator by
+```
+npm run truffle:bytecode
 ```
 
 ## License
