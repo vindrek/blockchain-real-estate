@@ -27,7 +27,7 @@ npm install -g ganache-cli
 Clone the repo
 
 ```
-git clone -b enlistment-filtering-on-chain https://github.com/vindrek/blockchain-real-estate.git
+git clone -b enlistment-registry-on-chain https://github.com/vindrek/blockchain-real-estate.git
 ```
 
 Install dependencies
