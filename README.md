@@ -90,6 +90,10 @@ Complete the setup and then run the server
 npm start
 ```
 
+### API documentation
+
+The application API documentation is published through [Postman](https://documenter.getpostman.com/view/3736511/blockhain-real-estate-migrations-both-v2-and-v3/RW8Apohc). In addition, the request collection could be downloaded to be used with Postman to conveniently test the application. The collection could be downloaded through the published API docs or using the [collection file in the repository](https://github.com/vindrek/blockchain-real-estate/blob/enlistment-filtering-on-chain/Blockhain%20real%20estate-%20migrations.postman_collection.json).
+
 ### Performance test
 
 Complete the setup and then run the performance test script. See the config for the scenario execution in /ethereum/test/performance.js
