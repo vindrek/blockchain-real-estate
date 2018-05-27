@@ -92,7 +92,7 @@ npm start
 
 ### API documentation
 
-The application API documentation is published through [Postman](https://documenter.getpostman.com/view/3736511/blockhain-real-estate-baseline/RW8Apod9). Furthermore, the corresponding request collection file [from the repository](https://github.com/vindrek/blockchain-real-estate/blob/master/Blockhain%20real%20estate-%20baseline.postman_collection.json) (also accessible from the [documentation page](https://documenter.getpostman.com/view/3736511/blockhain-real-estate-baseline/RW8Apod9)) could be imported to Postman to for convenient testing.
+The application API documentation is published through [Postman](https://documenter.getpostman.com/view/3736511/blockhain-real-estate-baseline/RW8Apod9). Furthermore, the corresponding request collection file [from the repository](https://github.com/vindrek/blockchain-real-estate/blob/master/Blockhain%20real%20estate-%20baseline.postman_collection.json) (also accessible from the [documentation page](https://documenter.getpostman.com/view/3736511/blockhain-real-estate-baseline/RW8Apod9)) could be imported to Postman for convenient testing.
 
 ### Performance test
 
